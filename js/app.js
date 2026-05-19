@@ -2053,7 +2053,7 @@ function renderRadar(lat, lon) {
 
     section.innerHTML = `
         <h2>Radar <button id="radar-refresh" class="radar-refresh-btn" title="Refresh radar">↻</button>${nwsLink}</h2>
-        <div id="radar-container" style="position:relative;width:100%;aspect-ratio:1;background:#1a1a2e;border-radius:8px;overflow:hidden;">
+        <div id="radar-container" style="position:relative;width:100%;aspect-ratio:1;background:#bbb;border-radius:8px;overflow:hidden;">
             <div class="loading" style="color:#9ca3af;">Loading radar...</div>
         </div>
             <div id="radar-progress" class="radar-progress" hidden>
