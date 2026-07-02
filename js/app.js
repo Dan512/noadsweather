@@ -3373,11 +3373,10 @@ initChartDrag();
         display: 'standalone',
         background_color: '#111827',
         theme_color: '#111827',
-        icons: [{
-            src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⛅</text></svg>',
-            sizes: 'any',
-            type: 'image/svg+xml',
-        }],
+        icons: [
+            { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+            { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+        ],
     };
     const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
     const link = document.createElement('link');
