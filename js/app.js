@@ -2732,7 +2732,11 @@ function getDayOfYear(date) {
 // --- Orchestrator ------------------------------------------------------------
 
 let _lastLat = null, _lastLon = null, _lastCountry = null, _lastRegion = null;
-let _sunriseTime = null, _sunsetTime = null;
+// Per-day [sunrise, sunset] windows for the whole fetched forecast (10 days).
+// Used for day/night icon selection. A single day's times aren't enough: the
+// hourly strip crosses midnight, and comparing tomorrow-noon against today's
+// sunset incorrectly flags it as night (moon icons at midday).
+let _dailySun = [];
 
 // Race-protection token for fetchAllWeatherData. Each new call increments this;
 // in-flight render blocks check their captured token against the latest and bail
@@ -2749,15 +2753,15 @@ let _lastAlerts = null;
 let _lastPickedLocation = null; // { lat, lon, country, region }
 
 function isNightTime(date) {
-    if (!_sunriseTime || !_sunsetTime) return false;
+    if (!_dailySun.length) return false;
     const t = date || new Date();
-    return t < _sunriseTime || t > _sunsetTime;
+    // Daytime = inside any fetched day's [sunrise, sunset] window.
+    // Daylight windows never overlap, and gaps between them are night.
+    return !_dailySun.some(d => t >= d.rise && t <= d.set);
 }
 
 function isHourNight(hourStr) {
-    if (!_sunriseTime || !_sunsetTime) return false;
-    const t = new Date(hourStr);
-    return t < _sunriseTime || t > _sunsetTime;
+    return isNightTime(new Date(hourStr));
 }
 
 async function fetchAllWeatherData(lat, lon, country, region) {
@@ -2794,8 +2798,10 @@ async function fetchAllWeatherData(lat, lon, country, region) {
         // Bail if a newer fetchAllWeatherData call has superseded us
         if (myToken !== weatherLoadToken) return null;
         _lastMeteoData = meteo;
-        _sunriseTime = new Date(meteo.daily.sunrise[0]);
-        _sunsetTime = new Date(meteo.daily.sunset[0]);
+        _dailySun = (meteo.daily.sunrise || []).map((rise, i) => ({
+            rise: new Date(rise),
+            set: new Date(meteo.daily.sunset[i]),
+        }));
         document.getElementById('weather-summary').textContent =
             generateSummary(meteo.current, meteo.hourly, meteo.daily);
         renderCurrent(meteo.current, null); // AQI added later when it arrives
