@@ -76,6 +76,16 @@ TRANSLATIONS.de = {
         refresh: 'Aktualisieren',
         updatedJustNow: 'Gerade aktualisiert',
         updatedAgo: 'Aktualisiert {time}',
+        climateHeading: 'Klima in {city}',
+        climateMonth: 'Monat',
+        climateHigh: 'Max.',
+        climateLow: 'Min.',
+        climatePrecip: 'Niederschlag',
+        climateWetDays: 'Regentage',
+        climateSummary: '{hotMonth} ist der wärmste Monat in {city} mit einer durchschnittlichen Höchsttemperatur von {hotTemp}; {coldMonth} ist der kälteste ({coldTemp}). {wetMonth} ist der niederschlagsreichste Monat (durchschnittlich {wetAmount}).',
+        climateRecords: 'Extremwerte seit {year}: Höchstwert {high} ({highDate}), Tiefstwert {low} ({lowDate}).',
+        climateDaylight: 'Die Tageslänge beträgt etwa {long} Stunden im {longMonth} und {short} Stunden im {shortMonth}.',
+        climateSource: 'Daten: Open-Meteo (ERA5-Reanalyse), Mittelwerte {period}.',
 
         // Weather codes
         wc0: 'Klarer Himmel',

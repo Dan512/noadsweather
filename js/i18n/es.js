@@ -76,6 +76,16 @@ TRANSLATIONS.es = {
         refresh: 'Actualizar',
         updatedJustNow: 'Actualizado ahora mismo',
         updatedAgo: 'Actualizado {time}',
+        climateHeading: 'Clima en {city}',
+        climateMonth: 'Mes',
+        climateHigh: 'Máx.',
+        climateLow: 'Mín.',
+        climatePrecip: 'Precip.',
+        climateWetDays: 'Días de lluvia',
+        climateSummary: '{hotMonth} es el mes más caluroso en {city}, con una máxima media de {hotTemp}; {coldMonth} es el más frío ({coldTemp}). {wetMonth} es el mes más lluvioso, con una media de {wetAmount} de precipitación.',
+        climateRecords: 'Extremos desde {year}: máxima {high} ({highDate}), mínima {low} ({lowDate}).',
+        climateDaylight: 'La luz diurna dura unas {long} horas en {longMonth} y {short} horas en {shortMonth}.',
+        climateSource: 'Datos: Open-Meteo (reanálisis ERA5), medias {period}.',
 
         // Weather codes
         wc0: 'Cielo despejado',

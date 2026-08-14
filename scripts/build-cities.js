@@ -24,6 +24,13 @@ const cities = JSON.parse(fs.readFileSync(CITIES_JSON, 'utf8'));
 const templateHtml = fs.readFileSync(TEMPLATE_HTML, 'utf8');
 const translations = loadTranslations();
 
+// Climate normals/records computed by scripts/fetch-climate.js. Optional:
+// cities without an entry simply render no climate section.
+const CLIMATE_JSON = path.join(__dirname, 'climate-data.json');
+const climateData = fs.existsSync(CLIMATE_JSON)
+    ? JSON.parse(fs.readFileSync(CLIMATE_JSON, 'utf8'))
+    : {};
+
 console.log(`Loaded ${cities.length} cities.`);
 
 // --- Generate pages ---------------------------------------------------------
@@ -205,18 +212,148 @@ function renderTemplate(page) {
         '<div id="weather-view" class="view">'
     );
 
-    // 9. Bake localized nearby-city links into the bottom-spacer nav so every
-    //    generated page cross-links its geographic neighbours. (The template's
-    //    placeholder nav — and the comment above it — is replaced wholesale.)
+    // 9. Bake the static climate section (if data exists) plus localized
+    //    nearby-city links into the bottom-spacer, so every generated page
+    //    carries unique crawlable content and cross-links its geographic
+    //    neighbours. (The template's placeholder nav — and the comment above
+    //    it — is replaced wholesale.)
     const nearbyLabel = (translations[page.lang] && translations[page.lang].nearbyCities)
         || translations.en.nearbyCities;
     const nearbyLinks = nearestCities(page.city, page.lang, 5)
         .map(n => `<a href="/cities/${n.slug}/">${escapeHtml(n.name)}</a>`)
         .join(' · ');
     html = html.replace(/<!-- Populated with per-city links[\s\S]*?<nav id="nearby-cities" hidden><\/nav>/,
+        renderClimateBlock(page) +
         `<nav id="nearby-cities" aria-label="${escapeAttr(nearbyLabel)}">${escapeHtml(nearbyLabel)}: ${nearbyLinks}</nav>`);
 
     return html;
+}
+
+// === Climate section ========================================================
+
+function cToF(c) { return c * 9 / 5 + 32; }
+function mmToIn(mm) { return mm / 25.4; }
+
+// Localized month name for index 0-11. Node ships full ICU, so Intl covers
+// all 15 UI languages.
+function monthName(lang, idx, style) {
+    return new Intl.DateTimeFormat(lang, { month: style, timeZone: 'UTC' })
+        .format(new Date(Date.UTC(2000, idx, 15)));
+}
+
+function formatDate(lang, iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Intl.DateTimeFormat(lang, {
+        year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
+    }).format(new Date(Date.UTC(y, m - 1, d)));
+}
+
+// Day length in hours at solar declination declDeg for latitude latDeg.
+// Standard sunrise-equation approximation; clamped for polar latitudes.
+function dayLengthHours(latDeg, declDeg) {
+    const rad = Math.PI / 180;
+    const cosH = -Math.tan(latDeg * rad) * Math.tan(declDeg * rad);
+    if (cosH <= -1) return 24;
+    if (cosH >= 1) return 0;
+    return (2 * (Math.acos(cosH) / rad)) / 15;
+}
+
+// Build-time equivalent of the runtime t() helper.
+function tr(lang, key, vars) {
+    let str = (translations[lang] && translations[lang][key])
+        || translations.en[key] || key;
+    for (const [k, v] of Object.entries(vars || {})) {
+        str = str.replaceAll(`{${k}}`, v);
+    }
+    return str;
+}
+
+function renderClimateBlock(page) {
+    const clim = climateData[page.city.slug];
+    if (!clim) return '';
+    const lang = page.lang;
+    const us = page.city.country === 'US';
+
+    // US pages lead with imperial, everyone else with metric; both are always
+    // shown so the static HTML serves every reader without JS.
+    const dualTemp = (c) => us
+        ? `${Math.round(cToF(c))}°F / ${Math.round(c)}°C`
+        : `${Math.round(c)}°C / ${Math.round(cToF(c))}°F`;
+    const dualPrecip = (mm) => us
+        ? `${mmToIn(mm).toFixed(1)} in / ${mm} mm`
+        : `${mm} mm / ${mmToIn(mm).toFixed(1)} in`;
+    const cellTemp = (c) => us
+        ? `${Math.round(cToF(c))} / ${Math.round(c)}`
+        : `${Math.round(c)} / ${Math.round(cToF(c))}`;
+    const cellPrecip = (mm) => us
+        ? `${mmToIn(mm).toFixed(1)} / ${mm}`
+        : `${mm} / ${mmToIn(mm).toFixed(1)}`;
+
+    const n = clim.normals;
+    let hot = 0, cold = 0, wet = 0;
+    n.forEach((m, i) => {
+        if (m.high > n[hot].high) hot = i;
+        if (m.high < n[cold].high) cold = i;
+        if (m.precip > n[wet].precip) wet = i;
+    });
+
+    const rows = n.map((m, i) =>
+        `<tr><th scope="row">${escapeHtml(monthName(lang, i, 'short'))}</th>` +
+        `<td>${cellTemp(m.high)}</td><td>${cellTemp(m.low)}</td>` +
+        `<td>${cellPrecip(m.precip)}</td><td>${m.rainDays}</td></tr>`
+    ).join('\n                            ');
+
+    const tempUnits = us ? '°F / °C' : '°C / °F';
+    const precipUnits = us ? 'in / mm' : 'mm / in';
+
+    const north = page.city.lat >= 0;
+    const DECL = 23.44; // Earth's axial tilt — declination at the solstices
+    const longHours = dayLengthHours(page.city.lat, north ? DECL : -DECL).toFixed(1);
+    const shortHours = dayLengthHours(page.city.lat, north ? -DECL : DECL).toFixed(1);
+    const longMonthIdx = north ? 5 : 11;  // June for the north, December south
+    const shortMonthIdx = north ? 11 : 5;
+
+    const cityName = page.seoCity.displayName;
+    const summary = tr(lang, 'climateSummary', {
+        city: cityName,
+        hotMonth: monthName(lang, hot, 'long'),
+        hotTemp: dualTemp(n[hot].high),
+        coldMonth: monthName(lang, cold, 'long'),
+        coldTemp: dualTemp(n[cold].high),
+        wetMonth: monthName(lang, wet, 'long'),
+        wetAmount: dualPrecip(n[wet].precip),
+    });
+    const records = tr(lang, 'climateRecords', {
+        year: String(clim.recordsSince),
+        high: dualTemp(clim.recordHigh.c),
+        highDate: formatDate(lang, clim.recordHigh.date),
+        low: dualTemp(clim.recordLow.c),
+        lowDate: formatDate(lang, clim.recordLow.date),
+    });
+    const daylight = tr(lang, 'climateDaylight', {
+        long: longHours,
+        longMonth: monthName(lang, longMonthIdx, 'long'),
+        short: shortHours,
+        shortMonth: monthName(lang, shortMonthIdx, 'long'),
+    });
+    const source = tr(lang, 'climateSource', { period: clim.normalsPeriod });
+
+    return `<div class="climate-block">
+                    <h2>${escapeHtml(tr(lang, 'climateHeading', { city: cityName }))}</h2>
+                    <p class="climate-summary">${escapeHtml(summary)}</p>
+                    <div class="climate-table-wrap">
+                        <table>
+                            <thead><tr><th>${escapeHtml(tr(lang, 'climateMonth'))}</th><th>${escapeHtml(tr(lang, 'climateHigh'))} ${tempUnits}</th><th>${escapeHtml(tr(lang, 'climateLow'))} ${tempUnits}</th><th>${escapeHtml(tr(lang, 'climatePrecip'))} ${precipUnits}</th><th>${escapeHtml(tr(lang, 'climateWetDays'))}</th></tr></thead>
+                            <tbody>
+                            ${rows}
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="climate-records">${escapeHtml(records)}</p>
+                    <p class="climate-daylight">${escapeHtml(daylight)}</p>
+                    <p class="climate-source">${escapeHtml(source)}</p>
+                </div>
+                `;
 }
 
 function buildHeadInjection(page) {
@@ -248,7 +385,10 @@ function buildHeadInjection(page) {
 }
 
 function writeSitemap(urls, variantGroups) {
-    // Simple sitemap; hreflang annotations on the variant pages
+    // Simple sitemap; hreflang annotations on the variant pages.
+    // lastmod is the build date — pages are regenerated together, and it's
+    // the one freshness field search engines actually read.
+    const lastmod = new Date().toISOString().slice(0, 10);
     const lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
@@ -264,6 +404,7 @@ function writeSitemap(urls, variantGroups) {
             lines.push(`    <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(vg.en.canonical)}"/>`);
             lines.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(vg.en.canonical)}"/>`);
         }
+        lines.push(`    <lastmod>${lastmod}</lastmod>`);
         lines.push('    <changefreq>monthly</changefreq>');
         lines.push(`    <priority>${u.priority}</priority>`);
         lines.push('  </url>');

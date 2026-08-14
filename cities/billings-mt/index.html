@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://tilecache.rainviewer.com https://a.basemaps.cartocdn.com https://b.basemaps.cartocdn.com https://c.basemaps.cartocdn.com https://d.basemaps.cartocdn.com https://noadsradar-tilesvc-15838356607.us-central1.run.app; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com https://air-quality-api.open-meteo.com https://api.weather.gov https://api.rainviewer.com https://api.zippopotam.us https://alerts-proxy-ssdjubgioq-uc.a.run.app https://pollen-proxy-15838356607.us-central1.run.app https://noadsradar-tilesvc-15838356607.us-central1.run.app; font-src 'self'; manifest-src 'self' blob:; base-uri 'self'; form-action 'self'">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>Billings MT Weather with No Ads — NoAdsWeather</title>
+    <meta name="description" content="Get the Billings MT weather forecast without ads, cookies, or tracking. Open-Meteo data, 10-day forecast, hourly conditions, and radar — all free.">
+    <link rel="canonical" href="https://noadsweather.com/cities/billings-mt/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NoAdsWeather">
+    <meta property="og:title" content="Billings MT Weather with No Ads — NoAdsWeather">
+    <meta property="og:description" content="Get the Billings MT weather forecast without ads, cookies, or tracking. Open-Meteo data, 10-day forecast, hourly conditions, and radar — all free.">
+    <meta property="og:url" content="https://noadsweather.com/cities/billings-mt/">
+    <meta property="og:image" content="https://noadsweather.com/img/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="NoAdsWeather — Weather without the clutter. No ads, no tracking, no cookies.">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#111827">
+        <link rel="alternate" hreflang="en" href="https://noadsweather.com/cities/billings-mt/">
+    <link rel="alternate" hreflang="x-default" href="https://noadsweather.com/cities/billings-mt/">
+    <script>
+        window._seoCity = {"slug":"billings-mt","lang":"en","lat":45.7833,"lon":-108.5007,"name":"Billings MT","displayName":"Billings MT","country":"US","region":"MT"};
+        document.documentElement.setAttribute('data-seo-city', 'true');
+        try { if (localStorage.getItem('hideCitySeoBlurb') === 'true') document.documentElement.setAttribute('data-blurb-dismissed', 'true'); } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        // Theme + visual-style bootstrap. Runs synchronously in <head> so
+        // data-theme / data-style are set BEFORE the stylesheet evaluates —
+        // prevents the white-to-dark flash on cold loads for dark-mode users
+        // and the default-style flash for users on Editorial/Bulletin/Quiet.
+        (function () {
+            try {
+                var theme = localStorage.getItem('theme') ||
+                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                var style = localStorage.getItem('style');
+                if (style && style !== 'default') {
+                    document.documentElement.setAttribute('data-style', style);
+                }
+            } catch (e) { /* private mode — defaults apply */ }
+        })();
+        // Auto-resume gate: if the user has the "Remember last city" setting
+        // on (default), no URL params are present, and a lastLocation is
+        // saved, mark the html element so CSS hides #home-view until app.js
+        // takes over and renders the weather view. Prevents flash-of-home.
+        (function () {
+            try {
+                var hasUrlLoc = /[?&](lat|q)=/.test(location.search) || location.hash.length > 1;
+                var remember = localStorage.getItem('rememberLastCity') !== 'false';
+                if (!hasUrlLoc && remember && localStorage.getItem('lastLocation')) {
+                    document.documentElement.setAttribute('data-auto-resume', 'true');
+                }
+            } catch (e) { /* private mode / no storage — fall through to home view */ }
+        })();
+    </script>
+</head>
+<body>
+    <!-- Home View -->
+    <div id="home-view" class="view" hidden>
+        <header class="home-header">
+            <h1>NoAdsWeather</h1>
+            <p class="tagline" data-i18n="tagline">Weather without the clutter.</p>
+        </header>
+        <main class="search-container">
+            <form id="search-form" role="search">
+                <div class="search-input-wrap">
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Enter city or zip code"
+                        data-i18n="searchPlaceholder"
+                        data-i18n-attr="placeholder"
+                        autocomplete="off"
+                        required
+                    >
+                    <button type="button" id="geolocate-btn"
+                        data-i18n="useMyLocation" data-i18n-attr="title" title="Use my location"
+                        data-i18n-aria-label="useMyLocation" aria-label="Use my location">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/>
+                        </svg>
+                    </button>
+                </div>
+                <button type="submit" data-i18n="searchButton">Search</button>
+            </form>
+            <p id="search-error" class="error" hidden></p>
+            <nav class="popular-cities" aria-label="Popular cities">
+                <span class="popular-cities-label" data-i18n="popularCities">Popular cities</span>
+                <ul>
+                    <li><a href="/cities/new-york-ny/">New York</a></li>
+                    <li><a href="/cities/los-angeles-ca/">Los Angeles</a></li>
+                    <li><a href="/cities/chicago-il/">Chicago</a></li>
+                    <li><a href="/cities/miami-fl/">Miami</a></li>
+                    <li><a href="/cities/seattle-wa/">Seattle</a></li>
+                    <li><a href="/cities/toronto/">Toronto</a></li>
+                    <li><a href="/cities/london/">London</a></li>
+                    <li><a href="/cities/paris-en/">Paris</a></li>
+                    <li><a href="/cities/berlin-en/">Berlin</a></li>
+                    <li><a href="/cities/amsterdam-en/">Amsterdam</a></li>
+                    <li><a href="/cities/tokyo-en/">Tokyo</a></li>
+                    <li><a href="/cities/sydney/">Sydney</a></li>
+                </ul>
+            </nav>
+            <div class="footer-links footer-links-home">
+                <button id="privacy-toggle-home" class="privacy-link" data-i18n="privacyCookies">Privacy</button>
+                <a href="/about/" class="privacy-link" data-i18n="about">About</a>
+                <a href="/cities/" class="privacy-link" data-i18n="cities">Cities</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Weather View (hidden initially) -->
+    <div id="weather-view" class="view">
+        <header class="weather-header">
+            <div class="weather-toolbar">
+                <button id="back-btn" data-i18n="back" data-i18n-aria-label="backToSearch" aria-label="Back to search">&larr; Back</button>
+                <div class="weather-toggles">
+                    <button id="units-toggle" class="units-toggle">°F</button>
+                    <button id="time-toggle" class="units-toggle">12H</button>
+                    <button id="lock-toggle" class="units-toggle" data-i18n="lockLayout" data-i18n-attr="title" title="Lock layout">🔓</button>
+                </div>
+            </div>
+            <h1 id="location-name">Billings MT Weather with No Ads</h1>
+            <!-- Data freshness — populated by app.js after the first
+                 successful fetch; turns amber when data is over an hour old. -->
+            <p id="data-freshness" hidden>
+                <span id="freshness-text"></span>
+                <button id="refresh-btn" type="button"
+                    data-i18n="refresh" data-i18n-attr="title" title="Refresh"
+                    data-i18n-aria-label="refresh" aria-label="Refresh">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+                        <path d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                    </svg>
+                </button>
+            </p>
+        </header>
+        <main id="weather-content">
+            <!-- SEO blurb — shown only on generated city landing pages.
+                 Populated by js/app.js when window._seoCity is set. Dismissed
+                 permanently to localStorage key 'hideCitySeoBlurb'. -->
+            <section id="seo-blurb">
+                <button id="seo-blurb-close" aria-label="Hide" type="button">&times;</button>
+                <p>
+                    <span id="seo-blurb-text">Get the Billings MT weather forecast without ads, cookies, or tracking. Open-Meteo data, 10-day forecast, hourly conditions, and radar — all free.</span>
+                    <a href="#" id="seo-blurb-hide-link">click here to hide this</a>
+                </p>
+            </section>
+            <section id="alerts-section" role="alert" aria-live="assertive" hidden></section>
+            <p id="weather-summary" aria-live="polite"></p>
+            <section id="current-section"></section>
+            <section id="details-section"></section>
+            <section id="hourly-section"></section>
+            <section id="daily-section"></section>
+            <section id="radar-section"></section>
+            <section id="sun-section"></section>
+            <section id="moon-section"></section>
+            <div class="bottom-spacer">
+                <nav id="nearby-cities" aria-label="Nearby cities">Nearby cities: <a href="/cities/cheyenne-wy/">Cheyenne WY</a> · <a href="/cities/salt-lake-city-ut/">Salt Lake City UT</a> · <a href="/cities/boise-id/">Boise ID</a> · <a href="/cities/spokane-wa/">Spokane WA</a> · <a href="/cities/calgary/">Calgary</a></nav>
+                <div class="footer-links">
+                    <button id="privacy-toggle-weather" class="privacy-link" data-i18n="privacyCookies">Privacy</button>
+                    <a href="/about/" class="privacy-link" data-i18n="about">About</a>
+                    <a href="/cities/" class="privacy-link" data-i18n="cities">Cities</a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Privacy panel (shared, hidden by default) -->
+    <div id="privacy-panel" hidden>
+        <button id="privacy-close" data-i18n="close" data-i18n-attr="aria-label" aria-label="Close">&times;</button>
+        <p id="i18n-disclaimer" data-i18n="machineTranslationNotice" hidden></p>
+        <p><strong>No cookies. No tracking. No ads.</strong></p>
+        <p>This site does not use cookies, does not track your location, and does not collect any personal information. We don't use analytics, fingerprinting, or any form of user tracking.</p>
+        <p>When you search for a city or zip code, the coordinates of that location (not your personal location) are sent to the following third-party services to retrieve weather data:</p>
+        <ul>
+            <li><strong>Open-Meteo</strong> — weather forecasts and air quality data (called directly from your browser)</li>
+            <li><strong>National Weather Service (NWS)</strong> — severe weather alerts for US locations (called directly)</li>
+            <li><strong>RainViewer</strong> &amp; <strong>CartoDB</strong> — radar imagery and map tiles (called directly)</li>
+            <li><strong>NoAdsRadar</strong> — our own future-cast radar service for the contiguous United States. Routed through Cloud Run. Receives only the tile coordinates needed for display. Our code does not log IPs or user identifiers, and Google Cloud logging exclusions are configured so the platform's default access logs are not retained.</li>
+            <li><strong>Zippopotam</strong> — postal/zip code to coordinates lookup (60+ countries, called directly)</li>
+            <li><strong>OpenWeatherMap</strong> — severe weather alerts for non-US locations. Routed through our own Cloud Run proxy (<code>alerts-proxy</code>) so the API key isn't exposed in the browser. The proxy receives only your coordinates and returns alert text. Our code does not log your IP, and Google Cloud logging exclusions are configured so the platform's default access logs are not retained.</li>
+            <li><strong>Google Pollen API</strong> — pollen data, only when you click "See pollen data". Routed through our own Cloud Run proxy (<code>pollen-proxy</code>) for the same reason, with the same no-IP-logging configuration.</li>
+            <li><strong>Google Translate</strong> — only if you click the "Translate" link next to a weather alert. The alert text and your selected UI language are sent to Google Translate via a new tab. We don't send anything to Google unless you choose to translate.</li>
+        </ul>
+        <p><strong>Location button:</strong> if you tap the location pin next to the search box, your browser asks for your permission first — the site never requests your location on its own. Your coordinates are rounded to roughly 1&nbsp;km <em>inside your browser</em> before use, are sent only to the same weather services listed above (exactly as if you had typed a city name), and never touch a server of ours. Note that your browser itself may use its vendor's location service (for example, Google's in Chrome) to work out your position. The "use my location automatically" setting only takes effect on visits where you have already granted permission.</p>
+        <p>Your preferences (dark mode, temperature units, time format, language, visual style, and section layout) are saved in your browser's local storage (not a cookie) so they persist between visits. Pollen data is also cached locally to reduce unnecessary API calls. You can clear all of this anytime by clearing your browser data.</p>
+        <p>Your phone might ask you to "Install this page", which means creating a shortcut to a website on your home screen, known as a Progressive Web App (PWA). This makes the site act like a native app, allowing it to load faster, and appear with your other apps on your home screen.</p>
+        <p>This site is open source and supported by tips from our visitors. No data is sold, shared, or monetized in any way. If you think this is awesome, please consider <a href="https://ko-fi.com/noadsdude" target="_blank" rel="noopener" style="color:var(--accent);">clicking here to support us</a>.</p>
+    </div>
+
+    <!-- Theme toggle + settings button (both floating, bottom-left) -->
+    <button id="theme-toggle" data-i18n="toggleTheme" data-i18n-attr="aria-label" aria-label="Toggle dark mode">🌙</button>
+    <button id="settings-toggle" data-i18n="settings" data-i18n-attr="title" data-i18n-aria-label="settings" title="Settings" aria-label="Settings">⚙️</button>
+
+    <!-- Settings popover (floating, hidden by default) -->
+    <div id="settings-popover" hidden>
+        <button id="language-btn" class="settings-language-btn" type="button">Language</button>
+        <label class="settings-style-row">
+            <span data-i18n="style">Style</span>
+            <select id="setting-style" class="settings-style-select">
+                <option value="default" data-i18n="styleDefault">Default</option>
+                <option value="editorial" data-i18n="styleEditorial">Editorial</option>
+                <option value="bulletin" data-i18n="styleBulletin">Bulletin</option>
+                <option value="quiet" data-i18n="styleQuiet">Quiet</option>
+            </select>
+        </label>
+        <label><input type="checkbox" id="setting-remember-city" data-setting="rememberLastCity" checked> <span data-i18n="settingRememberCity">Remember last city</span></label>
+        <label><input type="checkbox" id="setting-auto-locate" data-setting="autoLocate"> <span data-i18n="settingAutoLocate">Use my location automatically on each visit</span></label>
+        <label><input type="checkbox" id="setting-forecast-colors" data-setting="showForecastColors" checked> <span data-i18n="settingForecastColors">Show color backgrounds on 10-day forecast</span></label>
+        <label><input type="checkbox" id="setting-support-btn" data-setting="showSupportBtn" checked> <span data-i18n="settingSupportBtn">Show Annoying Support Button</span></label>
+        <label><input type="checkbox" id="setting-weather-summary" data-setting="showWeatherSummary" checked> <span data-i18n="settingWeatherSummary">Show weather summary</span></label>
+        <label><input type="checkbox" id="setting-theme-toggle" data-setting="showThemeToggle" checked> <span data-i18n="settingThemeToggle">Show Light Mode / Dark Mode button</span></label>
+        <label><input type="checkbox" id="setting-units-btn" data-setting="showUnitsBtn" checked> <span data-i18n="settingUnitsBtn">Show °C / °F button</span></label>
+        <label><input type="checkbox" id="setting-time-btn" data-setting="showTimeBtn" checked> <span data-i18n="settingTimeBtn">Show 12H / 24H button</span></label>
+        <label><input type="checkbox" id="setting-lock-btn" data-setting="showLockBtn" checked> <span data-i18n="settingLockBtn">Show Lock / Unlock button</span></label>
+        <label><input type="checkbox" id="setting-nws-link" data-setting="showNwsLink" checked> <span data-i18n="settingNwsLink">Show NWS Radar link</span></label>
+        <label><input type="checkbox" id="setting-show-section-btns" data-setting="showSectionButtons" checked> <span data-i18n="settingShowSectionButtons">Show "Show section" buttons when sections are hidden</span></label>
+        <label><input type="checkbox" id="setting-translate-link" data-setting="showTranslateLink" checked> <span data-i18n="settingTranslateLink">Show alert translation link</span></label>
+        <label><input type="checkbox" id="setting-auto-play-radar" data-setting="autoPlayRadar"> <span data-i18n="settingAutoPlayRadar">Always auto-play radar</span></label>
+        <button id="settings-revert" class="settings-revert-btn" data-i18n="restoreDefaultLayout">Restore Default Layout</button>
+    </div>
+
+    <!-- Language popover (hidden by default) -->
+    <div id="language-popover" class="language-popover" hidden>
+        <h3 data-i18n="language">Language</h3>
+        <div id="language-list" class="language-list"></div>
+    </div>
+
+    <!-- Floating donate button -->
+    <a id="donate-btn" href="https://ko-fi.com/noadsdude" target="_blank" rel="noopener" data-i18n="supportThisSite">
+        Support this site
+    </a>
+
+    <script src="/js/i18n.js"></script>
+    <script>
+        // i18n loader: English ships inside i18n.js as the permanent fallback;
+        // any other UI language is pulled in here as one extra small file.
+        // document.write keeps the load synchronous and ordered, so the
+        // translations exist before the scripts below run. Mirrors the
+        // language-resolution order app.js uses: explicit user choice first,
+        // then city-page language, then browser language.
+        (function () {
+            try {
+                if (!localStorage.getItem('language') && window._seoCity) {
+                    setLanguageOverride(window._seoCity.lang);
+                }
+            } catch (e) { /* private mode — defaults apply */ }
+            var lang = getCurrentLang();
+            if (lang !== 'en') {
+                document.write('<script src="/js/i18n/' + lang + '.js"><\/script>');
+            }
+        })();
+    </script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

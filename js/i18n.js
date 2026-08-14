@@ -88,6 +88,16 @@ const TRANSLATIONS = {
         refresh: 'Refresh',
         updatedJustNow: 'Updated just now',
         updatedAgo: 'Updated {time}',
+        climateHeading: 'Climate in {city}',
+        climateMonth: 'Month',
+        climateHigh: 'High',
+        climateLow: 'Low',
+        climatePrecip: 'Precip',
+        climateWetDays: 'Wet days',
+        climateSummary: '{hotMonth} is the hottest month in {city}, with an average high of {hotTemp}; {coldMonth} is the coldest ({coldTemp}). {wetMonth} is the wettest month, averaging {wetAmount} of precipitation.',
+        climateRecords: 'Extremes since {year}: highest {high} ({highDate}), lowest {low} ({lowDate}).',
+        climateDaylight: 'Daylight lasts about {long} hours in {longMonth} and {short} hours in {shortMonth}.',
+        climateSource: 'Data: Open-Meteo (ERA5 reanalysis), {period} averages.',
 
         // Weather codes (WMO)
         wc0: 'Clear sky',

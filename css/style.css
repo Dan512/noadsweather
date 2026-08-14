@@ -952,6 +952,61 @@ html[data-blurb-dismissed] #seo-blurb { display: none !important; }
     padding: 1rem 0 4.5rem;
 }
 
+/* Climate section — static content baked into generated city pages */
+.climate-block {
+    width: 100%;
+    background: var(--card-bg);
+    border-radius: var(--radius-card);
+    padding: 1.25rem;
+    box-shadow: var(--card-shadow);
+    text-align: left;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+.climate-block h2 {
+    font-size: 1rem;
+    margin: 0 0 0.75rem;
+    color: var(--text);
+}
+.climate-block p {
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+}
+.climate-table-wrap {
+    overflow-x: auto;
+    margin: 0 0 0.75rem;
+}
+.climate-block table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+.climate-block th,
+.climate-block td {
+    padding: 0.3rem 0.5rem;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+}
+.climate-block thead th:first-child,
+.climate-block tbody th {
+    text-align: left;
+}
+.climate-block thead th {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+.climate-block tbody tr:last-child th,
+.climate-block tbody tr:last-child td {
+    border-bottom: none;
+}
+.climate-block .climate-source {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+}
+
 /* Nearby-cities links — baked into generated city pages by build-cities.js */
 #nearby-cities {
     font-size: 0.85rem;

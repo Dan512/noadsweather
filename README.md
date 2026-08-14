@@ -49,11 +49,16 @@ Then open `http://localhost:8080`.
 
 ### Regenerating city pages
 
-There is one optional build script: `scripts/build-cities.js`. It regenerates the 77 static city pages under `cities/`, the `/cities/` index page, and `sitemap.xml`. You only need to re-run it when you edit either:
+There are two build scripts:
+
+**`scripts/build-cities.js`** regenerates the static city pages under `cities/`, the `/cities/` index page, and `sitemap.xml`. Re-run it when you edit:
 
 - `scripts/cities.json` (the city list),
-- the city-page i18n keys in `js/i18n.js` (`cityPageTitle`, `cityPageSeoBlurb`, `cityPageHideBlurb`, `nearbyCities`), or
+- `scripts/climate-data.json` (per-city climate normals, see below),
+- the city-page i18n keys in `js/i18n.js` / `js/i18n/*.js` (`cityPage*`, `nearbyCities`, `climate*`), or
 - the `<head>` metadata in `index.html` (it's the template the city pages are generated from).
+
+**`scripts/fetch-climate.js`** computes each city's climate normals (1991–2020 monthly averages) and temperature records (since 1940) from the Open-Meteo historical archive (ERA5) and writes `scripts/climate-data.json`, which is committed. Only re-run it after adding cities — it skips cities already present, paces requests to respect Open-Meteo's rate limits (a full run takes ~10 minutes), and `build-cities.js` renders whatever it finds.
 
 ```bash
 node scripts/build-cities.js
@@ -72,8 +77,8 @@ js/app.js           — All application logic (~3362 lines)
 js/i18n.js          — i18n core: helpers + English translations (the fallback)
 js/i18n/            — Per-language translation files (14), loaded on demand
 fonts/, img/        — Static assets
-scripts/            — build-cities.js + cities.json (generates city pages + sitemap.xml)
-cities/             — 77 generated city pages (committed)
+scripts/            — build-cities.js, fetch-climate.js, cities.json, climate-data.json
+cities/             — generated city pages (committed)
 alerts-proxy/       — Cloud Run proxy for NWS alerts
 pollen-proxy/       — Cloud Run proxy for Google Pollen API
 robots.txt, sitemap.xml

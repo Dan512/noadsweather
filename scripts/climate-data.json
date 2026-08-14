@@ -1,0 +1,862 @@
+{
+ "new-york-ny": {
+  "normals": [
+   {
+    "high": 3.4,
+    "low": -4.4,
+    "precip": 82,
+    "rainDays": 9
+   },
+   {
+    "high": 4.7,
+    "low": -4.2,
+    "precip": 78,
+    "rainDays": 8
+   },
+   {
+    "high": 8.9,
+    "low": -0.3,
+    "precip": 107,
+    "rainDays": 10
+   },
+   {
+    "high": 15.2,
+    "low": 5.5,
+    "precip": 92,
+    "rainDays": 11
+   },
+   {
+    "high": 20.6,
+    "low": 11.3,
+    "precip": 86,
+    "rainDays": 11
+   },
+   {
+    "high": 25.7,
+    "low": 16.8,
+    "precip": 101,
+    "rainDays": 11
+   },
+   {
+    "high": 28.7,
+    "low": 20.1,
+    "precip": 104,
+    "rainDays": 11
+   },
+   {
+    "high": 27.6,
+    "low": 19.4,
+    "precip": 104,
+    "rainDays": 11
+   },
+   {
+    "high": 23.8,
+    "low": 15.9,
+    "precip": 98,
+    "rainDays": 9
+   },
+   {
+    "high": 17.5,
+    "low": 9.7,
+    "precip": 98,
+    "rainDays": 9
+   },
+   {
+    "high": 11.4,
+    "low": 3.8,
+    "precip": 77,
+    "rainDays": 8
+   },
+   {
+    "high": 6.1,
+    "low": -1,
+    "precip": 101,
+    "rainDays": 10
+   }
+  ],
+  "recordHigh": {
+   "c": 40.4,
+   "date": "2025-06-24"
+  },
+  "recordLow": {
+   "c": -25.5,
+   "date": "1979-02-18"
+  },
+  "normalsPeriod": "1991–2020",
+  "recordsSince": 1940
+ },
+ "los-angeles-ca": {
+  "normals": [
+   {
+    "high": 18.9,
+    "low": 7.1,
+    "precip": 81,
+    "rainDays": 5
+   },
+   {
+    "high": 19.2,
+    "low": 7.5,
+    "precip": 85,
+    "rainDays": 6
+   },
+   {
+    "high": 20.8,
+    "low": 8.7,
+    "precip": 56,
+    "rainDays": 6
+   },
+   {
+    "high": 23.1,
+    "low": 10.2,
+    "precip": 20,
+    "rainDays": 3
+   },
+   {
+    "high": 25,
+    "low": 12.7,
+    "precip": 8,
+    "rainDays": 2
+   },
+   {
+    "high": 27.9,
+    "low": 15.1,
+    "precip": 2,
+    "rainDays": 0
+   },
+   {
+    "high": 31.1,
+    "low": 18,
+    "precip": 2,
+    "rainDays": 0
+   },
+   {
+    "high": 32.3,
+    "low": 18.6,
+    "precip": 0,
+    "rainDays": 0
+   },
+   {
+    "high": 31,
+    "low": 17.4,
+    "precip": 3,
+    "rainDays": 1
+   },
+   {
+    "high": 27.2,
+    "low": 14,
+    "precip": 16,
+    "rainDays": 2
+   },
+   {
+    "high": 22.9,
+    "low": 10,
+    "precip": 20,
+    "rainDays": 2
+   },
+   {
+    "high": 18.7,
+    "low": 6.8,
+    "precip": 52,
+    "rainDays": 4
+   }
+  ],
+  "recordHigh": {
+   "c": 45.7,
+   "date": "2024-09-06"
+  },
+  "recordLow": {
+   "c": -3.6,
+   "date": "1963-01-13"
+  },
+  "normalsPeriod": "1991–2020",
+  "recordsSince": 1940
+ },
+ "chicago-il": {
+  "normals": [
+   {
+    "high": -1.1,
+    "low": -7.3,
+    "precip": 58,
+    "rainDays": 9
+   },
+   {
+    "high": 0.1,
+    "low": -6.7,
+    "precip": 53,
+    "rainDays": 8
+   },
+   {
+    "high": 4.6,
+    "low": -1.9,
+    "precip": 67,
+    "rainDays": 10
+   },
+   {
+    "high": 10.7,
+    "low": 4.2,
+    "precip": 104,
+    "rainDays": 12
+   },
+   {
+    "high": 17.7,
+    "low": 10.9,
+    "precip": 108,
+    "rainDays": 12
+   },
+   {
+    "high": 23.7,
+    "low": 17.4,
+    "precip": 97,
+    "rainDays": 12
+   },
+   {
+    "high": 26.5,
+    "low": 20.5,
+    "precip": 92,
+    "rainDays": 12
+   },
+   {
+    "high": 25.6,
+    "low": 20,
+    "precip": 95,
+    "rainDays": 11
+   },
+   {
+    "high": 21.9,
+    "low": 16.1,
+    "precip": 77,
+    "rainDays": 9
+   },
+   {
+    "high": 15.1,
+    "low": 9.4,
+    "precip": 86,
+    "rainDays": 9
+   },
+   {
+    "high": 7.8,
+    "low": 2.5,
+    "precip": 68,
+    "rainDays": 9
+   },
+   {
+    "high": 1.9,
+    "low": -3.3,
+    "precip": 58,
+    "rainDays": 9
+   }
+  ],
+  "recordHigh": {
+   "c": 37.4,
+   "date": "2022-06-21"
+  },
+  "recordLow": {
+   "c": -32.5,
+   "date": "2019-01-31"
+  },
+  "normalsPeriod": "1991–2020",
+  "recordsSince": 1940
+ },
+ "dallas-tx": {
+  "normals": [
+   {
+    "high": 13.3,
+    "low": 3.8,
+    "precip": 73,
+    "rainDays": 7
+   },
+   {
+    "high": 15.7,
+    "low": 5.8,
+    "precip": 78,
+    "rainDays": 8
+   },
+   {
+    "high": 19.8,
+    "low": 9.6,
+    "precip": 101,
+    "rainDays": 9
+   },
+   {
+    "high": 24.1,
+    "low": 13.9,
+    "precip": 108,
+    "rainDays": 9
+   },
+   {
+    "high": 28,
+    "low": 18.7,
+    "precip": 132,
+    "rainDays": 11
+   },
+   {
+    "high": 32,
+    "low": 22.9,
+    "precip": 89,
+    "rainDays": 9
+   },
+   {
+    "high": 34.5,
+    "low": 25.3,
+    "precip": 44,
+    "rainDays": 6
+   },
+   {
+    "high": 34.5,
+    "low": 25.3,
+    "precip": 59,
+    "rainDays": 6
+   },
+   {
+    "high": 30.7,
+    "low": 21.5,
+    "precip": 75,
+    "rainDays": 6
+   },
+   {
+    "high": 25.3,
+    "low": 15.6,
+    "precip": 104,
+    "rainDays": 8
+   },
+   {
+    "high": 18.8,
+    "low": 9.6,
+    "precip": 90,
+    "rainDays": 7
+   },
+   {
+    "high": 14.2,
+    "low": 5.1,
+    "precip": 90,
+    "rainDays": 7
+   }
+  ],
+  "recordHigh": {
+   "c": 42.9,
+   "date": "2023-08-18"
+  },
+  "recordLow": {
+   "c": -18.9,
+   "date": "2021-02-16"
+  },
+  "normalsPeriod": "1991–2020",
+  "recordsSince": 1940
+ },
+ "austin-tx": {
+  "normals": [
+   {
+    "high": 16,
+    "low": 6,
+    "precip": 65,
+    "rainDays": 7
+   },
+   {
+    "high": 18.2,
+    "low": 7.9,
+    "precip": 70,
+    "rainDays": 8
+   },
+   {
+    "high": 21.9,
+    "low": 11.3,
+    "precip": 76,
+    "rainDays": 9
+   },
+   {
+    "high": 25.9,
+    "low": 15.1,
+    "precip": 88,
+    "rainDays": 9
+   },
+   {
+    "high": 29.3,
+    "low": 19.5,
+    "precip": 123,
+    "rainDays": 11
+   },
+   {
+    "high": 32.7,
+    "low": 23,
+    "precip": 80,
+    "rainDays": 10
+   },
+   {
+    "high": 34.6,
+    "low": 24.4,
+    "precip": 45,
+    "rainDays": 6
+   },
+   {
+    "high": 35,
+    "low": 24.8,
+    "precip": 58,
+    "rainDays": 6
+   },
+   {
+    "high": 31.4,
+    "low": 21.8,
+    "precip": 81,
+    "rainDays": 8
+   },
+   {
+    "high": 26.8,
+    "low": 16.7,
+    "precip": 88,
+    "rainDays": 8
+   },
+   {
+    "high": 20.7,
+    "low": 11,
+    "precip": 76,
+    "rainDays": 7
+   },
+   {
+    "high": 16.6,
+    "low": 7,
+    "precip": 74,
+    "rainDays": 8
+   }
+  ],
+  "recordHigh": {
+   "c": 42.4,
+   "date": "2011-08-28"
+  },
+  "recordLow": {
+   "c": -17.3,
+   "date": "1949-01-31"
+  },
+  "normalsPeriod": "1991–2020",
+  "recordsSince": 1940
+ },
+ "seattle-wa": {
+  "normals": [
+   {
+    "high": 7.2,
+    "low": 1.8,
+    "precip": 174,
+    "rainDays": 18
+   },
+   {
+    "high": 8.7,
+    "low": 1.6,
+    "precip": 118,
+    "rainDays": 14
+   },
+   {
+    "high": 10.8,
+    "low": 3.1,
+    "precip": 136,
+    "rainDays": 17
+   },
+   {
+    "high": 13.4,
+    "low": 5,
+    "precip": 110,
+    "rainDays": 15
+   },
+   {
+    "high": 17.1,
+    "low": 8.3,
+    "precip": 76,
+    "rainDays": 12
+   },
+   {
+    "high": 19.8,
+    "low": 11.1,
+    "precip": 59,
+    "rainDays": 10
+   },
+   {
+    "high": 23.7,
+    "low": 13.7,
+    "precip": 25,
+    "rainDays": 5
+   },
+   {
+    "high": 23.9,
+    "low": 14,
+    "precip": 34,
+    "rainDays": 5
+   },
+   {
+    "high": 20.5,
+    "low": 11.5,
+    "precip": 64,
+    "rainDays": 9
+   },
+   {
+    "high": 14.6,
+    "low": 7.7,
+    "precip": 129,
+    "rainDays": 14
+   },
+   {
+    "high": 9.7,
+    "low": 4.1,
+    "precip": 194,
+    "rainDays": 18
+   },
+   {
+    "high": 6.7,
+    "low": 1.7,
+    "precip": 176,
+    "rainDays": 18
+   }
+  ],
+  "recordHigh": {
+   "c": 37.9,
+   "date": "2021-06-28"
+  },
+  "recordLow": {
+   "c": -20.5,
+   "date": "1989-02-04"
+  },
+  "normalsPeriod": "1991–2020",
+  "recordsSince": 1940
+ },
+ "miami-fl": {
+  "normals": [
+   {
+    "high": 23.2,
+    "low": 18,
+    "precip": 52,
+    "rainDays": 8
+   },
+   {
+    "high": 24,
+    "low": 18.8,
+    "precip": 41,
+    "rainDays": 7
+   },
+   {
+    "high": 25.1,
+    "low": 19.7,
+    "precip": 49,
+    "rainDays": 7
+   },
+   {
+    "high": 26.8,
+    "low": 21.6,
+    "precip": 56,
+    "rainDays": 8
+   },
+   {
+    "high": 28.2,
+    "low": 23.4,
+    "precip": 99,
+    "rainDays": 12
+   },
+   {
+    "high": 29.2,
+    "low": 25.2,
+    "precip": 158,
+    "rainDays": 20
+   },
+   {
+    "high": 30.1,
+    "low": 25.9,
+    "precip": 112,
+    "rainDays": 20
+   },
+   {
+    "high": 30.1,
+    "low": 26,
+    "precip": 142,
+    "rainDays": 22
+   },
+   {
+    "high": 29.3,
+    "low": 25.5,
+    "precip": 158,
+    "rainDays": 22
+   },
+   {
+    "high": 27.9,
+    "low": 24,
+    "precip": 118,
+    "rainDays": 15
+   },
+   {
+    "high": 25.8,
+    "low": 21.5,
+    "precip": 56,
+    "rainDays": 9
+   },
+   {
+    "high": 24.2,
+    "low": 19.6,
+    "precip": 41,
+    "rainDays": 8
+   }
+  ],
+  "recordHigh": {
+   "c": 36.2,
+   "date": "2024-05-16"
+  },
+  "recordLow": {
+   "c": 2.2,
+   "date": "1989-12-24"
+  },
+  "normalsPeriod": "1991–2020",
+  "recordsSince": 1940
+ },
+ "boston-ma": {
+  "normals": [
+   {
+    "high": 1.7,
+    "low": -6.8,
+    "precip": 93,
+    "rainDays": 10
+   },
+   {
+    "high": 3.1,
+    "low": -6,
+    "precip": 83,
+    "rainDays": 9
+   },
+   {
+    "high": 7,
+    "low": -2.2,
+    "precip": 117,
+    "rainDays": 11
+   },
+   {
+    "high": 13.4,
+    "low": 3.8,
+    "precip": 101,
+    "rainDays": 11
+   },
+   {
+    "high": 19,
+    "low": 9.6,
+    "precip": 80,
+    "rainDays": 11
+   },
+   {
+    "high": 24.4,
+    "low": 15.1,
+    "precip": 88,
+    "rainDays": 10
+   },
+   {
+    "high": 27.8,
+    "low": 18.7,
+    "precip": 74,
+    "rainDays": 10
+   },
+   {
+    "high": 26.9,
+    "low": 18.1,
+    "precip": 85,
+    "rainDays": 9
+   },
+   {
+    "high": 22.7,
+    "low": 14.4,
+    "precip": 90,
+    "rainDays": 8
+   },
+   {
+    "high": 16.2,
+    "low": 8.3,
+    "precip": 108,
+    "rainDays": 10
+   },
+   {
+    "high": 10.1,
+    "low": 2.6,
+    "precip": 95,
+    "rainDays": 10
+   },
+   {
+    "high": 4.7,
+    "low": -2.8,
+    "precip": 115,
+    "rainDays": 11
+   }
+  ],
+  "recordHigh": {
+   "c": 40.3,
+   "date": "2011-07-22"
+  },
+  "recordLow": {
+   "c": -27.4,
+   "date": "1967-02-13"
+  },
+  "normalsPeriod": "1991–2020",
+  "recordsSince": 1940
+ },
+ "denver-co": {
+  "normals": [
+   {
+    "high": 5.1,
+    "low": -9,
+    "precip": 22,
+    "rainDays": 5
+   },
+   {
+    "high": 6.3,
+    "low": -8.4,
+    "precip": 22,
+    "rainDays": 6
+   },
+   {
+    "high": 11.2,
+    "low": -4.4,
+    "precip": 47,
+    "rainDays": 8
+   },
+   {
+    "high": 14.8,
+    "low": -0.2,
+    "precip": 69,
+    "rainDays": 10
+   },
+   {
+    "high": 20.1,
+    "low": 5.6,
+    "precip": 79,
+    "rainDays": 11
+   },
+   {
+    "high": 26.6,
+    "low": 11.3,
+    "precip": 50,
+    "rainDays": 8
+   },
+   {
+    "high": 29.8,
+    "low": 15,
+    "precip": 40,
+    "rainDays": 7
+   },
+   {
+    "high": 28.6,
+    "low": 14.2,
+    "precip": 39,
+    "rainDays": 7
+   },
+   {
+    "high": 24.7,
+    "low": 9.9,
+    "precip": 35,
+    "rainDays": 6
+   },
+   {
+    "high": 17.3,
+    "low": 2.8,
+    "precip": 39,
+    "rainDays": 6
+   },
+   {
+    "high": 10,
+    "low": -4.4,
+    "precip": 30,
+    "rainDays": 6
+   },
+   {
+    "high": 4.7,
+    "low": -9.2,
+    "precip": 20,
+    "rainDays": 5
+   }
+  ],
+  "recordHigh": {
+   "c": 38.7,
+   "date": "2025-06-21"
+  },
+  "recordLow": {
+   "c": -43.1,
+   "date": "1963-01-12"
+  },
+  "normalsPeriod": "1991–2020",
+  "recordsSince": 1940
+ },
+ "toronto": {
+  "normals": [
+   {
+    "high": -0.8,
+    "low": -7.5,
+    "precip": 61,
+    "rainDays": 10
+   },
+   {
+    "high": -0.4,
+    "low": -8.1,
+    "precip": 50,
+    "rainDays": 8
+   },
+   {
+    "high": 3.8,
+    "low": -4,
+    "precip": 57,
+    "rainDays": 10
+   },
+   {
+    "high": 9.9,
+    "low": 2.1,
+    "precip": 79,
+    "rainDays": 11
+   },
+   {
+    "high": 16.3,
+    "low": 8.4,
+    "precip": 72,
+    "rainDays": 10
+   },
+   {
+    "high": 22,
+    "low": 14.6,
+    "precip": 78,
+    "rainDays": 11
+   },
+   {
+    "high": 25.5,
+    "low": 18.1,
+    "precip": 72,
+    "rainDays": 10
+   },
+   {
+    "high": 25,
+    "low": 18,
+    "precip": 64,
+    "rainDays": 9
+   },
+   {
+    "high": 21.3,
+    "low": 14.6,
+    "precip": 69,
+    "rainDays": 9
+   },
+   {
+    "high": 14.4,
+    "low": 8.4,
+    "precip": 76,
+    "rainDays": 10
+   },
+   {
+    "high": 7.6,
+    "low": 2.2,
+    "precip": 67,
+    "rainDays": 10
+   },
+   {
+    "high": 2.3,
+    "low": -3,
+    "precip": 61,
+    "rainDays": 10
+   }
+  ],
+  "recordHigh": {
+   "c": 37.3,
+   "date": "1948-08-25"
+  },
+  "recordLow": {
+   "c": -27.2,
+   "date": "1981-01-04"
+  },
+  "normalsPeriod": "1991–2020",
+  "recordsSince": 1940
+ }
+}

@@ -76,6 +76,16 @@ TRANSLATIONS.pl = {
         refresh: 'Odśwież',
         updatedJustNow: 'Zaktualizowano przed chwilą',
         updatedAgo: 'Zaktualizowano {time}',
+        climateHeading: 'Klimat – {city}',
+        climateMonth: 'Miesiąc',
+        climateHigh: 'Maks.',
+        climateLow: 'Min.',
+        climatePrecip: 'Opady',
+        climateWetDays: 'Dni z opadami',
+        climateSummary: '{hotMonth} to najcieplejszy miesiąc ({city}), ze średnią maksymalną {hotTemp}; {coldMonth} jest najzimniejszy ({coldTemp}). {wetMonth} to najbardziej deszczowy miesiąc (średnio {wetAmount} opadów).',
+        climateRecords: 'Wartości ekstremalne od {year}: najwyższa {high} ({highDate}), najniższa {low} ({lowDate}).',
+        climateDaylight: 'Dzień trwa ok. {long} godz. ({longMonth}) oraz {short} godz. ({shortMonth}).',
+        climateSource: 'Dane: Open-Meteo (reanaliza ERA5), średnie {period}.',
 
         // Weather codes
         wc0: 'Bezchmurnie',

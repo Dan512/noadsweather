@@ -76,6 +76,16 @@ TRANSLATIONS.nl = {
         refresh: 'Vernieuwen',
         updatedJustNow: 'Zojuist bijgewerkt',
         updatedAgo: 'Bijgewerkt {time}',
+        climateHeading: 'Klimaat in {city}',
+        climateMonth: 'Maand',
+        climateHigh: 'Max.',
+        climateLow: 'Min.',
+        climatePrecip: 'Neerslag',
+        climateWetDays: 'Natte dagen',
+        climateSummary: '{hotMonth} is de warmste maand in {city}, met een gemiddeld maximum van {hotTemp}; {coldMonth} is de koudste ({coldTemp}). {wetMonth} is de natste maand, met gemiddeld {wetAmount} neerslag.',
+        climateRecords: 'Extremen sinds {year}: hoogste {high} ({highDate}), laagste {low} ({lowDate}).',
+        climateDaylight: 'Daglicht duurt ongeveer {long} uur in {longMonth} en {short} uur in {shortMonth}.',
+        climateSource: 'Gegevens: Open-Meteo (ERA5-heranalyse), gemiddelden {period}.',
 
         // Weather codes
         wc0: 'Heldere hemel',

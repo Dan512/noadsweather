@@ -76,6 +76,16 @@ TRANSLATIONS.ko = {
         refresh: '새로고침',
         updatedJustNow: '방금 업데이트됨',
         updatedAgo: '{time} 업데이트됨',
+        climateHeading: '{city} 기후',
+        climateMonth: '월',
+        climateHigh: '최고',
+        climateLow: '최저',
+        climatePrecip: '강수량',
+        climateWetDays: '강수일',
+        climateSummary: '{city}에서 가장 더운 달은 {hotMonth}(평균 최고 {hotTemp})이고, 가장 추운 달은 {coldMonth}({coldTemp})입니다. 강수량이 가장 많은 달은 {wetMonth}(평균 {wetAmount})입니다.',
+        climateRecords: '{year}년 이후 극값: 최고 {high}({highDate}), 최저 {low}({lowDate}).',
+        climateDaylight: '낮의 길이는 {shortMonth} 약 {short}시간에서 {longMonth} 약 {long}시간까지 변합니다.',
+        climateSource: '데이터: Open-Meteo(ERA5 재분석), {period} 평균.',
 
         // Weather codes
         wc0: '맑음',

@@ -76,6 +76,16 @@ TRANSLATIONS.ar = {
         refresh: 'تحديث',
         updatedJustNow: 'تم التحديث للتو',
         updatedAgo: 'تم التحديث {time}',
+        climateHeading: 'المناخ في {city}',
+        climateMonth: 'الشهر',
+        climateHigh: 'العظمى',
+        climateLow: 'الصغرى',
+        climatePrecip: 'الهطول',
+        climateWetDays: 'أيام المطر',
+        climateSummary: '{hotMonth} هو أحر شهر في {city} بمتوسط عظمى {hotTemp}؛ و{coldMonth} هو الأبرد ({coldTemp}). {wetMonth} هو الشهر الأكثر مطرًا بمتوسط {wetAmount}.',
+        climateRecords: 'القيم القصوى منذ {year}: أعلى {high} ({highDate})، وأدنى {low} ({lowDate}).',
+        climateDaylight: 'يتراوح ضوء النهار من نحو {short} ساعات في {shortMonth} إلى نحو {long} ساعة في {longMonth}.',
+        climateSource: 'البيانات: Open-Meteo (إعادة تحليل ERA5)، متوسطات {period}.',
 
         // Weather codes
         wc0: 'سماء صافية',

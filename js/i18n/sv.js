@@ -76,6 +76,16 @@ TRANSLATIONS.sv = {
         refresh: 'Uppdatera',
         updatedJustNow: 'Uppdaterades nyss',
         updatedAgo: 'Uppdaterades {time}',
+        climateHeading: 'Klimat i {city}',
+        climateMonth: 'Månad',
+        climateHigh: 'Max',
+        climateLow: 'Min',
+        climatePrecip: 'Nederbörd',
+        climateWetDays: 'Våta dagar',
+        climateSummary: '{hotMonth} är den varmaste månaden i {city}, med en genomsnittlig maxtemperatur på {hotTemp}; {coldMonth} är den kallaste ({coldTemp}). {wetMonth} är den blötaste månaden, med i genomsnitt {wetAmount} nederbörd.',
+        climateRecords: 'Extremvärden sedan {year}: högsta {high} ({highDate}), lägsta {low} ({lowDate}).',
+        climateDaylight: 'Dagsljuset varar cirka {long} timmar i {longMonth} och {short} timmar i {shortMonth}.',
+        climateSource: 'Data: Open-Meteo (ERA5-återanalys), medelvärden {period}.',
 
         // Weather codes
         wc0: 'Klar himmel',

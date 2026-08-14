@@ -76,6 +76,16 @@ TRANSLATIONS.zh = {
         refresh: '刷新',
         updatedJustNow: '刚刚更新',
         updatedAgo: '{time}更新',
+        climateHeading: '{city}气候',
+        climateMonth: '月份',
+        climateHigh: '最高',
+        climateLow: '最低',
+        climatePrecip: '降水',
+        climateWetDays: '雨日',
+        climateSummary: '{city}最热的月份是{hotMonth}（平均最高{hotTemp}），最冷的是{coldMonth}（{coldTemp}）。{wetMonth}降水最多（平均{wetAmount}）。',
+        climateRecords: '自{year}年以来的极值：最高{high}（{highDate}），最低{low}（{lowDate}）。',
+        climateDaylight: '白昼时长从{shortMonth}的约{short}小时到{longMonth}的约{long}小时。',
+        climateSource: '数据：Open-Meteo（ERA5再分析），{period}年平均值。',
 
         // Weather codes
         wc0: '晴',
