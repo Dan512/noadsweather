@@ -864,11 +864,62 @@ html[data-blurb-dismissed] #seo-blurb { display: none !important; }
 
 /* In-flow spacer (weather page) */
 .bottom-spacer {
-    height: 4rem;
+    min-height: 4rem;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 0;
 }
+
+/* Nearby-cities links — baked into generated city pages by build-cities.js */
+#nearby-cities {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 0 1rem;
+}
+#nearby-cities a {
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+#nearby-cities a:hover { color: var(--text); }
+
+/* Popular-cities links on the home view */
+.popular-cities {
+    margin-top: 2.75rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+.popular-cities-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.popular-cities ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3rem 0;
+}
+.popular-cities li { display: flex; align-items: center; }
+.popular-cities li + li::before {
+    content: '·';
+    margin: 0 0.55rem;
+}
+.popular-cities a {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+.popular-cities a:hover { color: var(--accent); }
 
 /* Privacy panel (popup) */
 #privacy-panel {

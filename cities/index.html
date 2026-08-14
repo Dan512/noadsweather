@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://tilecache.rainviewer.com https://a.basemaps.cartocdn.com https://b.basemaps.cartocdn.com https://c.basemaps.cartocdn.com https://d.basemaps.cartocdn.com https://noadsradar-tilesvc-15838356607.us-central1.run.app; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com https://air-quality-api.open-meteo.com https://api.weather.gov https://api.rainviewer.com https://api.zippopotam.us https://alerts-proxy-ssdjubgioq-uc.a.run.app https://pollen-proxy-15838356607.us-central1.run.app https://noadsradar-tilesvc-15838356607.us-central1.run.app; font-src 'self'; manifest-src 'self' blob:; base-uri 'self'; form-action 'self'">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>Weather by City — NoAdsWeather</title>
+    <meta name="description" content="Ad-free weather forecasts for cities around the world. Current conditions, hourly and 10-day forecasts, and radar — no ads, no tracking, no cookies.">
+    <link rel="canonical" href="https://noadsweather.com/cities/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NoAdsWeather">
+    <meta property="og:title" content="Weather by City — NoAdsWeather">
+    <meta property="og:description" content="Ad-free weather forecasts for cities around the world. Current conditions, hourly and 10-day forecasts, and radar — no ads, no tracking, no cookies.">
+    <meta property="og:url" content="https://noadsweather.com/cities/">
+    <meta property="og:image" content="https://noadsweather.com/img/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="NoAdsWeather — Weather without the clutter. No ads, no tracking, no cookies.">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#111827">
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        // Theme + visual-style bootstrap. Runs synchronously in <head> so
+        // data-theme / data-style are set BEFORE first paint — prevents the
+        // white-to-dark flash on cold loads for dark-mode users.
+        (function () {
+            try {
+                var theme = localStorage.getItem('theme') ||
+                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                var style = localStorage.getItem('style');
+                if (style && style !== 'default') {
+                    document.documentElement.setAttribute('data-style', style);
+                }
+            } catch (e) { /* private mode — defaults apply */ }
+        })();
+    </script>
+    <style>
+        .cities-page {
+            max-width: 720px;
+            margin: 2rem auto;
+            padding: 0 1rem 3rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+        .cities-page h1 {
+            font-size: 1.85rem;
+            margin: 0 0 0.5rem;
+            color: var(--accent);
+        }
+        .cities-page .tagline {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin: 0 0 2rem;
+        }
+        .cities-page h2 {
+            font-size: 1.25rem;
+            margin: 2rem 0 0.75rem;
+            color: var(--text);
+        }
+        .cities-page a { color: var(--accent); }
+        .nav-row {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .nav-row a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+        .nav-row a:hover { color: var(--text); }
+        .nav-row .sep {
+            margin: 0 0.5rem;
+            color: var(--text-muted);
+        }
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem 1rem;
+            margin: 0.5rem 0 1.5rem;
+            padding: 0;
+            list-style: none;
+        }
+        .cities-grid li { margin: 0; }
+        .cities-grid a {
+            display: inline-block;
+            padding: 0.15rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="cities-page">
+        <p class="nav-row">
+            <a href="/" data-i18n="back">&larr; Back to NoAdsWeather</a>
+            <span class="sep">·</span>
+            <a href="/about/" data-i18n="about">About</a>
+            <span class="sep">·</span>
+            <a href="/privacy.html" data-i18n="privacyCookies">Privacy</a>
+        </p>
+
+        <h1>Weather by City</h1>
+        <p class="tagline">Ad-free forecasts for cities around the world — no tracking, no cookies, no clutter. Don't see your city? <a href="/">Search for it</a>.</p>
+
+        <h2>United States</h2>
+        <ul class="cities-grid">
+            <li><a href="/cities/austin-tx/">Austin TX</a></li>
+            <li><a href="/cities/boston-ma/">Boston MA</a></li>
+            <li><a href="/cities/chicago-il/">Chicago IL</a></li>
+            <li><a href="/cities/dallas-tx/">Dallas TX</a></li>
+            <li><a href="/cities/denver-co/">Denver CO</a></li>
+            <li><a href="/cities/houston-tx/">Houston TX</a></li>
+            <li><a href="/cities/los-angeles-ca/">Los Angeles CA</a></li>
+            <li><a href="/cities/miami-fl/">Miami FL</a></li>
+            <li><a href="/cities/new-york-ny/">New York NY</a></li>
+            <li><a href="/cities/philadelphia-pa/">Philadelphia PA</a></li>
+            <li><a href="/cities/phoenix-az/">Phoenix AZ</a></li>
+            <li><a href="/cities/san-antonio-tx/">San Antonio TX</a></li>
+            <li><a href="/cities/san-diego-ca/">San Diego CA</a></li>
+            <li><a href="/cities/seattle-wa/">Seattle WA</a></li>
+        </ul>
+
+        <h2>International</h2>
+        <ul class="cities-grid">
+            <li><a href="/cities/amsterdam-en/">Amsterdam</a></li>
+            <li><a href="/cities/auckland/">Auckland</a></li>
+            <li><a href="/cities/barcelona-en/">Barcelona</a></li>
+            <li><a href="/cities/beijing-en/">Beijing</a></li>
+            <li><a href="/cities/berlin-en/">Berlin</a></li>
+            <li><a href="/cities/bogota-en/">Bogotá</a></li>
+            <li><a href="/cities/buenos-aires-en/">Buenos Aires</a></li>
+            <li><a href="/cities/cape-town/">Cape Town</a></li>
+            <li><a href="/cities/delhi-en/">Delhi</a></li>
+            <li><a href="/cities/dubai-en/">Dubai</a></li>
+            <li><a href="/cities/dublin/">Dublin</a></li>
+            <li><a href="/cities/hong-kong/">Hong Kong</a></li>
+            <li><a href="/cities/lima-en/">Lima</a></li>
+            <li><a href="/cities/lisbon-en/">Lisbon</a></li>
+            <li><a href="/cities/london/">London</a></li>
+            <li><a href="/cities/madrid-en/">Madrid</a></li>
+            <li><a href="/cities/melbourne/">Melbourne</a></li>
+            <li><a href="/cities/mexico-city-en/">Mexico City</a></li>
+            <li><a href="/cities/milan-en/">Milan</a></li>
+            <li><a href="/cities/moscow-en/">Moscow</a></li>
+            <li><a href="/cities/mumbai-en/">Mumbai</a></li>
+            <li><a href="/cities/munich-en/">Munich</a></li>
+            <li><a href="/cities/osaka-en/">Osaka</a></li>
+            <li><a href="/cities/paris-en/">Paris</a></li>
+            <li><a href="/cities/rio-de-janeiro-en/">Rio de Janeiro</a></li>
+            <li><a href="/cities/rome-en/">Rome</a></li>
+            <li><a href="/cities/sao-paulo-en/">São Paulo</a></li>
+            <li><a href="/cities/seoul-en/">Seoul</a></li>
+            <li><a href="/cities/shanghai-en/">Shanghai</a></li>
+            <li><a href="/cities/singapore/">Singapore</a></li>
+            <li><a href="/cities/stockholm-en/">Stockholm</a></li>
+            <li><a href="/cities/sydney/">Sydney</a></li>
+            <li><a href="/cities/tokyo-en/">Tokyo</a></li>
+            <li><a href="/cities/toronto/">Toronto</a></li>
+            <li><a href="/cities/vienna-en/">Vienna</a></li>
+            <li><a href="/cities/warsaw-en/">Warsaw</a></li>
+        </ul>
+    </div>
+    <script src="/js/i18n.js"></script>
+    <script>
+        // i18n loader: pull in the one non-English translation file the
+        // visitor needs (English lives in i18n.js as the fallback).
+        (function () {
+            var lang = getCurrentLang();
+            if (lang !== 'en') {
+                document.write('<script src="/js/i18n/' + lang + '.js"><\/script>');
+            }
+        })();
+    </script>
+    <script>
+        // Translate any elements with data-i18n (just the nav row links)
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.dataset.i18n;
+            const attr = el.dataset.i18nAttr;
+            const text = t(key);
+            if (attr) el.setAttribute(attr, text);
+            else el.textContent = text;
+        });
+        document.documentElement.lang = getCurrentLang();
+        document.documentElement.dir = getCurrentLang() === 'ar' ? 'rtl' : 'ltr';
+    </script>
+</body>
+</html>

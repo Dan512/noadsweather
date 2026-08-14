@@ -8,6 +8,16 @@
     <title>About NoAdsWeather — Weather forecasts without ads, cookies, or tracking</title>
     <meta name="description" content="NoAdsWeather is a free, open-source weather site with no ads, no tracking, no cookies, and no analytics. Just fast, clean weather forecasts powered by Open-Meteo and the National Weather Service.">
     <link rel="canonical" href="https://noadsweather.com/about/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NoAdsWeather">
+    <meta property="og:title" content="About NoAdsWeather — Weather forecasts without ads, cookies, or tracking">
+    <meta property="og:description" content="NoAdsWeather is a free, open-source weather site with no ads, no tracking, no cookies, and no analytics. Just fast, clean weather forecasts.">
+    <meta property="og:url" content="https://noadsweather.com/about/">
+    <meta property="og:image" content="https://noadsweather.com/img/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="NoAdsWeather — Weather without the clutter. No ads, no tracking, no cookies.">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
@@ -155,6 +165,16 @@
         } catch (e) { /* private mode — fall through */ }
     </script>
     <script src="/js/i18n.js"></script>
+    <script>
+        // i18n loader: pull in the one non-English translation file the
+        // visitor needs (English lives in i18n.js as the fallback).
+        (function () {
+            var lang = getCurrentLang();
+            if (lang !== 'en') {
+                document.write('<script src="/js/i18n/' + lang + '.js"><\/script>');
+            }
+        })();
+    </script>
     <script>
         // Translate any elements with data-i18n (just the nav row links)
         document.querySelectorAll('[data-i18n]').forEach(el => {

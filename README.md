@@ -49,10 +49,11 @@ Then open `http://localhost:8080`.
 
 ### Regenerating city pages
 
-There is one optional build script: `scripts/build-cities.js`. It regenerates the 77 static city pages under `cities/` plus `sitemap.xml`. You only need to re-run it when you edit either:
+There is one optional build script: `scripts/build-cities.js`. It regenerates the 77 static city pages under `cities/`, the `/cities/` index page, and `sitemap.xml`. You only need to re-run it when you edit either:
 
-- `scripts/cities.json` (the city list), or
-- the city-page i18n keys in `js/i18n.js` (`cityPageTitle`, `cityPageSeoBlurb`, `cityPageHideBlurb`).
+- `scripts/cities.json` (the city list),
+- the city-page i18n keys in `js/i18n.js` (`cityPageTitle`, `cityPageSeoBlurb`, `cityPageHideBlurb`, `nearbyCities`), or
+- the `<head>` metadata in `index.html` (it's the template the city pages are generated from).
 
 ```bash
 node scripts/build-cities.js
@@ -68,7 +69,8 @@ privacy.html        — Standalone privacy page
 about/              — Standalone about page
 css/style.css       — All styles with CSS custom properties for theming
 js/app.js           — All application logic (~3362 lines)
-js/i18n.js          — TRANSLATIONS object (15 languages)
+js/i18n.js          — i18n core: helpers + English translations (the fallback)
+js/i18n/            — Per-language translation files (14), loaded on demand
 fonts/, img/        — Static assets
 scripts/            — build-cities.js + cities.json (generates city pages + sitemap.xml)
 cities/             — 77 generated city pages (committed)

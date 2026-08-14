@@ -30,8 +30,9 @@ console.log(`Loaded ${cities.length} cities.`);
 
 let pagesWritten = 0;
 const allPageUrls = [
-    { url: SITE_URL + '/',       priority: '1.0' },
-    { url: SITE_URL + '/about/', priority: '0.9' },
+    { url: SITE_URL + '/',        priority: '1.0' },
+    { url: SITE_URL + '/about/',  priority: '0.9' },
+    { url: SITE_URL + '/cities/', priority: '0.8' },
 ];
 const variantGroups = []; // for hreflang sitemap entries
 
@@ -52,6 +53,9 @@ for (const city of cities) {
 
 console.log(`Wrote ${pagesWritten} pages.`);
 
+writeCitiesIndex();
+console.log('Wrote cities/index.html');
+
 // --- Generate sitemap -------------------------------------------------------
 
 writeSitemap(allPageUrls, variantGroups);
@@ -60,12 +64,19 @@ console.log('Wrote sitemap.xml');
 // === Helpers ================================================================
 
 function loadTranslations() {
-    // i18n.js defines `const TRANSLATIONS = { en: {...}, es: {...}, ... }`
-    // We evaluate it in a sandbox-ish way by reading the file and `Function`-ing it.
+    // i18n.js declares `const TRANSLATIONS = { en: {...} }` plus helpers; the
+    // other 14 languages each live in js/i18n/{lang}.js and register
+    // themselves as `TRANSLATIONS.<lang> = {...}`. Evaluate core + all
+    // language files together in a Function wrapper (rather than
+    // vm.runInThisContext) to avoid side effects.
     const src = fs.readFileSync(I18N_JS, 'utf8');
-    // Extract just the TRANSLATIONS object literal. We use a Function wrapper
-    // rather than vm.runInThisContext to avoid side effects.
-    const fn = new Function(src + '; return TRANSLATIONS;');
+    const langDir = path.join(ROOT, 'js', 'i18n');
+    const langSrc = fs.readdirSync(langDir)
+        .filter(f => f.endsWith('.js'))
+        .sort()
+        .map(f => fs.readFileSync(path.join(langDir, f), 'utf8'))
+        .join('\n');
+    const fn = new Function(src + '\n' + langSrc + '; return TRANSLATIONS;');
     return fn();
 }
 
@@ -95,6 +106,7 @@ function buildPage(city, lang, slug) {
         title,
         description,
         seoCity,
+        city, // raw cities.json entry, used for nearby-city links
         // For hreflang we need both URLs (native + en variant). nativeLang
         // is preserved so the alternates on the -en variant page point at
         // the native URL with the *native* hreflang (not "en"), avoiding
@@ -128,8 +140,22 @@ function renderTemplate(page) {
     html = html.replace(/<meta\s+name="description"\s+content="[^"]*">/,
         `<meta name="description" content="${escapeAttr(page.description)}">`);
 
-    // 4. Inject canonical + hreflang + window._seoCity into <head>, just
-    //    before the existing stylesheet link so it appears before app.js loads.
+    // 3b. Canonical + Open Graph tags. The template (index.html) carries the
+    //     homepage values; stamp the city-specific ones so a shared city URL
+    //     previews with its own title/description. og:image stays the shared
+    //     site card.
+    html = html.replace(/<link rel="canonical" href="[^"]*">/,
+        `<link rel="canonical" href="${escapeAttr(page.canonical)}">`);
+    html = html.replace(/<meta property="og:title" content="[^"]*">/,
+        `<meta property="og:title" content="${escapeAttr(page.title)} — NoAdsWeather">`);
+    html = html.replace(/<meta property="og:description" content="[^"]*">/,
+        `<meta property="og:description" content="${escapeAttr(page.description)}">`);
+    html = html.replace(/<meta property="og:url" content="[^"]*">/,
+        `<meta property="og:url" content="${escapeAttr(page.canonical)}">`);
+
+    // 4. Inject hreflang + window._seoCity into <head>, just before the
+    //    existing stylesheet link so it appears before app.js loads.
+    //    (The canonical is stamped in-place in step 3b, not injected here.)
     const headInjection = buildHeadInjection(page);
     html = html.replace('<link rel="stylesheet" href="css/style.css">',
         headInjection + '\n    <link rel="stylesheet" href="/css/style.css">');
@@ -179,13 +205,22 @@ function renderTemplate(page) {
         '<div id="weather-view" class="view">'
     );
 
+    // 9. Bake localized nearby-city links into the bottom-spacer nav so every
+    //    generated page cross-links its geographic neighbours. (The template's
+    //    placeholder nav — and the comment above it — is replaced wholesale.)
+    const nearbyLabel = (translations[page.lang] && translations[page.lang].nearbyCities)
+        || translations.en.nearbyCities;
+    const nearbyLinks = nearestCities(page.city, page.lang, 5)
+        .map(n => `<a href="/cities/${n.slug}/">${escapeHtml(n.name)}</a>`)
+        .join(' · ');
+    html = html.replace(/<!-- Populated with per-city links[\s\S]*?<nav id="nearby-cities" hidden><\/nav>/,
+        `<nav id="nearby-cities" aria-label="${escapeAttr(nearbyLabel)}">${escapeHtml(nearbyLabel)}: ${nearbyLinks}</nav>`);
+
     return html;
 }
 
 function buildHeadInjection(page) {
-    const lines = [
-        `    <link rel="canonical" href="${escapeAttr(page.canonical)}">`,
-    ];
+    const lines = [];
     // hreflang only relevant if there's a sibling variant. Use page.nativeLang
     // (the language of nativeUrl) rather than page.lang (the language of the
     // page being generated) — otherwise the en-variant page emits two
@@ -235,6 +270,197 @@ function writeSitemap(urls, variantGroups) {
     }
     lines.push('</urlset>');
     fs.writeFileSync(SITEMAP_XML, lines.join('\n') + '\n', 'utf8');
+}
+
+// === Nearby cities ==========================================================
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+    const toRad = d => d * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return 12742 * Math.asin(Math.sqrt(a)); // 2 × Earth radius (6371 km)
+}
+
+// Nearest `count` cities to `city`, with slug + display name resolved for the
+// language of the page being generated: same-language variant when one
+// exists, otherwise the English variant, otherwise the native page.
+function nearestCities(city, lang, count) {
+    return cities
+        .filter(c => c.slug !== city.slug)
+        .map(c => ({ c, km: haversineKm(city.lat, city.lon, c.lat, c.lon) }))
+        .sort((a, b) => a.km - b.km)
+        .slice(0, count)
+        .map(({ c }) => ({
+            slug: c.nativeLang === lang ? c.slug : (c.enSlug || c.slug),
+            name: c.displayName[lang] || c.displayName.en,
+        }));
+}
+
+// === Cities index page ======================================================
+
+// Standalone English-language page at /cities/ listing every city page, so no
+// city page is ever orphaned. Modeled on about/index.html conventions (theme
+// bootstrap, self-hosted CSS vars, i18n'd nav row).
+function writeCitiesIndex() {
+    const byName = (a, b) => a.displayName.en.localeCompare(b.displayName.en);
+    const us = cities.filter(c => c.country === 'US').sort(byName);
+    const intl = cities.filter(c => c.country !== 'US').sort(byName);
+    const li = c => {
+        const slug = c.nativeLang === 'en' ? c.slug : (c.enSlug || c.slug);
+        return `            <li><a href="/cities/${slug}/">${escapeHtml(c.displayName.en)}</a></li>`;
+    };
+    // Reuse the template's CSP so the two stay in sync.
+    const cspMeta = (templateHtml.match(/<meta http-equiv="Content-Security-Policy"[^>]*>/) || [''])[0];
+    const title = 'Weather by City — NoAdsWeather';
+    const description = 'Ad-free weather forecasts for cities around the world. Current conditions, hourly and 10-day forecasts, and radar — no ads, no tracking, no cookies.';
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    ${cspMeta}
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeAttr(description)}">
+    <link rel="canonical" href="${SITE_URL}/cities/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NoAdsWeather">
+    <meta property="og:title" content="${escapeAttr(title)}">
+    <meta property="og:description" content="${escapeAttr(description)}">
+    <meta property="og:url" content="${SITE_URL}/cities/">
+    <meta property="og:image" content="${SITE_URL}/img/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="NoAdsWeather — Weather without the clutter. No ads, no tracking, no cookies.">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#111827">
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        // Theme + visual-style bootstrap. Runs synchronously in <head> so
+        // data-theme / data-style are set BEFORE first paint — prevents the
+        // white-to-dark flash on cold loads for dark-mode users.
+        (function () {
+            try {
+                var theme = localStorage.getItem('theme') ||
+                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                var style = localStorage.getItem('style');
+                if (style && style !== 'default') {
+                    document.documentElement.setAttribute('data-style', style);
+                }
+            } catch (e) { /* private mode — defaults apply */ }
+        })();
+    </script>
+    <style>
+        .cities-page {
+            max-width: 720px;
+            margin: 2rem auto;
+            padding: 0 1rem 3rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+        .cities-page h1 {
+            font-size: 1.85rem;
+            margin: 0 0 0.5rem;
+            color: var(--accent);
+        }
+        .cities-page .tagline {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            margin: 0 0 2rem;
+        }
+        .cities-page h2 {
+            font-size: 1.25rem;
+            margin: 2rem 0 0.75rem;
+            color: var(--text);
+        }
+        .cities-page a { color: var(--accent); }
+        .nav-row {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .nav-row a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+        .nav-row a:hover { color: var(--text); }
+        .nav-row .sep {
+            margin: 0 0.5rem;
+            color: var(--text-muted);
+        }
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem 1rem;
+            margin: 0.5rem 0 1.5rem;
+            padding: 0;
+            list-style: none;
+        }
+        .cities-grid li { margin: 0; }
+        .cities-grid a {
+            display: inline-block;
+            padding: 0.15rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="cities-page">
+        <p class="nav-row">
+            <a href="/" data-i18n="back">&larr; Back to NoAdsWeather</a>
+            <span class="sep">·</span>
+            <a href="/about/" data-i18n="about">About</a>
+            <span class="sep">·</span>
+            <a href="/privacy.html" data-i18n="privacyCookies">Privacy</a>
+        </p>
+
+        <h1>Weather by City</h1>
+        <p class="tagline">Ad-free forecasts for cities around the world — no tracking, no cookies, no clutter. Don't see your city? <a href="/">Search for it</a>.</p>
+
+        <h2>United States</h2>
+        <ul class="cities-grid">
+${us.map(li).join('\n')}
+        </ul>
+
+        <h2>International</h2>
+        <ul class="cities-grid">
+${intl.map(li).join('\n')}
+        </ul>
+    </div>
+    <script src="/js/i18n.js"></script>
+    <script>
+        // i18n loader: pull in the one non-English translation file the
+        // visitor needs (English lives in i18n.js as the fallback).
+        (function () {
+            var lang = getCurrentLang();
+            if (lang !== 'en') {
+                document.write('<script src="/js/i18n/' + lang + '.js"><\\/script>');
+            }
+        })();
+    </script>
+    <script>
+        // Translate any elements with data-i18n (just the nav row links)
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.dataset.i18n;
+            const attr = el.dataset.i18nAttr;
+            const text = t(key);
+            if (attr) el.setAttribute(attr, text);
+            else el.textContent = text;
+        });
+        document.documentElement.lang = getCurrentLang();
+        document.documentElement.dir = getCurrentLang() === 'ar' ? 'rtl' : 'ltr';
+    </script>
+</body>
+</html>
+`;
+    fs.writeFileSync(path.join(CITIES_DIR, 'index.html'), html, 'utf8');
 }
 
 // === Tiny escape helpers ====================================================

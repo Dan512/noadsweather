@@ -7,6 +7,17 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Stockholm Weather with No Ads — NoAdsWeather</title>
     <meta name="description" content="Get the Stockholm weather forecast without ads, cookies, or tracking. Open-Meteo data, 10-day forecast, hourly conditions, and radar — all free.">
+    <link rel="canonical" href="https://noadsweather.com/cities/stockholm-en/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NoAdsWeather">
+    <meta property="og:title" content="Stockholm Weather with No Ads — NoAdsWeather">
+    <meta property="og:description" content="Get the Stockholm weather forecast without ads, cookies, or tracking. Open-Meteo data, 10-day forecast, hourly conditions, and radar — all free.">
+    <meta property="og:url" content="https://noadsweather.com/cities/stockholm-en/">
+    <meta property="og:image" content="https://noadsweather.com/img/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="NoAdsWeather — Weather without the clutter. No ads, no tracking, no cookies.">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
@@ -14,8 +25,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#111827">
-        <link rel="canonical" href="https://noadsweather.com/cities/stockholm-en/">
-    <link rel="alternate" hreflang="sv" href="https://noadsweather.com/cities/stockholm/">
+        <link rel="alternate" hreflang="sv" href="https://noadsweather.com/cities/stockholm/">
     <link rel="alternate" hreflang="en" href="https://noadsweather.com/cities/stockholm-en/">
     <link rel="alternate" hreflang="x-default" href="https://noadsweather.com/cities/stockholm-en/">
     <script>
@@ -76,10 +86,28 @@
                 <button type="submit" data-i18n="searchButton">Search</button>
             </form>
             <p id="search-error" class="error" hidden></p>
+            <nav class="popular-cities" aria-label="Popular cities">
+                <span class="popular-cities-label" data-i18n="popularCities">Popular cities</span>
+                <ul>
+                    <li><a href="/cities/new-york-ny/">New York</a></li>
+                    <li><a href="/cities/los-angeles-ca/">Los Angeles</a></li>
+                    <li><a href="/cities/chicago-il/">Chicago</a></li>
+                    <li><a href="/cities/miami-fl/">Miami</a></li>
+                    <li><a href="/cities/seattle-wa/">Seattle</a></li>
+                    <li><a href="/cities/toronto/">Toronto</a></li>
+                    <li><a href="/cities/london/">London</a></li>
+                    <li><a href="/cities/paris-en/">Paris</a></li>
+                    <li><a href="/cities/berlin-en/">Berlin</a></li>
+                    <li><a href="/cities/amsterdam-en/">Amsterdam</a></li>
+                    <li><a href="/cities/tokyo-en/">Tokyo</a></li>
+                    <li><a href="/cities/sydney/">Sydney</a></li>
+                </ul>
+            </nav>
         </main>
         <div class="footer-links footer-links-fixed">
             <button id="privacy-toggle-home" class="privacy-link" data-i18n="privacyCookies">Privacy</button>
             <a href="/about/" class="privacy-link" data-i18n="about">About</a>
+            <a href="/cities/" class="privacy-link" data-i18n="cities">Cities</a>
         </div>
     </div>
 
@@ -117,9 +145,11 @@
             <section id="sun-section"></section>
             <section id="moon-section"></section>
             <div class="bottom-spacer">
+                <nav id="nearby-cities" aria-label="Nearby cities">Nearby cities: <a href="/cities/warsaw-en/">Warsaw</a> · <a href="/cities/berlin-en/">Berlin</a> · <a href="/cities/amsterdam-en/">Amsterdam</a> · <a href="/cities/moscow-en/">Moscow</a> · <a href="/cities/vienna-en/">Vienna</a></nav>
                 <div class="footer-links">
                     <button id="privacy-toggle-weather" class="privacy-link" data-i18n="privacyCookies">Privacy</button>
                     <a href="/about/" class="privacy-link" data-i18n="about">About</a>
+                    <a href="/cities/" class="privacy-link" data-i18n="cities">Cities</a>
                 </div>
             </div>
         </main>
@@ -190,6 +220,25 @@
     </a>
 
     <script src="/js/i18n.js"></script>
+    <script>
+        // i18n loader: English ships inside i18n.js as the permanent fallback;
+        // any other UI language is pulled in here as one extra small file.
+        // document.write keeps the load synchronous and ordered, so the
+        // translations exist before the scripts below run. Mirrors the
+        // language-resolution order app.js uses: explicit user choice first,
+        // then city-page language, then browser language.
+        (function () {
+            try {
+                if (!localStorage.getItem('language') && window._seoCity) {
+                    setLanguageOverride(window._seoCity.lang);
+                }
+            } catch (e) { /* private mode — defaults apply */ }
+            var lang = getCurrentLang();
+            if (lang !== 'en') {
+                document.write('<script src="/js/i18n/' + lang + '.js"><\/script>');
+            }
+        })();
+    </script>
     <script src="/js/app.js"></script>
 </body>
 </html>
