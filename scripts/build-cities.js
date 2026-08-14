@@ -160,6 +160,23 @@ function renderTemplate(page) {
     html = html.replace(/<meta property="og:url" content="[^"]*">/,
         `<meta property="og:url" content="${escapeAttr(page.canonical)}">`);
 
+    // 3c. Swap the homepage's WebSite JSON-LD for a localized breadcrumb
+    //     trail (Home > Cities > {city}) so search results can show the
+    //     page's place in the site instead of a bare URL.
+    const breadcrumb = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'NoAdsWeather', item: SITE_URL + '/' },
+            { '@type': 'ListItem', position: 2, name: tr(page.lang, 'cities'), item: SITE_URL + '/cities/' },
+            { '@type': 'ListItem', position: 3, name: page.seoCity.displayName },
+        ],
+    };
+    html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,
+        '<script type="application/ld+json">\n    ' +
+        JSON.stringify(breadcrumb).replace(/</g, '\\u003c') +
+        '\n    </script>');
+
     // 4. Inject hreflang + window._seoCity into <head>, just before the
     //    existing stylesheet link so it appears before app.js loads.
     //    (The canonical is stamped in-place in step 3b, not injected here.)
@@ -477,6 +494,9 @@ function writeCitiesIndex() {
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="NoAdsWeather — Weather without the clutter. No ads, no tracking, no cookies.">
     <meta name="twitter:card" content="summary_large_image">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"NoAdsWeather","item":"${SITE_URL}/"},{"@type":"ListItem","position":2,"name":"Cities"}]}
+    </script>
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">

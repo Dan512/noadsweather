@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://tilecache.rainviewer.com https://a.basemaps.cartocdn.com https://b.basemaps.cartocdn.com https://c.basemaps.cartocdn.com https://d.basemaps.cartocdn.com https://noadsradar-tilesvc-15838356607.us-central1.run.app; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com https://air-quality-api.open-meteo.com https://api.weather.gov https://api.rainviewer.com https://api.zippopotam.us https://alerts-proxy-ssdjubgioq-uc.a.run.app https://pollen-proxy-15838356607.us-central1.run.app https://noadsradar-tilesvc-15838356607.us-central1.run.app; font-src 'self'; manifest-src 'self' blob:; base-uri 'self'; form-action 'self'">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>NoAdsWeather — Weather without the clutter</title>
+    <title>NoAdsWeather — Ad-Free Weather Forecasts, No Tracking</title>
     <meta name="description" content="Fast, ad-free weather forecasts. No tracking, no cookies, no bloat.">
     <link rel="canonical" href="https://noadsweather.com/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="NoAdsWeather">
-    <meta property="og:title" content="NoAdsWeather — Weather without the clutter">
+    <meta property="og:title" content="NoAdsWeather — Ad-Free Weather Forecasts, No Tracking">
     <meta property="og:description" content="Fast, ad-free weather forecasts. No tracking, no cookies, no bloat.">
     <meta property="og:url" content="https://noadsweather.com/">
     <meta property="og:image" content="https://noadsweather.com/img/social-card.png">
@@ -18,6 +18,12 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="NoAdsWeather — Weather without the clutter. No ads, no tracking, no cookies.">
     <meta name="twitter:card" content="summary_large_image">
+    <!-- WebSite schema tells Google the site's name for search results.
+         build-cities.js replaces this block with a per-city BreadcrumbList
+         on generated city pages. -->
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebSite","name":"NoAdsWeather","url":"https://noadsweather.com/"}
+    </script>
     <!-- Warm up connections to the APIs hit on first load — saves a DNS+TLS
          round-trip on the first forecast fetch. crossorigin because these are
          CORS fetch() requests. -->

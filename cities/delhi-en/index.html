@@ -18,6 +18,12 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="NoAdsWeather — Weather without the clutter. No ads, no tracking, no cookies.">
     <meta name="twitter:card" content="summary_large_image">
+    <!-- WebSite schema tells Google the site's name for search results.
+         build-cities.js replaces this block with a per-city BreadcrumbList
+         on generated city pages. -->
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"NoAdsWeather","item":"https://noadsweather.com/"},{"@type":"ListItem","position":2,"name":"Cities","item":"https://noadsweather.com/cities/"},{"@type":"ListItem","position":3,"name":"Delhi"}]}
+    </script>
     <!-- Warm up connections to the APIs hit on first load — saves a DNS+TLS
          round-trip on the first forecast fetch. crossorigin because these are
          CORS fetch() requests. -->
