@@ -73,6 +73,9 @@ TRANSLATIONS.ja = {
         geoDenied: '位置情報へのアクセスが拒否されました。都市名で検索してください。',
         geoFailed: '現在地を特定できませんでした。都市名で検索してください。',
         settingAutoLocate: 'アクセス時に自動的に現在地を使用する',
+        refresh: '更新',
+        updatedJustNow: 'たった今更新',
+        updatedAgo: '{time}に更新',
 
         // Weather codes
         wc0: '快晴',

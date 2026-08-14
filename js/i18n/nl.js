@@ -73,6 +73,9 @@ TRANSLATIONS.nl = {
         geoDenied: 'Locatietoegang geweigerd — je kunt je stad handmatig zoeken.',
         geoFailed: 'Kon je locatie niet bepalen — probeer je stad te zoeken.',
         settingAutoLocate: 'Mijn locatie automatisch gebruiken bij elk bezoek',
+        refresh: 'Vernieuwen',
+        updatedJustNow: 'Zojuist bijgewerkt',
+        updatedAgo: 'Bijgewerkt {time}',
 
         // Weather codes
         wc0: 'Heldere hemel',

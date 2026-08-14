@@ -73,6 +73,9 @@ TRANSLATIONS.ko = {
         geoDenied: '위치 접근이 거부되었습니다 — 도시를 검색해 보세요.',
         geoFailed: '위치를 확인할 수 없습니다 — 도시를 검색해 보세요.',
         settingAutoLocate: '방문할 때마다 자동으로 내 위치 사용',
+        refresh: '새로고침',
+        updatedJustNow: '방금 업데이트됨',
+        updatedAgo: '{time} 업데이트됨',
 
         // Weather codes
         wc0: '맑음',

@@ -85,6 +85,9 @@ const TRANSLATIONS = {
         geoDenied: 'Location access was denied — you can search for your city instead.',
         geoFailed: 'Couldn’t determine your location — try searching for your city.',
         settingAutoLocate: 'Use my location automatically on each visit',
+        refresh: 'Refresh',
+        updatedJustNow: 'Updated just now',
+        updatedAgo: 'Updated {time}',
 
         // Weather codes (WMO)
         wc0: 'Clear sky',

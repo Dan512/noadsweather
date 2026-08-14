@@ -73,6 +73,9 @@ TRANSLATIONS.sv = {
         geoDenied: 'Platsåtkomst nekades — du kan söka efter din stad istället.',
         geoFailed: 'Kunde inte fastställa din plats — försök söka efter din stad.',
         settingAutoLocate: 'Använd min plats automatiskt vid varje besök',
+        refresh: 'Uppdatera',
+        updatedJustNow: 'Uppdaterades nyss',
+        updatedAgo: 'Uppdaterades {time}',
 
         // Weather codes
         wc0: 'Klar himmel',

@@ -73,6 +73,9 @@ TRANSLATIONS.pl = {
         geoDenied: 'Odmówiono dostępu do lokalizacji — możesz wyszukać swoje miasto ręcznie.',
         geoFailed: 'Nie udało się ustalić lokalizacji — spróbuj wyszukać swoje miasto.',
         settingAutoLocate: 'Automatycznie używaj mojej lokalizacji przy każdej wizycie',
+        refresh: 'Odśwież',
+        updatedJustNow: 'Zaktualizowano przed chwilą',
+        updatedAgo: 'Zaktualizowano {time}',
 
         // Weather codes
         wc0: 'Bezchmurnie',

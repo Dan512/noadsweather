@@ -73,6 +73,9 @@ TRANSLATIONS.ar = {
         geoDenied: 'تم رفض الوصول إلى الموقع — يمكنك البحث عن مدينتك بدلاً من ذلك.',
         geoFailed: 'تعذر تحديد موقعك — حاول البحث عن مدينتك.',
         settingAutoLocate: 'استخدام موقعي تلقائيًا في كل زيارة',
+        refresh: 'تحديث',
+        updatedJustNow: 'تم التحديث للتو',
+        updatedAgo: 'تم التحديث {time}',
 
         // Weather codes
         wc0: 'سماء صافية',

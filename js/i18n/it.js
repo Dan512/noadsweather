@@ -73,6 +73,9 @@ TRANSLATIONS.it = {
         geoDenied: 'Accesso alla posizione negato — puoi cercare la tua città manualmente.',
         geoFailed: 'Impossibile determinare la tua posizione — prova a cercare la tua città.',
         settingAutoLocate: 'Usa automaticamente la mia posizione a ogni visita',
+        refresh: 'Aggiorna',
+        updatedJustNow: 'Aggiornato proprio ora',
+        updatedAgo: 'Aggiornato {time}',
 
         // Weather codes
         wc0: 'Cielo sereno',

@@ -73,6 +73,9 @@ TRANSLATIONS.es = {
         geoDenied: 'Se denegó el acceso a la ubicación — puedes buscar tu ciudad manualmente.',
         geoFailed: 'No se pudo determinar tu ubicación — intenta buscar tu ciudad.',
         settingAutoLocate: 'Usar mi ubicación automáticamente en cada visita',
+        refresh: 'Actualizar',
+        updatedJustNow: 'Actualizado ahora mismo',
+        updatedAgo: 'Actualizado {time}',
 
         // Weather codes
         wc0: 'Cielo despejado',

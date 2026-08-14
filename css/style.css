@@ -772,6 +772,36 @@ html[data-blurb-dismissed] #seo-blurb { display: none !important; }
     background: var(--accent-hover);
 }
 
+/* Data freshness line — "Updated X ago" + refresh button in weather header */
+#data-freshness {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    margin: -0.25rem 0 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+#data-freshness.stale { color: #d97706; }
+#data-freshness.very-stale { color: #dc2626; }
+[data-theme="dark"] #data-freshness.stale { color: #fbbf24; }
+[data-theme="dark"] #data-freshness.very-stale { color: #f87171; }
+#refresh-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.3rem;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    color: inherit;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+#refresh-btn:hover { color: var(--accent); }
+#refresh-btn.refreshing svg { animation: refresh-spin 0.8s linear infinite; }
+@keyframes refresh-spin {
+    to { transform: rotate(360deg); }
+}
+
 /* Geolocate ("Use my location") pin — sits inside the input's end edge */
 .search-input-wrap {
     position: relative;

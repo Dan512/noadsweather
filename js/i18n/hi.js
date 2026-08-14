@@ -73,6 +73,9 @@ TRANSLATIONS.hi = {
         geoDenied: 'स्थान की अनुमति अस्वीकृत — आप अपना शहर खोज सकते हैं।',
         geoFailed: 'आपका स्थान निर्धारित नहीं हो सका — अपना शहर खोजने का प्रयास करें।',
         settingAutoLocate: 'हर बार खुलने पर मेरा स्थान अपने आप उपयोग करें',
+        refresh: 'रिफ़्रेश',
+        updatedJustNow: 'अभी अपडेट हुआ',
+        updatedAgo: '{time} अपडेट हुआ',
 
         // Weather codes
         wc0: 'साफ आसमान',

@@ -132,6 +132,18 @@
                 </div>
             </div>
             <h1 id="location-name">Stockholm Weather with No Ads</h1>
+            <!-- Data freshness — populated by app.js after the first
+                 successful fetch; turns amber when data is over an hour old. -->
+            <p id="data-freshness" hidden>
+                <span id="freshness-text"></span>
+                <button id="refresh-btn" type="button"
+                    data-i18n="refresh" data-i18n-attr="title" title="Refresh"
+                    data-i18n-aria-label="refresh" aria-label="Refresh">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+                        <path d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                    </svg>
+                </button>
+            </p>
         </header>
         <main id="weather-content">
             <!-- SEO blurb — shown only on generated city landing pages.

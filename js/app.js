@@ -2798,6 +2798,10 @@ async function fetchAllWeatherData(lat, lon, country, region) {
         // Bail if a newer fetchAllWeatherData call has superseded us
         if (myToken !== weatherLoadToken) return null;
         _lastMeteoData = meteo;
+        // Stamp freshness only when the main payload actually landed —
+        // a failed refresh keeps showing the honest (old) age.
+        _lastFetchTime = Date.now();
+        renderFreshness();
         _dailySun = (meteo.daily.sunrise || []).map((rise, i) => ({
             rise: new Date(rise),
             set: new Date(meteo.daily.sunset[i]),
@@ -2846,6 +2850,11 @@ async function fetchAllWeatherData(lat, lon, country, region) {
         renderRadar(lat, lon);
         applySectionPreferences();
     });
+
+    // Resolve when the main payload settles (meteoPromise never rejects —
+    // its .catch returns null) so callers like the refresh button can tell
+    // when the fetch finished. Secondary fetches keep streaming in after.
+    await meteoPromise;
 }
 
 // Re-render weather UI from the cached responses captured by the most recent
@@ -2972,6 +2981,64 @@ function locateAndLoad() {
 }
 
 if (geolocateBtn) geolocateBtn.addEventListener('click', locateAndLoad);
+
+// --- Data freshness ("Updated X ago" + refresh) -------------------------------
+// _lastFetchTime is stamped inside fetchAllWeatherData when the main payload
+// lands. The label re-renders every minute and on tab return; it turns amber
+// (.stale) past 1 hour and red (.very-stale) past 6. Returning to the tab
+// with data ≥30 min old triggers a silent refetch of the same location.
+let _lastFetchTime = null;
+const AUTO_REFRESH_AGE_MS = 30 * 60 * 1000;
+const freshnessEl = document.getElementById('data-freshness');
+const freshnessText = document.getElementById('freshness-text');
+const refreshBtn = document.getElementById('refresh-btn');
+
+function renderFreshness() {
+    if (!freshnessEl || _lastFetchTime === null) return;
+    const mins = Math.floor((Date.now() - _lastFetchTime) / 60000);
+    let label;
+    if (mins < 1) {
+        label = t('updatedJustNow');
+    } else {
+        let rel;
+        try {
+            const rtf = new Intl.RelativeTimeFormat(getLocaleForDate(), { numeric: 'always' });
+            rel = mins < 60 ? rtf.format(-mins, 'minute') : rtf.format(-Math.floor(mins / 60), 'hour');
+        } catch (e) {
+            rel = mins < 60 ? `${mins} min` : `${Math.floor(mins / 60)} h`;
+        }
+        label = t('updatedAgo', { time: rel });
+    }
+    freshnessText.textContent = label;
+    freshnessEl.classList.toggle('stale', mins >= 60 && mins < 360);
+    freshnessEl.classList.toggle('very-stale', mins >= 360);
+    freshnessEl.hidden = false;
+}
+
+function refreshWeather() {
+    if (_lastLat === null) return;
+    if (refreshBtn) refreshBtn.classList.add('refreshing');
+    Promise.resolve(fetchAllWeatherData(_lastLat, _lastLon, _lastCountry, _lastRegion))
+        .finally(() => { if (refreshBtn) refreshBtn.classList.remove('refreshing'); });
+}
+
+if (refreshBtn) refreshBtn.addEventListener('click', refreshWeather);
+
+function maybeAutoRefresh() {
+    renderFreshness();
+    if (_lastFetchTime !== null && _lastLat !== null &&
+        Date.now() - _lastFetchTime >= AUTO_REFRESH_AGE_MS) {
+        refreshWeather();
+    }
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') maybeAutoRefresh();
+});
+
+// Keep the "X ago" label current while the page sits open. Background tabs
+// throttle timers, but the visibilitychange handler above catches up on return.
+setInterval(renderFreshness, 60000);
 
 // Auto-locate on bare visits — opt-in via the autoLocate setting, and only
 // when the Permissions API confirms the grant already exists (so this path

@@ -73,6 +73,9 @@ TRANSLATIONS.de = {
         geoDenied: 'Standortzugriff wurde verweigert — Sie können stattdessen Ihre Stadt suchen.',
         geoFailed: 'Standort konnte nicht ermittelt werden — versuchen Sie, Ihre Stadt zu suchen.',
         settingAutoLocate: 'Meinen Standort bei jedem Besuch automatisch verwenden',
+        refresh: 'Aktualisieren',
+        updatedJustNow: 'Gerade aktualisiert',
+        updatedAgo: 'Aktualisiert {time}',
 
         // Weather codes
         wc0: 'Klarer Himmel',

@@ -73,6 +73,9 @@ TRANSLATIONS.zh = {
         geoDenied: '位置权限被拒绝 — 您可以改为搜索您的城市。',
         geoFailed: '无法确定您的位置 — 请尝试搜索您的城市。',
         settingAutoLocate: '每次访问时自动使用我的位置',
+        refresh: '刷新',
+        updatedJustNow: '刚刚更新',
+        updatedAgo: '{time}更新',
 
         // Weather codes
         wc0: '晴',

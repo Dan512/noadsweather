@@ -73,6 +73,9 @@ TRANSLATIONS.fr = {
         geoDenied: 'L’accès à la position a été refusé — vous pouvez rechercher votre ville manuellement.',
         geoFailed: 'Impossible de déterminer votre position — essayez de rechercher votre ville.',
         settingAutoLocate: 'Utiliser ma position automatiquement à chaque visite',
+        refresh: 'Actualiser',
+        updatedJustNow: 'Mis à jour à l’instant',
+        updatedAgo: 'Mis à jour {time}',
 
         // Weather codes
         wc0: 'Ciel dégagé',
