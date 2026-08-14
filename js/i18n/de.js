@@ -68,6 +68,11 @@ TRANSLATIONS.de = {
         cities: 'Städte',
         popularCities: 'Beliebte Städte',
         nearbyCities: 'Städte in der Nähe',
+        useMyLocation: 'Meinen Standort verwenden',
+        myLocation: 'Mein Standort',
+        geoDenied: 'Standortzugriff wurde verweigert — Sie können stattdessen Ihre Stadt suchen.',
+        geoFailed: 'Standort konnte nicht ermittelt werden — versuchen Sie, Ihre Stadt zu suchen.',
+        settingAutoLocate: 'Meinen Standort bei jedem Besuch automatisch verwenden',
 
         // Weather codes
         wc0: 'Klarer Himmel',

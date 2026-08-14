@@ -68,6 +68,11 @@ TRANSLATIONS.zh = {
         cities: '城市',
         popularCities: '热门城市',
         nearbyCities: '附近城市',
+        useMyLocation: '使用我的位置',
+        myLocation: '我的位置',
+        geoDenied: '位置权限被拒绝 — 您可以改为搜索您的城市。',
+        geoFailed: '无法确定您的位置 — 请尝试搜索您的城市。',
+        settingAutoLocate: '每次访问时自动使用我的位置',
 
         // Weather codes
         wc0: '晴',

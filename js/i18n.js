@@ -80,6 +80,11 @@ const TRANSLATIONS = {
         cities: 'Cities',
         popularCities: 'Popular cities',
         nearbyCities: 'Nearby cities',
+        useMyLocation: 'Use my location',
+        myLocation: 'My location',
+        geoDenied: 'Location access was denied — you can search for your city instead.',
+        geoFailed: 'Couldn’t determine your location — try searching for your city.',
+        settingAutoLocate: 'Use my location automatically on each visit',
 
         // Weather codes (WMO)
         wc0: 'Clear sky',

@@ -68,6 +68,11 @@ TRANSLATIONS.sv = {
         cities: 'Städer',
         popularCities: 'Populära städer',
         nearbyCities: 'Städer i närheten',
+        useMyLocation: 'Använd min plats',
+        myLocation: 'Min plats',
+        geoDenied: 'Platsåtkomst nekades — du kan söka efter din stad istället.',
+        geoFailed: 'Kunde inte fastställa din plats — försök söka efter din stad.',
+        settingAutoLocate: 'Använd min plats automatiskt vid varje besök',
 
         // Weather codes
         wc0: 'Klar himmel',

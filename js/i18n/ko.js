@@ -68,6 +68,11 @@ TRANSLATIONS.ko = {
         cities: '도시',
         popularCities: '인기 도시',
         nearbyCities: '주변 도시',
+        useMyLocation: '내 위치 사용',
+        myLocation: '내 위치',
+        geoDenied: '위치 접근이 거부되었습니다 — 도시를 검색해 보세요.',
+        geoFailed: '위치를 확인할 수 없습니다 — 도시를 검색해 보세요.',
+        settingAutoLocate: '방문할 때마다 자동으로 내 위치 사용',
 
         // Weather codes
         wc0: '맑음',

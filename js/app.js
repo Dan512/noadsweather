@@ -826,7 +826,7 @@ function getMoonPhase(date) {
 function tempColorThreshold() { return isImperial() ? 5 : 3; }
 
 // Settings that default to FALSE when not explicitly set. Everything else defaults to true.
-const SETTINGS_DEFAULT_FALSE = new Set(['autoPlayRadar']);
+const SETTINGS_DEFAULT_FALSE = new Set(['autoPlayRadar', 'autoLocate']);
 
 function getSettingsBool(key) {
     const v = localStorage.getItem(key);
@@ -1165,7 +1165,7 @@ function matchesStateAbbr(abbr, fullName) {
 
 function showLocationPicker(results) {
     // Reset search button while picker is shown
-    const btn = document.querySelector('#search-form button');
+    const btn = document.querySelector('#search-form button[type="submit"]');
     if (btn) { btn.disabled = false; btn.textContent = t('searchButton'); }
 
     return new Promise((resolve) => {
@@ -2915,8 +2915,8 @@ searchForm.addEventListener('submit', async (e) => {
     if (!query) return;
 
     searchError.hidden = true;
-    searchForm.querySelector('button').disabled = true;
-    searchForm.querySelector('button').textContent = t('searching');
+    searchForm.querySelector('button[type="submit"]').disabled = true;
+    searchForm.querySelector('button[type="submit"]').textContent = t('searching');
 
     try {
         const location = await geocode(query);
@@ -2929,10 +2929,68 @@ searchForm.addEventListener('submit', async (e) => {
         searchError.textContent = err.message;
         searchError.hidden = false;
     } finally {
-        searchForm.querySelector('button').disabled = false;
-        searchForm.querySelector('button').textContent = t('searchButton');
+        searchForm.querySelector('button[type="submit"]').disabled = false;
+        searchForm.querySelector('button[type="submit"]').textContent = t('searchButton');
     }
 });
+
+// --- Geolocation ("Use my location") -----------------------------------------
+// Privacy contract: only ever runs from an explicit user action (the pin
+// button), or — when the autoLocate setting is on — on visits where the
+// browser reports permission is ALREADY granted. It never prompts on page
+// load. Coordinates are rounded to 2 decimals (~1.1 km) before leaving this
+// function, so precise position is never stored, displayed, or sent anywhere.
+const geolocateBtn = document.getElementById('geolocate-btn');
+
+function locateAndLoad() {
+    if (!navigator.geolocation) {
+        searchError.textContent = t('geoFailed');
+        searchError.hidden = false;
+        return;
+    }
+    searchError.hidden = true;
+    geolocateBtn.disabled = true;
+    geolocateBtn.classList.add('locating');
+    const done = () => {
+        geolocateBtn.disabled = false;
+        geolocateBtn.classList.remove('locating');
+    };
+    navigator.geolocation.getCurrentPosition((pos) => {
+        done();
+        const lat = Math.round(pos.coords.latitude * 100) / 100;
+        const lon = Math.round(pos.coords.longitude * 100) / 100;
+        const location = { name: t('myLocation'), region: '', country: '', lat, lon };
+        updateURL('', location);
+        showWeather(location, '');
+        fetchAllWeatherData(lat, lon, '', '');
+        saveLastLocation('', location);
+    }, (err) => {
+        done();
+        searchError.textContent = t(err.code === 1 ? 'geoDenied' : 'geoFailed');
+        searchError.hidden = false;
+    }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+}
+
+if (geolocateBtn) geolocateBtn.addEventListener('click', locateAndLoad);
+
+// Auto-locate on bare visits — opt-in via the autoLocate setting, and only
+// when the Permissions API confirms the grant already exists (so this path
+// can never surface a permission prompt). Browsers without the Permissions
+// API skip auto-locate entirely rather than risk prompting.
+async function maybeAutoLocate() {
+    if (!getSettingsBool('autoLocate')) return false;
+    if (!geolocateBtn || !navigator.geolocation ||
+        !navigator.permissions || !navigator.permissions.query) return false;
+    let status;
+    try {
+        status = await navigator.permissions.query({ name: 'geolocation' });
+    } catch (e) {
+        return false;
+    }
+    if (status.state !== 'granted') return false;
+    locateAndLoad();
+    return true;
+}
 
 backBtn.addEventListener('click', () => {
     showHome();
@@ -3074,6 +3132,7 @@ document.getElementById('settings-revert').addEventListener('click', () => {
     localStorage.setItem('showSectionButtons', 'true');
     localStorage.setItem('showTranslateLink', 'true');
     localStorage.setItem('autoPlayRadar', 'false');
+    localStorage.setItem('autoLocate', 'false');
     localStorage.setItem('rememberLastCity', 'true');
     localStorage.removeItem('sectionPrefs');
     applySettings();
@@ -3304,9 +3363,18 @@ applyTranslations();
 
 // Load from URL on page load
 // SEO landing page takes priority over URL params / storage rehydration.
-// If not in SEO mode, fall through to the existing URL/storage flow.
+// If not in SEO mode: an explicit ?lat/?q URL wins, then opt-in auto-locate
+// (permission already granted), then the saved last city.
 if (!initSeoCity()) {
-    loadFromURL();
+    (async () => {
+        if (!getLocationFromURL() && await maybeAutoLocate()) {
+            // Auto-locating — release the <head> auto-resume gate ourselves
+            // since loadFromURL (which normally does it) won't run.
+            document.documentElement.removeAttribute('data-auto-resume');
+            return;
+        }
+        loadFromURL();
+    })();
 }
 
 // Init drag-to-reorder (event delegation, works across re-renders)

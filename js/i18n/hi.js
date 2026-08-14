@@ -68,6 +68,11 @@ TRANSLATIONS.hi = {
         cities: 'शहर',
         popularCities: 'लोकप्रिय शहर',
         nearbyCities: 'आस-पास के शहर',
+        useMyLocation: 'मेरा स्थान उपयोग करें',
+        myLocation: 'मेरा स्थान',
+        geoDenied: 'स्थान की अनुमति अस्वीकृत — आप अपना शहर खोज सकते हैं।',
+        geoFailed: 'आपका स्थान निर्धारित नहीं हो सका — अपना शहर खोजने का प्रयास करें।',
+        settingAutoLocate: 'हर बार खुलने पर मेरा स्थान अपने आप उपयोग करें',
 
         // Weather codes
         wc0: 'साफ आसमान',

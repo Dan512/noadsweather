@@ -68,6 +68,11 @@ TRANSLATIONS.it = {
         cities: 'Città',
         popularCities: 'Città popolari',
         nearbyCities: 'Città vicine',
+        useMyLocation: 'Usa la mia posizione',
+        myLocation: 'La mia posizione',
+        geoDenied: 'Accesso alla posizione negato — puoi cercare la tua città manualmente.',
+        geoFailed: 'Impossibile determinare la tua posizione — prova a cercare la tua città.',
+        settingAutoLocate: 'Usa automaticamente la mia posizione a ogni visita',
 
         // Weather codes
         wc0: 'Cielo sereno',

@@ -68,6 +68,11 @@ TRANSLATIONS.ar = {
         cities: 'المدن',
         popularCities: 'مدن شائعة',
         nearbyCities: 'مدن قريبة',
+        useMyLocation: 'استخدام موقعي',
+        myLocation: 'موقعي',
+        geoDenied: 'تم رفض الوصول إلى الموقع — يمكنك البحث عن مدينتك بدلاً من ذلك.',
+        geoFailed: 'تعذر تحديد موقعك — حاول البحث عن مدينتك.',
+        settingAutoLocate: 'استخدام موقعي تلقائيًا في كل زيارة',
 
         // Weather codes
         wc0: 'سماء صافية',

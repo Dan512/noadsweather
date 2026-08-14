@@ -68,6 +68,11 @@ TRANSLATIONS.nl = {
         cities: 'Steden',
         popularCities: 'Populaire steden',
         nearbyCities: 'Steden in de buurt',
+        useMyLocation: 'Mijn locatie gebruiken',
+        myLocation: 'Mijn locatie',
+        geoDenied: 'Locatietoegang geweigerd — je kunt je stad handmatig zoeken.',
+        geoFailed: 'Kon je locatie niet bepalen — probeer je stad te zoeken.',
+        settingAutoLocate: 'Mijn locatie automatisch gebruiken bij elk bezoek',
 
         // Weather codes
         wc0: 'Heldere hemel',

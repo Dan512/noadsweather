@@ -68,6 +68,11 @@ TRANSLATIONS.fr = {
         cities: 'Villes',
         popularCities: 'Villes populaires',
         nearbyCities: 'Villes à proximité',
+        useMyLocation: 'Utiliser ma position',
+        myLocation: 'Ma position',
+        geoDenied: 'L’accès à la position a été refusé — vous pouvez rechercher votre ville manuellement.',
+        geoFailed: 'Impossible de déterminer votre position — essayez de rechercher votre ville.',
+        settingAutoLocate: 'Utiliser ma position automatiquement à chaque visite',
 
         // Weather codes
         wc0: 'Ciel dégagé',

@@ -74,15 +74,24 @@
         </header>
         <main class="search-container">
             <form id="search-form" role="search">
-                <input
-                    type="text"
-                    id="search-input"
-                    placeholder="Enter city or zip code"
-                    data-i18n="searchPlaceholder"
-                    data-i18n-attr="placeholder"
-                    autocomplete="off"
-                    required
-                >
+                <div class="search-input-wrap">
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Enter city or zip code"
+                        data-i18n="searchPlaceholder"
+                        data-i18n-attr="placeholder"
+                        autocomplete="off"
+                        required
+                    >
+                    <button type="button" id="geolocate-btn"
+                        data-i18n="useMyLocation" data-i18n-attr="title" title="Use my location"
+                        data-i18n-aria-label="useMyLocation" aria-label="Use my location">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/>
+                        </svg>
+                    </button>
+                </div>
                 <button type="submit" data-i18n="searchButton">Search</button>
             </form>
             <p id="search-error" class="error" hidden></p>
@@ -172,6 +181,7 @@
             <li><strong>Google Pollen API</strong> — pollen data, only when you click "See pollen data". Routed through our own Cloud Run proxy (<code>pollen-proxy</code>) for the same reason, with the same no-IP-logging configuration.</li>
             <li><strong>Google Translate</strong> — only if you click the "Translate" link next to a weather alert. The alert text and your selected UI language are sent to Google Translate via a new tab. We don't send anything to Google unless you choose to translate.</li>
         </ul>
+        <p><strong>Location button:</strong> if you tap the location pin next to the search box, your browser asks for your permission first — the site never requests your location on its own. Your coordinates are rounded to roughly 1&nbsp;km <em>inside your browser</em> before use, are sent only to the same weather services listed above (exactly as if you had typed a city name), and never touch a server of ours. Note that your browser itself may use its vendor's location service (for example, Google's in Chrome) to work out your position. The "use my location automatically" setting only takes effect on visits where you have already granted permission.</p>
         <p>Your preferences (dark mode, temperature units, time format, language, visual style, and section layout) are saved in your browser's local storage (not a cookie) so they persist between visits. Pollen data is also cached locally to reduce unnecessary API calls. You can clear all of this anytime by clearing your browser data.</p>
         <p>Your phone might ask you to "Install this page", which means creating a shortcut to a website on your home screen, known as a Progressive Web App (PWA). This makes the site act like a native app, allowing it to load faster, and appear with your other apps on your home screen.</p>
         <p>This site is open source and supported by tips from our visitors. No data is sold, shared, or monetized in any way. If you think this is awesome, please consider <a href="https://ko-fi.com/noadsdude" target="_blank" rel="noopener" style="color:var(--accent);">clicking here to support us</a>.</p>
@@ -194,6 +204,7 @@
             </select>
         </label>
         <label><input type="checkbox" id="setting-remember-city" data-setting="rememberLastCity" checked> <span data-i18n="settingRememberCity">Remember last city</span></label>
+        <label><input type="checkbox" id="setting-auto-locate" data-setting="autoLocate"> <span data-i18n="settingAutoLocate">Use my location automatically on each visit</span></label>
         <label><input type="checkbox" id="setting-forecast-colors" data-setting="showForecastColors" checked> <span data-i18n="settingForecastColors">Show color backgrounds on 10-day forecast</span></label>
         <label><input type="checkbox" id="setting-support-btn" data-setting="showSupportBtn" checked> <span data-i18n="settingSupportBtn">Show Annoying Support Button</span></label>
         <label><input type="checkbox" id="setting-weather-summary" data-setting="showWeatherSummary" checked> <span data-i18n="settingWeatherSummary">Show weather summary</span></label>

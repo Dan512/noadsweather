@@ -68,6 +68,11 @@ TRANSLATIONS.pt = {
         cities: 'Cidades',
         popularCities: 'Cidades populares',
         nearbyCities: 'Cidades próximas',
+        useMyLocation: 'Usar minha localização',
+        myLocation: 'Minha localização',
+        geoDenied: 'O acesso à localização foi negado — você pode pesquisar sua cidade manualmente.',
+        geoFailed: 'Não foi possível determinar sua localização — tente pesquisar sua cidade.',
+        settingAutoLocate: 'Usar minha localização automaticamente em cada visita',
 
         // Weather codes
         wc0: 'Céu limpo',

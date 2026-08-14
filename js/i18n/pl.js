@@ -68,6 +68,11 @@ TRANSLATIONS.pl = {
         cities: 'Miasta',
         popularCities: 'Popularne miasta',
         nearbyCities: 'Pobliskie miasta',
+        useMyLocation: 'Użyj mojej lokalizacji',
+        myLocation: 'Moja lokalizacja',
+        geoDenied: 'Odmówiono dostępu do lokalizacji — możesz wyszukać swoje miasto ręcznie.',
+        geoFailed: 'Nie udało się ustalić lokalizacji — spróbuj wyszukać swoje miasto.',
+        settingAutoLocate: 'Automatycznie używaj mojej lokalizacji przy każdej wizycie',
 
         // Weather codes
         wc0: 'Bezchmurnie',

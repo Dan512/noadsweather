@@ -68,6 +68,11 @@ TRANSLATIONS.ja = {
         cities: '都市',
         popularCities: '人気の都市',
         nearbyCities: '近くの都市',
+        useMyLocation: '現在地を使用',
+        myLocation: '現在地',
+        geoDenied: '位置情報へのアクセスが拒否されました。都市名で検索してください。',
+        geoFailed: '現在地を特定できませんでした。都市名で検索してください。',
+        settingAutoLocate: 'アクセス時に自動的に現在地を使用する',
 
         // Weather codes
         wc0: '快晴',
