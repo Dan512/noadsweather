@@ -86,6 +86,8 @@ TRANSLATIONS.sv = {
         climateRecords: 'Extremvärden sedan {year}: högsta {high} ({highDate}), lägsta {low} ({lowDate}).',
         climateDaylight: 'Dagsljuset varar cirka {long} timmar i {longMonth} och {short} timmar i {shortMonth}.',
         climateSource: 'Data: Open-Meteo (ERA5-återanalys), medelvärden {period}.',
+        notFoundTitle: 'Sidan hittades inte',
+        notFoundBlurb: 'Den här sidan finns inte — men vädret gör det. Sök efter din stad:',
 
         // Weather codes
         wc0: 'Klar himmel',

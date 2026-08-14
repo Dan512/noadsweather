@@ -86,6 +86,8 @@ TRANSLATIONS.pl = {
         climateRecords: 'Wartości ekstremalne od {year}: najwyższa {high} ({highDate}), najniższa {low} ({lowDate}).',
         climateDaylight: 'Dzień trwa ok. {long} godz. ({longMonth}) oraz {short} godz. ({shortMonth}).',
         climateSource: 'Dane: Open-Meteo (reanaliza ERA5), średnie {period}.',
+        notFoundTitle: 'Nie znaleziono strony',
+        notFoundBlurb: 'Ta strona nie istnieje — ale pogoda tak. Wyszukaj swoje miasto:',
 
         // Weather codes
         wc0: 'Bezchmurnie',

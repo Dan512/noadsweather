@@ -86,6 +86,8 @@ TRANSLATIONS.es = {
         climateRecords: 'Extremos desde {year}: máxima {high} ({highDate}), mínima {low} ({lowDate}).',
         climateDaylight: 'La luz diurna dura unas {long} horas en {longMonth} y {short} horas en {shortMonth}.',
         climateSource: 'Datos: Open-Meteo (reanálisis ERA5), medias {period}.',
+        notFoundTitle: 'Página no encontrada',
+        notFoundBlurb: 'Esa página no existe — pero el tiempo sí. Busca tu ciudad:',
 
         // Weather codes
         wc0: 'Cielo despejado',

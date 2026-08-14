@@ -86,6 +86,8 @@ TRANSLATIONS.ja = {
         climateRecords: '{year}年以降の極値：最高{high}（{highDate}）、最低{low}（{lowDate}）。',
         climateDaylight: '日照時間は{shortMonth}の約{short}時間から{longMonth}の約{long}時間まで変化します。',
         climateSource: 'データ：Open-Meteo（ERA5再解析）、{period}の平均。',
+        notFoundTitle: 'ページが見つかりません',
+        notFoundBlurb: 'このページは存在しませんが、天気はあります。都市を検索してください：',
 
         // Weather codes
         wc0: '快晴',

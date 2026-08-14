@@ -18,6 +18,12 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="NoAdsWeather — Weather without the clutter. No ads, no tracking, no cookies.">
     <meta name="twitter:card" content="summary_large_image">
+    <!-- Warm up connections to the APIs hit on first load — saves a DNS+TLS
+         round-trip on the first forecast fetch. crossorigin because these are
+         CORS fetch() requests. -->
+    <link rel="preconnect" href="https://api.open-meteo.com" crossorigin>
+    <link rel="preconnect" href="https://geocoding-api.open-meteo.com" crossorigin>
+    <link rel="preconnect" href="https://air-quality-api.open-meteo.com" crossorigin>
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">

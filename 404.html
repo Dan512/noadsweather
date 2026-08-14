@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://tilecache.rainviewer.com https://a.basemaps.cartocdn.com https://b.basemaps.cartocdn.com https://c.basemaps.cartocdn.com https://d.basemaps.cartocdn.com https://noadsradar-tilesvc-15838356607.us-central1.run.app; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com https://air-quality-api.open-meteo.com https://api.weather.gov https://api.rainviewer.com https://api.zippopotam.us https://alerts-proxy-ssdjubgioq-uc.a.run.app https://pollen-proxy-15838356607.us-central1.run.app https://noadsradar-tilesvc-15838356607.us-central1.run.app; font-src 'self'; manifest-src 'self' blob:; base-uri 'self'; form-action 'self'">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>Page not found — NoAdsWeather</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#111827">
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        // Theme + visual-style bootstrap. Runs synchronously in <head> so
+        // data-theme / data-style are set BEFORE first paint — prevents the
+        // white-to-dark flash on cold loads for dark-mode users.
+        (function () {
+            try {
+                var theme = localStorage.getItem('theme') ||
+                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                var style = localStorage.getItem('style');
+                if (style && style !== 'default') {
+                    document.documentElement.setAttribute('data-style', style);
+                }
+            } catch (e) { /* private mode — defaults apply */ }
+        })();
+    </script>
+    <style>
+        .nf-code {
+            text-align: center;
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            opacity: 0.35;
+            margin: 0;
+            line-height: 1;
+        }
+        .nf-blurb {
+            text-align: center;
+            color: var(--text-muted);
+            margin: 0.75rem 0 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="home-header">
+        <h1><a href="/" style="text-decoration: none; color: inherit;">NoAdsWeather</a></h1>
+        <p class="nf-code">404</p>
+        <p class="tagline" data-i18n="notFoundTitle">Page not found</p>
+    </div>
+    <main class="search-container">
+        <p class="nf-blurb" data-i18n="notFoundBlurb">That page doesn’t exist — but the weather does. Search for your city:</p>
+        <!-- Plain GET form — the homepage reads ?q= and searches it, so this
+             works with zero JavaScript. -->
+        <form id="search-form" role="search" action="/" method="get">
+            <div class="search-input-wrap">
+                <input
+                    type="text"
+                    id="search-input"
+                    name="q"
+                    placeholder="Enter city or zip code"
+                    data-i18n="searchPlaceholder"
+                    data-i18n-attr="placeholder"
+                    autocomplete="off"
+                    required
+                >
+            </div>
+            <button type="submit" data-i18n="searchButton">Search</button>
+        </form>
+        <nav class="popular-cities" aria-label="Popular cities">
+            <span class="popular-cities-label" data-i18n="popularCities">Popular cities</span>
+            <ul>
+                <li><a href="/cities/new-york-ny/">New York</a></li>
+                <li><a href="/cities/los-angeles-ca/">Los Angeles</a></li>
+                <li><a href="/cities/chicago-il/">Chicago</a></li>
+                <li><a href="/cities/miami-fl/">Miami</a></li>
+                <li><a href="/cities/seattle-wa/">Seattle</a></li>
+                <li><a href="/cities/toronto/">Toronto</a></li>
+                <li><a href="/cities/london/">London</a></li>
+                <li><a href="/cities/paris-en/">Paris</a></li>
+                <li><a href="/cities/berlin-en/">Berlin</a></li>
+                <li><a href="/cities/amsterdam-en/">Amsterdam</a></li>
+                <li><a href="/cities/tokyo-en/">Tokyo</a></li>
+                <li><a href="/cities/sydney/">Sydney</a></li>
+            </ul>
+        </nav>
+        <div class="footer-links footer-links-home">
+            <a href="/privacy.html" class="privacy-link" data-i18n="privacyCookies">Privacy</a>
+            <a href="/about/" class="privacy-link" data-i18n="about">About</a>
+            <a href="/cities/" class="privacy-link" data-i18n="cities">Cities</a>
+        </div>
+    </main>
+    <script src="/js/i18n.js"></script>
+    <script>
+        // i18n loader: pull in the one non-English translation file the
+        // visitor needs (English lives in i18n.js as the fallback).
+        (function () {
+            var lang = getCurrentLang();
+            if (lang !== 'en') {
+                document.write('<script src="/js/i18n/' + lang + '.js"><\/script>');
+            }
+        })();
+    </script>
+    <script>
+        // Translate the data-i18n elements
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.dataset.i18n;
+            const attr = el.dataset.i18nAttr;
+            const text = t(key);
+            if (attr) el.setAttribute(attr, text);
+            else el.textContent = text;
+        });
+        document.documentElement.lang = getCurrentLang();
+        document.documentElement.dir = getCurrentLang() === 'ar' ? 'rtl' : 'ltr';
+    </script>
+</body>
+</html>

@@ -86,6 +86,8 @@ TRANSLATIONS.fr = {
         climateRecords: 'Extrêmes depuis {year} : maximale {high} ({highDate}), minimale {low} ({lowDate}).',
         climateDaylight: 'La durée du jour est d’environ {long} heures en {longMonth} et {short} heures en {shortMonth}.',
         climateSource: 'Données : Open-Meteo (réanalyse ERA5), moyennes {period}.',
+        notFoundTitle: 'Page introuvable',
+        notFoundBlurb: 'Cette page n’existe pas — mais la météo, oui. Recherchez votre ville :',
 
         // Weather codes
         wc0: 'Ciel dégagé',

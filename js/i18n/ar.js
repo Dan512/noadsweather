@@ -86,6 +86,8 @@ TRANSLATIONS.ar = {
         climateRecords: 'القيم القصوى منذ {year}: أعلى {high} ({highDate})، وأدنى {low} ({lowDate}).',
         climateDaylight: 'يتراوح ضوء النهار من نحو {short} ساعات في {shortMonth} إلى نحو {long} ساعة في {longMonth}.',
         climateSource: 'البيانات: Open-Meteo (إعادة تحليل ERA5)، متوسطات {period}.',
+        notFoundTitle: 'الصفحة غير موجودة',
+        notFoundBlurb: 'هذه الصفحة غير موجودة — لكن الطقس موجود. ابحث عن مدينتك:',
 
         // Weather codes
         wc0: 'سماء صافية',

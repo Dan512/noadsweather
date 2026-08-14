@@ -86,6 +86,8 @@ TRANSLATIONS.de = {
         climateRecords: 'Extremwerte seit {year}: Höchstwert {high} ({highDate}), Tiefstwert {low} ({lowDate}).',
         climateDaylight: 'Die Tageslänge beträgt etwa {long} Stunden im {longMonth} und {short} Stunden im {shortMonth}.',
         climateSource: 'Daten: Open-Meteo (ERA5-Reanalyse), Mittelwerte {period}.',
+        notFoundTitle: 'Seite nicht gefunden',
+        notFoundBlurb: 'Diese Seite existiert nicht — das Wetter schon. Suchen Sie Ihre Stadt:',
 
         // Weather codes
         wc0: 'Klarer Himmel',

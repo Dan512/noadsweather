@@ -86,6 +86,8 @@ TRANSLATIONS.pt = {
         climateRecords: 'Extremos desde {year}: máxima {high} ({highDate}), mínima {low} ({lowDate}).',
         climateDaylight: 'A luz do dia dura cerca de {long} horas em {longMonth} e {short} horas em {shortMonth}.',
         climateSource: 'Dados: Open-Meteo (reanálise ERA5), médias de {period}.',
+        notFoundTitle: 'Página não encontrada',
+        notFoundBlurb: 'Essa página não existe — mas o tempo sim. Pesquise sua cidade:',
 
         // Weather codes
         wc0: 'Céu limpo',

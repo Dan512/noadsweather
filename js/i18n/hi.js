@@ -86,6 +86,8 @@ TRANSLATIONS.hi = {
         climateRecords: '{year} से चरम मान: उच्चतम {high} ({highDate}), न्यूनतम {low} ({lowDate})।',
         climateDaylight: 'दिन की रोशनी {shortMonth} में लगभग {short} घंटे से {longMonth} में लगभग {long} घंटे तक रहती है।',
         climateSource: 'डेटा: Open-Meteo (ERA5 पुनर्विश्लेषण), {period} औसत।',
+        notFoundTitle: 'पृष्ठ नहीं मिला',
+        notFoundBlurb: 'यह पृष्ठ मौजूद नहीं है — लेकिन मौसम है। अपना शहर खोजें:',
 
         // Weather codes
         wc0: 'साफ आसमान',
