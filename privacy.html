@@ -8,6 +8,23 @@
     <title>Privacy Policy — NoAdsWeather</title>
     <meta name="description" content="NoAdsWeather privacy policy. No cookies, no tracking, no ads.">
     <link rel="canonical" href="https://noadsweather.com/privacy.html">
+    <script>
+        // Theme + visual-style bootstrap. Runs synchronously in <head> so
+        // data-theme / data-style are set BEFORE first paint — prevents the
+        // white-to-dark flash on cold loads for dark-mode users (matches
+        // index.html and /cities/).
+        (function () {
+            try {
+                var theme = localStorage.getItem('theme') ||
+                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                var style = localStorage.getItem('style');
+                if (style && style !== 'default') {
+                    document.documentElement.setAttribute('data-style', style);
+                }
+            } catch (e) { /* private mode — defaults apply */ }
+        })();
+    </script>
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="NoAdsWeather">
     <meta property="og:title" content="Privacy Policy — NoAdsWeather">
@@ -85,19 +102,6 @@
         <p>Your phone might ask you to "Install this page", which means creating a shortcut to a website on your home screen, known as a Progressive Web App (PWA). This makes the site act like a native app, allowing it to load faster, and appear with your other apps on your home screen.</p>
         <p>This site is open source and supported by tips from our visitors. No data is sold, shared, or monetized in any way. If you think this is awesome, please consider <a href="https://ko-fi.com/noadsdude" target="_blank" rel="noopener">clicking here to support us</a>.</p>
     </div>
-    <script>
-        // Apply saved theme + visual style (matches index.html / about/ pattern
-        // so users on Editorial/Bulletin/Quiet see continuity across pages).
-        try {
-            const theme = localStorage.getItem('theme') ||
-                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-            const style = localStorage.getItem('style');
-            if (style && style !== 'default') {
-                document.documentElement.setAttribute('data-style', style);
-            }
-        } catch (e) { /* private mode */ }
-    </script>
     <script src="js/i18n.js"></script>
     <script>
         // i18n loader: pull in the one non-English translation file the

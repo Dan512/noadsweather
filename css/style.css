@@ -932,16 +932,16 @@ html[data-blurb-dismissed] #seo-blurb { display: none !important; }
     margin: 0;
 }
 
-/* Fixed to bottom of screen (home page) */
-.footer-links-fixed {
-    position: fixed;
-    bottom: 1.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
+/* In-flow under the popular-cities block (home page) — kept out of the
+   bottom corners so the floating theme/settings/support buttons never
+   cover the links on small screens. */
+.footer-links-home {
+    margin-top: 2.5rem;
 }
 
-/* In-flow spacer (weather page) */
+/* In-flow spacer (weather page). The large bottom padding lets the footer
+   links scroll clear of the floating theme/settings/support buttons, so
+   they're never covered at full scroll on small screens. */
 .bottom-spacer {
     min-height: 4rem;
     display: flex;
@@ -949,7 +949,7 @@ html[data-blurb-dismissed] #seo-blurb { display: none !important; }
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
-    padding: 1rem 0;
+    padding: 1rem 0 4.5rem;
 }
 
 /* Nearby-cities links — baked into generated city pages by build-cities.js */

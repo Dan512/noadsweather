@@ -24,6 +24,23 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta name="theme-color" content="#111827">
     <link rel="stylesheet" href="/css/style.css">
+    <script>
+        // Theme + visual-style bootstrap. Runs synchronously in <head> so
+        // data-theme / data-style are set BEFORE first paint — prevents the
+        // white-to-dark flash on cold loads for dark-mode users (matches
+        // index.html and /cities/).
+        (function () {
+            try {
+                var theme = localStorage.getItem('theme') ||
+                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+                var style = localStorage.getItem('style');
+                if (style && style !== 'default') {
+                    document.documentElement.setAttribute('data-style', style);
+                }
+            } catch (e) { /* private mode — defaults apply */ }
+        })();
+    </script>
     <style>
         .about-page {
             max-width: 720px;
@@ -152,18 +169,6 @@
         <p class="support-row">Or just <a href="/">search for any city</a> from the home page.</p>
     </div>
 
-    <script>
-        // Apply saved theme + visual style (matches privacy.html pattern)
-        try {
-            const theme = localStorage.getItem('theme') ||
-                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            document.documentElement.setAttribute('data-theme', theme);
-            const style = localStorage.getItem('style');
-            if (style && style !== 'default') {
-                document.documentElement.setAttribute('data-style', style);
-            }
-        } catch (e) { /* private mode — fall through */ }
-    </script>
     <script src="/js/i18n.js"></script>
     <script>
         // i18n loader: pull in the one non-English translation file the
