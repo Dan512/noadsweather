@@ -2877,9 +2877,12 @@ function rerenderWeatherFromCache() {
 // --- Navigation & Event Listeners --------------------------------------------
 
 function showHome() {
-    // Make sure the auto-resume CSS gate isn't still hiding the home view
-    // (e.g. after popstate from a deep-link).
+    // Clear both CSS gates that hide #home-view. Without removing
+    // data-seo-city, generated /cities/* pages keep #home-view forced to
+    // display:none via CSS, so clicking Back would blank the screen (weather
+    // view hidden by JS, home view still hidden by the SEO gate).
     document.documentElement.removeAttribute('data-auto-resume');
+    document.documentElement.removeAttribute('data-seo-city');
     weatherView.hidden = true;
     homeView.hidden = false;
     searchInput.value = '';
@@ -2889,6 +2892,12 @@ function showHome() {
 function showWeather(location, query) {
     homeView.hidden = true;
     weatherView.hidden = false;
+    // Hide the SEO blurb by default. On generated /cities/* pages it is
+    // server-rendered visible and names a specific city, so it must not
+    // survive into a different location the user searches for. initSeoCity()
+    // calls this before renderSeoBlurb(), so the SEO path re-shows it.
+    const blurb = document.getElementById('seo-blurb');
+    if (blurb) blurb.hidden = true;
     // Build location label: "City, Region" or "City, Country" if no region
     const secondary = location.region || location.country || '';
     let label = secondary ? `${location.name}, ${secondary}` : location.name;
