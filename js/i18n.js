@@ -98,6 +98,8 @@ const TRANSLATIONS = {
         climateRecords: 'Extremes since {year}: highest {high} ({highDate}), lowest {low} ({lowDate}).',
         climateDaylight: 'Daylight lasts about {long} hours in {longMonth} and {short} hours in {shortMonth}.',
         climateSource: 'Data: Meteostat — {station}, {period} averages.',
+        hide: 'Hide',
+        settingShowClimate: 'Show climate averages on city pages',
         notFoundTitle: 'Page not found',
         notFoundBlurb: 'That page doesn’t exist — but the weather does. Search for your city:',
 

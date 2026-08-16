@@ -2982,6 +2982,18 @@ function locateAndLoad() {
 
 if (geolocateBtn) geolocateBtn.addEventListener('click', locateAndLoad);
 
+// Climate section dismiss (X). Writes the same showClimate setting the
+// settings checkbox uses, so hiding it here leaves an obvious way to bring
+// it back — unlike a one-way dismissal.
+(function initClimateDismiss() {
+    const btn = document.getElementById('climate-close');
+    if (!btn) return; // not a generated city page, or no climate data
+    btn.addEventListener('click', () => {
+        try { localStorage.setItem('showClimate', 'false'); } catch (e) { /* private mode */ }
+        applySettings();
+    });
+})();
+
 // --- Data freshness ("Updated X ago" + refresh) -------------------------------
 // _lastFetchTime is stamped inside fetchAllWeatherData when the main payload
 // lands. The label re-renders every minute and on tab return; it turns amber
@@ -3128,6 +3140,11 @@ function applySettings() {
     const summary = document.getElementById('weather-summary');
     if (summary) summary.style.display = showSummary ? '' : 'none';
 
+    // Climate section (generated city pages only). Toggled via the <html>
+    // attribute rather than an inline style so it matches the pre-paint gate
+    // the city page's inline <head> script sets — one source of truth.
+    document.documentElement.toggleAttribute('data-climate-hidden', !getSettingsBool('showClimate'));
+
     // Theme toggle button
     const themeBtn = document.getElementById('theme-toggle');
     if (themeBtn) themeBtn.style.display = getSettingsBool('showThemeToggle') ? '' : 'none';
@@ -3200,6 +3217,7 @@ document.getElementById('settings-revert').addEventListener('click', () => {
     localStorage.setItem('showTranslateLink', 'true');
     localStorage.setItem('autoPlayRadar', 'false');
     localStorage.setItem('autoLocate', 'false');
+    localStorage.setItem('showClimate', 'true');
     localStorage.setItem('rememberLastCity', 'true');
     localStorage.removeItem('sectionPrefs');
     applySettings();

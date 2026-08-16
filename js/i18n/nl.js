@@ -86,6 +86,8 @@ TRANSLATIONS.nl = {
         climateRecords: 'Extremen sinds {year}: hoogste {high} ({highDate}), laagste {low} ({lowDate}).',
         climateDaylight: 'Daglicht duurt ongeveer {long} uur in {longMonth} en {short} uur in {shortMonth}.',
         climateSource: 'Gegevens: Meteostat — {station}, gemiddelden {period}.',
+        hide: 'Verbergen',
+        settingShowClimate: 'Klimaatgemiddelden tonen op stadspaginas',
         notFoundTitle: 'Pagina niet gevonden',
         notFoundBlurb: 'Die pagina bestaat niet — het weer wel. Zoek je stad:',
 

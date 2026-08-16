@@ -86,6 +86,8 @@ TRANSLATIONS.it = {
         climateRecords: 'Estremi dal {year}: massima {high} ({highDate}), minima {low} ({lowDate}).',
         climateDaylight: 'La luce del giorno dura circa {long} ore a {longMonth} e {short} ore a {shortMonth}.',
         climateSource: 'Dati: Meteostat — {station}, medie {period}.',
+        hide: 'Nascondi',
+        settingShowClimate: 'Mostra le medie climatiche nelle pagine città',
         notFoundTitle: 'Pagina non trovata',
         notFoundBlurb: 'Questa pagina non esiste — ma il meteo sì. Cerca la tua città:',
 

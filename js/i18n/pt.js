@@ -86,6 +86,8 @@ TRANSLATIONS.pt = {
         climateRecords: 'Extremos desde {year}: máxima {high} ({highDate}), mínima {low} ({lowDate}).',
         climateDaylight: 'A luz do dia dura cerca de {long} horas em {longMonth} e {short} horas em {shortMonth}.',
         climateSource: 'Dados: Meteostat — {station}, médias de {period}.',
+        hide: 'Ocultar',
+        settingShowClimate: 'Mostrar médias climáticas nas páginas de cidade',
         notFoundTitle: 'Página não encontrada',
         notFoundBlurb: 'Essa página não existe — mas o tempo sim. Pesquise sua cidade:',
 

@@ -43,6 +43,7 @@
         window._seoCity = {"slug":"honolulu-hi","lang":"en","lat":21.3099,"lon":-157.8581,"name":"Honolulu HI","displayName":"Honolulu HI","country":"US","region":"HI"};
         document.documentElement.setAttribute('data-seo-city', 'true');
         try { if (localStorage.getItem('hideCitySeoBlurb') === 'true') document.documentElement.setAttribute('data-blurb-dismissed', 'true'); } catch (e) {}
+        try { if (localStorage.getItem('showClimate') === 'false') document.documentElement.setAttribute('data-climate-hidden', 'true'); } catch (e) {}
     </script>
     <link rel="stylesheet" href="/css/style.css">
     <script>
@@ -178,6 +179,7 @@
             <section id="moon-section"></section>
             <div class="bottom-spacer">
                 <div class="climate-block">
+                    <button id="climate-close" type="button" aria-label="Hide" title="Hide">&times;</button>
                     <h2>Climate in Honolulu HI</h2>
                     <p class="climate-summary">August is the hottest month in Honolulu HI, with an average high of 89°F / 32°C; January is the coldest (80°F / 27°C). March is the wettest month, averaging 2.4 in / 60 mm of precipitation.</p>
                     <div class="climate-table-wrap">
@@ -254,6 +256,7 @@
         </label>
         <label><input type="checkbox" id="setting-remember-city" data-setting="rememberLastCity" checked> <span data-i18n="settingRememberCity">Remember last city</span></label>
         <label><input type="checkbox" id="setting-auto-locate" data-setting="autoLocate"> <span data-i18n="settingAutoLocate">Use my location automatically on each visit</span></label>
+        <label><input type="checkbox" id="setting-show-climate" data-setting="showClimate" checked> <span data-i18n="settingShowClimate">Show climate averages on city pages</span></label>
         <label><input type="checkbox" id="setting-forecast-colors" data-setting="showForecastColors" checked> <span data-i18n="settingForecastColors">Show color backgrounds on 10-day forecast</span></label>
         <label><input type="checkbox" id="setting-support-btn" data-setting="showSupportBtn" checked> <span data-i18n="settingSupportBtn">Show Annoying Support Button</span></label>
         <label><input type="checkbox" id="setting-weather-summary" data-setting="showWeatherSummary" checked> <span data-i18n="settingWeatherSummary">Show weather summary</span></label>

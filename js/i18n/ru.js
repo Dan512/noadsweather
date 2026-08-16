@@ -86,6 +86,8 @@ TRANSLATIONS.ru = {
         climateRecords: 'Экстремумы с {year} года: максимум {high} ({highDate}), минимум {low} ({lowDate}).',
         climateDaylight: 'Световой день: около {long} ч ({longMonth}) и {short} ч ({shortMonth}).',
         climateSource: 'Данные: Meteostat — {station}, средние за {period}.',
+        hide: 'Скрыть',
+        settingShowClimate: 'Показывать климатические средние на страницах городов',
         notFoundTitle: 'Страница не найдена',
         notFoundBlurb: 'Такой страницы нет — а погода есть. Найдите свой город:',
 

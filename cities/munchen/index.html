@@ -44,6 +44,7 @@
         window._seoCity = {"slug":"munchen","lang":"de","lat":48.1351,"lon":11.582,"name":"Munich","displayName":"München","country":"DE","region":""};
         document.documentElement.setAttribute('data-seo-city', 'true');
         try { if (localStorage.getItem('hideCitySeoBlurb') === 'true') document.documentElement.setAttribute('data-blurb-dismissed', 'true'); } catch (e) {}
+        try { if (localStorage.getItem('showClimate') === 'false') document.documentElement.setAttribute('data-climate-hidden', 'true'); } catch (e) {}
     </script>
     <link rel="stylesheet" href="/css/style.css">
     <script>
@@ -179,6 +180,7 @@
             <section id="moon-section"></section>
             <div class="bottom-spacer">
                 <div class="climate-block">
+                    <button id="climate-close" type="button" aria-label="Ausblenden" title="Ausblenden">&times;</button>
                     <h2>Klima in München</h2>
                     <p class="climate-summary">Juli ist der wärmste Monat in München mit einer durchschnittlichen Höchsttemperatur von 25°C / 77°F; Januar ist der kälteste (4°C / 39°F). Juni ist der niederschlagsreichste Monat (durchschnittlich 121 mm / 4.8 in).</p>
                     <div class="climate-table-wrap">
@@ -255,6 +257,7 @@
         </label>
         <label><input type="checkbox" id="setting-remember-city" data-setting="rememberLastCity" checked> <span data-i18n="settingRememberCity">Remember last city</span></label>
         <label><input type="checkbox" id="setting-auto-locate" data-setting="autoLocate"> <span data-i18n="settingAutoLocate">Use my location automatically on each visit</span></label>
+        <label><input type="checkbox" id="setting-show-climate" data-setting="showClimate" checked> <span data-i18n="settingShowClimate">Show climate averages on city pages</span></label>
         <label><input type="checkbox" id="setting-forecast-colors" data-setting="showForecastColors" checked> <span data-i18n="settingForecastColors">Show color backgrounds on 10-day forecast</span></label>
         <label><input type="checkbox" id="setting-support-btn" data-setting="showSupportBtn" checked> <span data-i18n="settingSupportBtn">Show Annoying Support Button</span></label>
         <label><input type="checkbox" id="setting-weather-summary" data-setting="showWeatherSummary" checked> <span data-i18n="settingWeatherSummary">Show weather summary</span></label>

@@ -953,7 +953,24 @@ html[data-blurb-dismissed] #seo-blurb { display: none !important; }
 }
 
 /* Climate section — static content baked into generated city pages */
+html[data-climate-hidden] .climate-block { display: none; }
+
+#climate-close {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem 0.4rem;
+}
+#climate-close:hover { color: var(--text); }
+
 .climate-block {
+    position: relative;
     width: 100%;
     background: var(--card-bg);
     border-radius: var(--radius-card);

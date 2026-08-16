@@ -86,6 +86,8 @@ TRANSLATIONS.pl = {
         climateRecords: 'Wartości ekstremalne od {year}: najwyższa {high} ({highDate}), najniższa {low} ({lowDate}).',
         climateDaylight: 'Dzień trwa ok. {long} godz. ({longMonth}) oraz {short} godz. ({shortMonth}).',
         climateSource: 'Dane: Meteostat — {station}, średnie {period}.',
+        hide: 'Ukryj',
+        settingShowClimate: 'Pokaż średnie klimatyczne na stronach miast',
         notFoundTitle: 'Nie znaleziono strony',
         notFoundBlurb: 'Ta strona nie istnieje — ale pogoda tak. Wyszukaj swoje miasto:',
 

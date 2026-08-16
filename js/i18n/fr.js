@@ -86,6 +86,8 @@ TRANSLATIONS.fr = {
         climateRecords: 'Extrêmes depuis {year} : maximale {high} ({highDate}), minimale {low} ({lowDate}).',
         climateDaylight: 'La durée du jour est d’environ {long} heures en {longMonth} et {short} heures en {shortMonth}.',
         climateSource: 'Données : Meteostat — {station}, moyennes {period}.',
+        hide: 'Masquer',
+        settingShowClimate: 'Afficher les moyennes climatiques sur les pages de ville',
         notFoundTitle: 'Page introuvable',
         notFoundBlurb: 'Cette page n’existe pas — mais la météo, oui. Recherchez votre ville :',
 

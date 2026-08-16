@@ -86,6 +86,8 @@ TRANSLATIONS.sv = {
         climateRecords: 'Extremvärden sedan {year}: högsta {high} ({highDate}), lägsta {low} ({lowDate}).',
         climateDaylight: 'Dagsljuset varar cirka {long} timmar i {longMonth} och {short} timmar i {shortMonth}.',
         climateSource: 'Data: Meteostat — {station}, medelvärden {period}.',
+        hide: 'Dölj',
+        settingShowClimate: 'Visa klimatmedelvärden på stadssidor',
         notFoundTitle: 'Sidan hittades inte',
         notFoundBlurb: 'Den här sidan finns inte — men vädret gör det. Sök efter din stad:',
 

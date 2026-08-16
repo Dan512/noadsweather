@@ -44,6 +44,7 @@
         window._seoCity = {"slug":"seoul","lang":"ko","lat":37.5665,"lon":126.978,"name":"Seoul","displayName":"서울","country":"KR","region":""};
         document.documentElement.setAttribute('data-seo-city', 'true');
         try { if (localStorage.getItem('hideCitySeoBlurb') === 'true') document.documentElement.setAttribute('data-blurb-dismissed', 'true'); } catch (e) {}
+        try { if (localStorage.getItem('showClimate') === 'false') document.documentElement.setAttribute('data-climate-hidden', 'true'); } catch (e) {}
     </script>
     <link rel="stylesheet" href="/css/style.css">
     <script>
@@ -179,6 +180,7 @@
             <section id="moon-section"></section>
             <div class="bottom-spacer">
                 <div class="climate-block">
+                    <button id="climate-close" type="button" aria-label="숨기기" title="숨기기">&times;</button>
                     <h2>서울 기후</h2>
                     <p class="climate-summary">서울에서 가장 더운 달은 8월(평균 최고 30°C / 86°F)이고, 가장 추운 달은 1월(2°C / 36°F)입니다. 강수량이 가장 많은 달은 7월(평균 428 mm / 16.9 in)입니다.</p>
                     <div class="climate-table-wrap">
@@ -255,6 +257,7 @@
         </label>
         <label><input type="checkbox" id="setting-remember-city" data-setting="rememberLastCity" checked> <span data-i18n="settingRememberCity">Remember last city</span></label>
         <label><input type="checkbox" id="setting-auto-locate" data-setting="autoLocate"> <span data-i18n="settingAutoLocate">Use my location automatically on each visit</span></label>
+        <label><input type="checkbox" id="setting-show-climate" data-setting="showClimate" checked> <span data-i18n="settingShowClimate">Show climate averages on city pages</span></label>
         <label><input type="checkbox" id="setting-forecast-colors" data-setting="showForecastColors" checked> <span data-i18n="settingForecastColors">Show color backgrounds on 10-day forecast</span></label>
         <label><input type="checkbox" id="setting-support-btn" data-setting="showSupportBtn" checked> <span data-i18n="settingSupportBtn">Show Annoying Support Button</span></label>
         <label><input type="checkbox" id="setting-weather-summary" data-setting="showWeatherSummary" checked> <span data-i18n="settingWeatherSummary">Show weather summary</span></label>

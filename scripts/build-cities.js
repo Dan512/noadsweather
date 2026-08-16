@@ -359,6 +359,7 @@ function renderClimateBlock(page) {
     });
 
     return `<div class="climate-block">
+                    <button id="climate-close" type="button" aria-label="${escapeAttr(tr(lang, 'hide'))}" title="${escapeAttr(tr(lang, 'hide'))}">&times;</button>
                     <h2>${escapeHtml(tr(lang, 'climateHeading', { city: cityName }))}</h2>
                     <p class="climate-summary">${escapeHtml(summary)}</p>
                     <div class="climate-table-wrap">
@@ -400,6 +401,9 @@ function buildHeadInjection(page) {
     // so it doesn't flash in. Wrapped in try-catch because localStorage can
     // throw in private-mode / disabled-storage contexts.
     lines.push(`        try { if (localStorage.getItem('hideCitySeoBlurb') === 'true') document.documentElement.setAttribute('data-blurb-dismissed', 'true'); } catch (e) {}`);
+    // Same pre-paint gate for the climate section: it's baked into the static
+    // HTML, so without this it would flash in before app.js could hide it.
+    lines.push(`        try { if (localStorage.getItem('showClimate') === 'false') document.documentElement.setAttribute('data-climate-hidden', 'true'); } catch (e) {}`);
     lines.push('    </script>');
     return lines.join('\n');
 }

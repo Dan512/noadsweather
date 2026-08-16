@@ -44,6 +44,7 @@
         window._seoCity = {"slug":"beijing","lang":"zh","lat":39.9042,"lon":116.4074,"name":"Beijing","displayName":"北京","country":"CN","region":""};
         document.documentElement.setAttribute('data-seo-city', 'true');
         try { if (localStorage.getItem('hideCitySeoBlurb') === 'true') document.documentElement.setAttribute('data-blurb-dismissed', 'true'); } catch (e) {}
+        try { if (localStorage.getItem('showClimate') === 'false') document.documentElement.setAttribute('data-climate-hidden', 'true'); } catch (e) {}
     </script>
     <link rel="stylesheet" href="/css/style.css">
     <script>
@@ -179,6 +180,7 @@
             <section id="moon-section"></section>
             <div class="bottom-spacer">
                 <div class="climate-block">
+                    <button id="climate-close" type="button" aria-label="隐藏" title="隐藏">&times;</button>
                     <h2>北京气候</h2>
                     <p class="climate-summary">北京最热的月份是七月（平均最高32°C / 89°F），最冷的是一月（2°C / 36°F）。七月降水最多（平均173 mm / 6.8 in）。</p>
                     <div class="climate-table-wrap">
@@ -255,6 +257,7 @@
         </label>
         <label><input type="checkbox" id="setting-remember-city" data-setting="rememberLastCity" checked> <span data-i18n="settingRememberCity">Remember last city</span></label>
         <label><input type="checkbox" id="setting-auto-locate" data-setting="autoLocate"> <span data-i18n="settingAutoLocate">Use my location automatically on each visit</span></label>
+        <label><input type="checkbox" id="setting-show-climate" data-setting="showClimate" checked> <span data-i18n="settingShowClimate">Show climate averages on city pages</span></label>
         <label><input type="checkbox" id="setting-forecast-colors" data-setting="showForecastColors" checked> <span data-i18n="settingForecastColors">Show color backgrounds on 10-day forecast</span></label>
         <label><input type="checkbox" id="setting-support-btn" data-setting="showSupportBtn" checked> <span data-i18n="settingSupportBtn">Show Annoying Support Button</span></label>
         <label><input type="checkbox" id="setting-weather-summary" data-setting="showWeatherSummary" checked> <span data-i18n="settingWeatherSummary">Show weather summary</span></label>

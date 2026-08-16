@@ -44,6 +44,7 @@
         window._seoCity = {"slug":"madrid","lang":"es","lat":40.4168,"lon":-3.7038,"name":"Madrid","displayName":"Madrid","country":"ES","region":""};
         document.documentElement.setAttribute('data-seo-city', 'true');
         try { if (localStorage.getItem('hideCitySeoBlurb') === 'true') document.documentElement.setAttribute('data-blurb-dismissed', 'true'); } catch (e) {}
+        try { if (localStorage.getItem('showClimate') === 'false') document.documentElement.setAttribute('data-climate-hidden', 'true'); } catch (e) {}
     </script>
     <link rel="stylesheet" href="/css/style.css">
     <script>
@@ -179,6 +180,7 @@
             <section id="moon-section"></section>
             <div class="bottom-spacer">
                 <div class="climate-block">
+                    <button id="climate-close" type="button" aria-label="Ocultar" title="Ocultar">&times;</button>
                     <h2>Clima en Madrid</h2>
                     <p class="climate-summary">julio es el mes más caluroso en Madrid, con una máxima media de 33°C / 91°F; enero es el más frío (10°C / 50°F). octubre es el mes más lluvioso, con una media de 64 mm / 2.5 in de precipitación.</p>
                     <div class="climate-table-wrap">
@@ -255,6 +257,7 @@
         </label>
         <label><input type="checkbox" id="setting-remember-city" data-setting="rememberLastCity" checked> <span data-i18n="settingRememberCity">Remember last city</span></label>
         <label><input type="checkbox" id="setting-auto-locate" data-setting="autoLocate"> <span data-i18n="settingAutoLocate">Use my location automatically on each visit</span></label>
+        <label><input type="checkbox" id="setting-show-climate" data-setting="showClimate" checked> <span data-i18n="settingShowClimate">Show climate averages on city pages</span></label>
         <label><input type="checkbox" id="setting-forecast-colors" data-setting="showForecastColors" checked> <span data-i18n="settingForecastColors">Show color backgrounds on 10-day forecast</span></label>
         <label><input type="checkbox" id="setting-support-btn" data-setting="showSupportBtn" checked> <span data-i18n="settingSupportBtn">Show Annoying Support Button</span></label>
         <label><input type="checkbox" id="setting-weather-summary" data-setting="showWeatherSummary" checked> <span data-i18n="settingWeatherSummary">Show weather summary</span></label>

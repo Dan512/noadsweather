@@ -86,6 +86,8 @@ TRANSLATIONS.ko = {
         climateRecords: '{year}년 이후 극값: 최고 {high}({highDate}), 최저 {low}({lowDate}).',
         climateDaylight: '낮의 길이는 {shortMonth} 약 {short}시간에서 {longMonth} 약 {long}시간까지 변합니다.',
         climateSource: '데이터: Meteostat — {station}, {period} 평균.',
+        hide: '숨기기',
+        settingShowClimate: '도시 페이지에 기후 평년값 표시',
         notFoundTitle: '페이지를 찾을 수 없습니다',
         notFoundBlurb: '이 페이지는 존재하지 않지만 날씨는 있습니다. 도시를 검색해 보세요:',
 
