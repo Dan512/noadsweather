@@ -85,7 +85,7 @@ TRANSLATIONS.ar = {
         climateSummary: '{hotMonth} هو أحر شهر في {city} بمتوسط عظمى {hotTemp}؛ و{coldMonth} هو الأبرد ({coldTemp}). {wetMonth} هو الشهر الأكثر مطرًا بمتوسط {wetAmount}.',
         climateRecords: 'القيم القصوى منذ {year}: أعلى {high} ({highDate})، وأدنى {low} ({lowDate}).',
         climateDaylight: 'يتراوح ضوء النهار من نحو {short} ساعات في {shortMonth} إلى نحو {long} ساعة في {longMonth}.',
-        climateSource: 'البيانات: Open-Meteo (إعادة تحليل ERA5)، متوسطات {period}.',
+        climateSource: 'البيانات: Meteostat — {station}، متوسطات {period}.',
         notFoundTitle: 'الصفحة غير موجودة',
         notFoundBlurb: 'هذه الصفحة غير موجودة — لكن الطقس موجود. ابحث عن مدينتك:',
 

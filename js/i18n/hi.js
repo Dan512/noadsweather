@@ -85,7 +85,7 @@ TRANSLATIONS.hi = {
         climateSummary: '{city} में सबसे गर्म माह {hotMonth} है (औसत अधिकतम {hotTemp}); सबसे ठंडा {coldMonth} है ({coldTemp})। सबसे अधिक वर्षा {wetMonth} में होती है (औसतन {wetAmount})।',
         climateRecords: '{year} से चरम मान: उच्चतम {high} ({highDate}), न्यूनतम {low} ({lowDate})।',
         climateDaylight: 'दिन की रोशनी {shortMonth} में लगभग {short} घंटे से {longMonth} में लगभग {long} घंटे तक रहती है।',
-        climateSource: 'डेटा: Open-Meteo (ERA5 पुनर्विश्लेषण), {period} औसत।',
+        climateSource: 'डेटा: Meteostat — {station}, {period} औसत।',
         notFoundTitle: 'पृष्ठ नहीं मिला',
         notFoundBlurb: 'यह पृष्ठ मौजूद नहीं है — लेकिन मौसम है। अपना शहर खोजें:',
 

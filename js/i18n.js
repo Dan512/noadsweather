@@ -97,7 +97,7 @@ const TRANSLATIONS = {
         climateSummary: '{hotMonth} is the hottest month in {city}, with an average high of {hotTemp}; {coldMonth} is the coldest ({coldTemp}). {wetMonth} is the wettest month, averaging {wetAmount} of precipitation.',
         climateRecords: 'Extremes since {year}: highest {high} ({highDate}), lowest {low} ({lowDate}).',
         climateDaylight: 'Daylight lasts about {long} hours in {longMonth} and {short} hours in {shortMonth}.',
-        climateSource: 'Data: Open-Meteo (ERA5 reanalysis), {period} averages.',
+        climateSource: 'Data: Meteostat — {station}, {period} averages.',
         notFoundTitle: 'Page not found',
         notFoundBlurb: 'That page doesn’t exist — but the weather does. Search for your city:',
 

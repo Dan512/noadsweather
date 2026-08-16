@@ -85,7 +85,7 @@ TRANSLATIONS.zh = {
         climateSummary: '{city}最热的月份是{hotMonth}（平均最高{hotTemp}），最冷的是{coldMonth}（{coldTemp}）。{wetMonth}降水最多（平均{wetAmount}）。',
         climateRecords: '自{year}年以来的极值：最高{high}（{highDate}），最低{low}（{lowDate}）。',
         climateDaylight: '白昼时长从{shortMonth}的约{short}小时到{longMonth}的约{long}小时。',
-        climateSource: '数据：Open-Meteo（ERA5再分析），{period}年平均值。',
+        climateSource: '数据：Meteostat — {station}，{period}年平均值。',
         notFoundTitle: '页面未找到',
         notFoundBlurb: '该页面不存在——但天气存在。搜索您的城市：',
 

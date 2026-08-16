@@ -353,7 +353,10 @@ function renderClimateBlock(page) {
         short: shortHours,
         shortMonth: monthName(lang, shortMonthIdx, 'long'),
     });
-    const source = tr(lang, 'climateSource', { period: clim.normalsPeriod });
+    const source = tr(lang, 'climateSource', {
+        period: clim.normalsPeriod,
+        station: clim.station || '—',
+    });
 
     return `<div class="climate-block">
                     <h2>${escapeHtml(tr(lang, 'climateHeading', { city: cityName }))}</h2>

@@ -85,7 +85,7 @@ TRANSLATIONS.sv = {
         climateSummary: '{hotMonth} är den varmaste månaden i {city}, med en genomsnittlig maxtemperatur på {hotTemp}; {coldMonth} är den kallaste ({coldTemp}). {wetMonth} är den blötaste månaden, med i genomsnitt {wetAmount} nederbörd.',
         climateRecords: 'Extremvärden sedan {year}: högsta {high} ({highDate}), lägsta {low} ({lowDate}).',
         climateDaylight: 'Dagsljuset varar cirka {long} timmar i {longMonth} och {short} timmar i {shortMonth}.',
-        climateSource: 'Data: Open-Meteo (ERA5-återanalys), medelvärden {period}.',
+        climateSource: 'Data: Meteostat — {station}, medelvärden {period}.',
         notFoundTitle: 'Sidan hittades inte',
         notFoundBlurb: 'Den här sidan finns inte — men vädret gör det. Sök efter din stad:',
 

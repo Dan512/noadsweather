@@ -85,7 +85,7 @@ TRANSLATIONS.ru = {
         climateSummary: '{hotMonth} — самый тёплый месяц ({city}): средний максимум {hotTemp}; {coldMonth} — самый холодный ({coldTemp}). {wetMonth} — самый дождливый месяц (в среднем {wetAmount} осадков).',
         climateRecords: 'Экстремумы с {year} года: максимум {high} ({highDate}), минимум {low} ({lowDate}).',
         climateDaylight: 'Световой день: около {long} ч ({longMonth}) и {short} ч ({shortMonth}).',
-        climateSource: 'Данные: Open-Meteo (реанализ ERA5), средние за {period}.',
+        climateSource: 'Данные: Meteostat — {station}, средние за {period}.',
         notFoundTitle: 'Страница не найдена',
         notFoundBlurb: 'Такой страницы нет — а погода есть. Найдите свой город:',
 

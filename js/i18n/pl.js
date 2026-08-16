@@ -85,7 +85,7 @@ TRANSLATIONS.pl = {
         climateSummary: '{hotMonth} to najcieplejszy miesiąc ({city}), ze średnią maksymalną {hotTemp}; {coldMonth} jest najzimniejszy ({coldTemp}). {wetMonth} to najbardziej deszczowy miesiąc (średnio {wetAmount} opadów).',
         climateRecords: 'Wartości ekstremalne od {year}: najwyższa {high} ({highDate}), najniższa {low} ({lowDate}).',
         climateDaylight: 'Dzień trwa ok. {long} godz. ({longMonth}) oraz {short} godz. ({shortMonth}).',
-        climateSource: 'Dane: Open-Meteo (reanaliza ERA5), średnie {period}.',
+        climateSource: 'Dane: Meteostat — {station}, średnie {period}.',
         notFoundTitle: 'Nie znaleziono strony',
         notFoundBlurb: 'Ta strona nie istnieje — ale pogoda tak. Wyszukaj swoje miasto:',
 

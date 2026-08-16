@@ -85,7 +85,7 @@ TRANSLATIONS.ja = {
         climateSummary: '{city}では{hotMonth}が最も暑く（平均最高気温{hotTemp}）、{coldMonth}が最も寒い（{coldTemp}）。降水量が最も多いのは{wetMonth}（平均{wetAmount}）。',
         climateRecords: '{year}年以降の極値：最高{high}（{highDate}）、最低{low}（{lowDate}）。',
         climateDaylight: '日照時間は{shortMonth}の約{short}時間から{longMonth}の約{long}時間まで変化します。',
-        climateSource: 'データ：Open-Meteo（ERA5再解析）、{period}の平均。',
+        climateSource: 'データ：Meteostat — {station}、{period}の平均。',
         notFoundTitle: 'ページが見つかりません',
         notFoundBlurb: 'このページは存在しませんが、天気はあります。都市を検索してください：',
 

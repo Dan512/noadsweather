@@ -85,7 +85,7 @@ TRANSLATIONS.pt = {
         climateSummary: '{hotMonth} é o mês mais quente em {city}, com máxima média de {hotTemp}; {coldMonth} é o mais frio ({coldTemp}). {wetMonth} é o mês mais chuvoso, com média de {wetAmount} de precipitação.',
         climateRecords: 'Extremos desde {year}: máxima {high} ({highDate}), mínima {low} ({lowDate}).',
         climateDaylight: 'A luz do dia dura cerca de {long} horas em {longMonth} e {short} horas em {shortMonth}.',
-        climateSource: 'Dados: Open-Meteo (reanálise ERA5), médias de {period}.',
+        climateSource: 'Dados: Meteostat — {station}, médias de {period}.',
         notFoundTitle: 'Página não encontrada',
         notFoundBlurb: 'Essa página não existe — mas o tempo sim. Pesquise sua cidade:',
 

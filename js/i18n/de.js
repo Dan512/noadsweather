@@ -85,7 +85,7 @@ TRANSLATIONS.de = {
         climateSummary: '{hotMonth} ist der wärmste Monat in {city} mit einer durchschnittlichen Höchsttemperatur von {hotTemp}; {coldMonth} ist der kälteste ({coldTemp}). {wetMonth} ist der niederschlagsreichste Monat (durchschnittlich {wetAmount}).',
         climateRecords: 'Extremwerte seit {year}: Höchstwert {high} ({highDate}), Tiefstwert {low} ({lowDate}).',
         climateDaylight: 'Die Tageslänge beträgt etwa {long} Stunden im {longMonth} und {short} Stunden im {shortMonth}.',
-        climateSource: 'Daten: Open-Meteo (ERA5-Reanalyse), Mittelwerte {period}.',
+        climateSource: 'Daten: Meteostat — {station}, Mittelwerte {period}.',
         notFoundTitle: 'Seite nicht gefunden',
         notFoundBlurb: 'Diese Seite existiert nicht — das Wetter schon. Suchen Sie Ihre Stadt:',
 
