@@ -886,7 +886,7 @@ html[data-blurb-dismissed] #seo-blurb { display: none !important; }
     position: fixed;
     bottom: 1.5rem;
     right: 1.5rem;
-    background: #ff5e5b;
+    background: #cf3b38;
     color: white;
     text-decoration: none;
     padding: 0.6rem 1rem;
@@ -899,7 +899,7 @@ html[data-blurb-dismissed] #seo-blurb { display: none !important; }
 }
 
 #donate-btn:hover {
-    background: #e04e4b;
+    background: #b7302d;
     transform: translateY(-1px);
 }
 
@@ -913,6 +913,8 @@ html[data-blurb-dismissed] #seo-blurb { display: none !important; }
     font-size: 0.75rem;
     cursor: pointer;
     text-decoration: underline;
+    /* >=24px tap target — see .popular-cities a above. */
+    padding: 0.3rem 0.35rem;
     text-underline-offset: 2px;
 }
 
@@ -1059,7 +1061,7 @@ html[data-climate-hidden] .climate-block { display: none; }
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.3rem 0;
+    gap: 0.15rem 0;
 }
 .popular-cities li { display: flex; align-items: center; }
 .popular-cities li + li::before {
@@ -1069,6 +1071,10 @@ html[data-climate-hidden] .climate-block { display: none; }
 .popular-cities a {
     color: var(--text-muted);
     text-decoration: none;
+    /* Padding lifts each link to a >=24px tap target (WCAG 2.5.8 / the
+       Lighthouse "touch targets" audit) without changing the type size. */
+    display: inline-block;
+    padding: 0.3rem 0.15rem;
 }
 .popular-cities a:hover { color: var(--accent); }
 
@@ -2135,4 +2141,34 @@ body.is-dragging .weather-col:empty {
     transform: translateX(-50%);
     transition: left 0.2s ease-out;
     box-shadow: 0 0 0 2px var(--card-bg);
+}
+
+/* --- Reserved space for weather sections (CLS) ------------------------------
+   Sections render empty and fill in once the API responses land, which grew
+   the page by ~1,600px on mobile and pushed everything below it down — the
+   layout-shift culprit PageSpeed reported. These min-heights make each card
+   start at roughly its loaded size so content fills in place instead of
+   shoving the page around.
+
+   Values are set slightly UNDER the measured loaded heights: under-reserving
+   leaves a small downward shift, whereas over-reserving would leave dead
+   space (or shift upward) whenever a card's real content is shorter.
+   Minimized sections are excluded — they're collapsed on purpose.
+
+   The 10-day charts are deliberately NOT reserved. They account for ~760px of
+   the shift but sit well below the fold, where shifts don't count toward CLS,
+   and reserving them would mean a screen of blank card on first paint. */
+#current-section:not(.section-minimized) { min-height: 210px; }
+#details-section:not(.section-minimized) { min-height: 95px; }
+#hourly-section:not(.section-minimized)  { min-height: 143px; }
+#daily-section:not(.section-minimized)   { min-height: 160px; }
+#radar-section:not(.section-minimized)   { min-height: 430px; }
+#sun-section:not(.section-minimized)     { min-height: 144px; }
+#moon-section:not(.section-minimized)    { min-height: 168px; }
+
+@media (min-width: 601px) {
+    /* Two-column layout — the wider cards render taller. */
+    #hourly-section:not(.section-minimized) { min-height: 158px; }
+    #daily-section:not(.section-minimized)  { min-height: 270px; }
+    #radar-section:not(.section-minimized)  { min-height: 460px; }
 }

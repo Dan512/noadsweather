@@ -37,6 +37,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#111827">
+    <!-- Start the two always-needed scripts downloading during head parse;
+         the loader at the end of <body> then just executes them in order. -->
+    <link rel="preload" as="script" href="/js/i18n.js">
+    <link rel="preload" as="script" href="/js/app.js">
         <link rel="alternate" hreflang="en" href="https://noadsweather.com/cities/birmingham-uk/">
     <link rel="alternate" hreflang="x-default" href="https://noadsweather.com/cities/birmingham-uk/">
     <script>
@@ -282,26 +286,41 @@
         Support this site
     </a>
 
-    <script src="/js/i18n.js"></script>
+    <!-- Script loader. Injecting these with async=false lets them download in
+         parallel while executing in strict order, so none of them block the
+         parser. Replaces a document.write loader that forced a serial
+         i18n.js -> language file -> app.js chain and was flagged as
+         render-blocking. The <head> preloads start the two always-needed
+         downloads before the parser even reaches this point. -->
     <script>
-        // i18n loader: English ships inside i18n.js as the permanent fallback;
-        // any other UI language is pulled in here as one extra small file.
-        // document.write keeps the load synchronous and ordered, so the
-        // translations exist before the scripts below run. Mirrors the
-        // language-resolution order app.js uses: explicit user choice first,
-        // then city-page language, then browser language.
         (function () {
+            // Mirrors getCurrentLang() in js/i18n.js: explicit user choice
+            // first, then the city page language, then browser language.
+            // Resolved here rather than by i18n.js so the right language file
+            // can be requested in the same batch instead of after it loads.
+            // KEEP IN SYNC with LANGUAGE_NAMES in js/i18n.js when adding a language.
+            var LANGS = ['en','es','fr','de','it','pt','nl','pl','sv','ru','ja','zh','ko','ar','hi'];
+            var lang = 'en';
             try {
-                if (!localStorage.getItem('language') && window._seoCity) {
-                    setLanguageOverride(window._seoCity.lang);
+                var saved = localStorage.getItem('language');
+                if (saved && LANGS.indexOf(saved) > -1) lang = saved;
+                else if (window._seoCity && LANGS.indexOf(window._seoCity.lang) > -1) lang = window._seoCity.lang;
+                else {
+                    var b = (navigator.language || '').slice(0, 2).toLowerCase();
+                    if (LANGS.indexOf(b) > -1) lang = b;
                 }
-            } catch (e) { /* private mode — defaults apply */ }
-            var lang = getCurrentLang();
-            if (lang !== 'en') {
-                document.write('<script src="/js/i18n/' + lang + '.js"><\/script>');
-            }
+            } catch (e) { /* private mode — English */ }
+
+            var srcs = ['/js/i18n.js'];
+            if (lang !== 'en') srcs.push('/js/i18n/' + lang + '.js');
+            srcs.push('/js/app.js');
+            srcs.forEach(function (src) {
+                var el = document.createElement('script');
+                el.src = src;
+                el.async = false; // download in parallel, execute in order
+                document.head.appendChild(el);
+            });
         })();
     </script>
-    <script src="/js/app.js"></script>
 </body>
 </html>

@@ -184,11 +184,8 @@ function renderTemplate(page) {
     html = html.replace('<link rel="stylesheet" href="css/style.css">',
         headInjection + '\n    <link rel="stylesheet" href="/css/style.css">');
 
-    // 5. Make script paths absolute so they resolve from /cities/{slug}/
-    html = html.replace(/<script src="js\/i18n\.js"><\/script>/,
-        '<script src="/js/i18n.js"></script>');
-    html = html.replace(/<script src="js\/app\.js"><\/script>/,
-        '<script src="/js/app.js"></script>');
+    // 5. (removed) Script paths no longer need rewriting — the loader at the
+    //    end of <body> injects them using absolute paths.
 
     // 6. Pre-fill the H1 so the page has unique body content even before
     //    app.js runs (avoids the doorway-page risk of 77 byte-identical
@@ -390,6 +387,12 @@ function buildHeadInjection(page) {
     } else if (page.isNativeEn) {
         lines.push(`    <link rel="alternate" hreflang="en" href="${escapeAttr(page.canonical)}">`);
         lines.push(`    <link rel="alternate" hreflang="x-default" href="${escapeAttr(page.canonical)}">`);
+    }
+    // Non-English pages need a third script (the language file). Preload it
+    // so it downloads alongside i18n.js/app.js instead of after the loader
+    // at the end of <body> discovers it.
+    if (page.lang !== 'en') {
+        lines.push(`    <link rel="preload" as="script" href="/js/i18n/${escapeAttr(page.lang)}.js">`);
     }
     lines.push('    <script>');
     lines.push(`        window._seoCity = ${JSON.stringify(page.seoCity).replace(/</g, '\\u003c')};`);
@@ -604,26 +607,31 @@ ${intl.map(li).join('\n')}
     </div>
     <script src="/js/i18n.js"></script>
     <script>
-        // i18n loader: pull in the one non-English translation file the
-        // visitor needs (English lives in i18n.js as the fallback).
+        // i18n: translate the data-i18n elements. Non-English visitors get
+        // their language file injected (async=false, so it never blocks the
+        // parser like the old document.write loader did) and are translated
+        // once it arrives; English translates immediately.
         (function () {
-            var lang = getCurrentLang();
-            if (lang !== 'en') {
-                document.write('<script src="/js/i18n/' + lang + '.js"><\\/script>');
+            function translate() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    const attr = el.dataset.i18nAttr;
+                    const text = t(key);
+                    if (attr) el.setAttribute(attr, text);
+                    else el.textContent = text;
+                });
+                document.documentElement.lang = getCurrentLang();
+                document.documentElement.dir = getCurrentLang() === 'ar' ? 'rtl' : 'ltr';
             }
+            var lang = getCurrentLang();
+            if (lang === 'en') { translate(); return; }
+            var el = document.createElement('script');
+            el.src = '/js/i18n/' + lang + '.js';
+            el.async = false;
+            el.onload = translate;
+            el.onerror = translate; // language file unavailable - English fallback
+            document.head.appendChild(el);
         })();
-    </script>
-    <script>
-        // Translate any elements with data-i18n (just the nav row links)
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.dataset.i18n;
-            const attr = el.dataset.i18nAttr;
-            const text = t(key);
-            if (attr) el.setAttribute(attr, text);
-            else el.textContent = text;
-        });
-        document.documentElement.lang = getCurrentLang();
-        document.documentElement.dir = getCurrentLang() === 'ar' ? 'rtl' : 'ltr';
     </script>
 </body>
 </html>
