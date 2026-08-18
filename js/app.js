@@ -754,6 +754,11 @@ function applyTranslations() {
         const key = el.dataset.i18n;
         const attr = el.dataset.i18nAttr;
         const text = t(key);
+        // t() returns the key itself when it's unknown — which happens when a
+        // cached older i18n.js is paired with newer HTML (Google's renderer
+        // caches JS for weeks). The baked-in text is always correct English,
+        // so keep it rather than stamping the raw key over it.
+        if (text === key) return;
         if (attr) el.setAttribute(attr, text);
         else el.textContent = text;
     });
@@ -761,7 +766,8 @@ function applyTranslations() {
     // data-i18n driving textContent (or another attribute) but also need a
     // translated aria-label.
     document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
-        el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel));
+        const label = t(el.dataset.i18nAriaLabel);
+        if (label !== el.dataset.i18nAriaLabel) el.setAttribute('aria-label', label);
     });
     const lang = getCurrentLang();
     document.documentElement.lang = lang;

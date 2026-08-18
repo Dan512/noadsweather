@@ -617,6 +617,7 @@ ${intl.map(li).join('\n')}
                     const key = el.dataset.i18n;
                     const attr = el.dataset.i18nAttr;
                     const text = t(key);
+                    if (text === key) return; // unknown key (stale i18n.js) — keep baked-in text
                     if (attr) el.setAttribute(attr, text);
                     else el.textContent = text;
                 });
