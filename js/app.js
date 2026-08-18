@@ -2935,6 +2935,7 @@ searchForm.addEventListener('submit', async (e) => {
 
     try {
         const location = await geocode(query);
+        _lastLocationGeolocated = false;
         setUnitsForCountry(location.country);
         updateURL(query, location);
         showWeather(location, query);
@@ -2957,36 +2958,66 @@ searchForm.addEventListener('submit', async (e) => {
 // function, so precise position is never stored, displayed, or sent anywhere.
 const geolocateBtn = document.getElementById('geolocate-btn');
 
-function locateAndLoad() {
-    if (!navigator.geolocation) {
-        searchError.textContent = t('geoFailed');
-        searchError.hidden = false;
-        return;
-    }
-    searchError.hidden = true;
-    geolocateBtn.disabled = true;
-    geolocateBtn.classList.add('locating');
-    const done = () => {
-        geolocateBtn.disabled = false;
-        geolocateBtn.classList.remove('locating');
-    };
-    navigator.geolocation.getCurrentPosition((pos) => {
-        done();
-        const lat = Math.round(pos.coords.latitude * 100) / 100;
-        const lon = Math.round(pos.coords.longitude * 100) / 100;
-        const location = { name: t('myLocation'), region: '', country: '', lat, lon };
-        updateURL('', location);
-        showWeather(location, '');
-        fetchAllWeatherData(lat, lon, '', '');
-        saveLastLocation('', location);
-    }, (err) => {
-        done();
-        searchError.textContent = t(err.code === 1 ? 'geoDenied' : 'geoFailed');
-        searchError.hidden = false;
-    }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+// Whether the location currently shown came from the geolocation API (rather
+// than a search, a URL, or a city page). Refreshing a geolocated view re-reads
+// the position itself — otherwise "My location" would keep pointing at
+// wherever the user first pressed the pin (e.g. after a drive).
+let _lastLocationGeolocated = false;
+
+function locateAndLoad(opts) {
+    opts = opts || {};
+    return new Promise((resolve) => {
+        const fallback = () => {
+            // Refresh path: position unavailable right now — still give the
+            // user fresh data for the last known spot rather than an error.
+            if (opts.fallbackToLastCoords && _lastLat !== null) {
+                resolve(fetchAllWeatherData(_lastLat, _lastLon, _lastCountry, _lastRegion));
+            } else {
+                resolve();
+            }
+        };
+        if (!navigator.geolocation) {
+            if (!opts.fallbackToLastCoords) {
+                searchError.textContent = t('geoFailed');
+                searchError.hidden = false;
+            }
+            fallback();
+            return;
+        }
+        searchError.hidden = true;
+        if (geolocateBtn) {
+            geolocateBtn.disabled = true;
+            geolocateBtn.classList.add('locating');
+        }
+        const done = () => {
+            if (!geolocateBtn) return;
+            geolocateBtn.disabled = false;
+            geolocateBtn.classList.remove('locating');
+        };
+        navigator.geolocation.getCurrentPosition((pos) => {
+            done();
+            const lat = Math.round(pos.coords.latitude * 100) / 100;
+            const lon = Math.round(pos.coords.longitude * 100) / 100;
+            const location = { name: t('myLocation'), region: '', country: '', lat, lon, geolocated: true };
+            _lastLocationGeolocated = true;
+            updateURL('', location);
+            showWeather(location, '');
+            saveLastLocation('', location);
+            resolve(fetchAllWeatherData(lat, lon, '', ''));
+        }, (err) => {
+            done();
+            if (opts.fallbackToLastCoords) {
+                fallback();
+                return;
+            }
+            searchError.textContent = t(err.code === 1 ? 'geoDenied' : 'geoFailed');
+            searchError.hidden = false;
+            resolve();
+        }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 });
+    });
 }
 
-if (geolocateBtn) geolocateBtn.addEventListener('click', locateAndLoad);
+if (geolocateBtn) geolocateBtn.addEventListener('click', () => { locateAndLoad(); });
 
 // Climate section dismiss (X). Writes the same showClimate setting the
 // settings checkbox uses, so hiding it here leaves an obvious way to bring
@@ -3033,14 +3064,36 @@ function renderFreshness() {
     freshnessEl.hidden = false;
 }
 
-function refreshWeather() {
+function refreshWeather(opts) {
+    opts = opts || {};
     if (_lastLat === null) return;
     if (refreshBtn) refreshBtn.classList.add('refreshing');
+    const clear = () => { if (refreshBtn) refreshBtn.classList.remove('refreshing'); };
+    if (_lastLocationGeolocated) {
+        if (opts.userInitiated) {
+            // Explicit refresh of "My location" re-reads the position — the
+            // user may have moved since the pin was pressed.
+            locateAndLoad({ fallbackToLastCoords: true }).finally(clear);
+            return;
+        }
+        // Automatic refresh (tab return): only re-geolocate when the grant
+        // already exists, so this path can never surface a permission prompt.
+        if (navigator.permissions && navigator.permissions.query) {
+            navigator.permissions.query({ name: 'geolocation' }).then((status) => {
+                if (status.state === 'granted') return locateAndLoad({ fallbackToLastCoords: true });
+                return fetchAllWeatherData(_lastLat, _lastLon, _lastCountry, _lastRegion);
+            }).catch(() => fetchAllWeatherData(_lastLat, _lastLon, _lastCountry, _lastRegion))
+                .finally(clear);
+            return;
+        }
+        // No Permissions API — fall through to a plain refetch rather than
+        // risk prompting without a user action.
+    }
     Promise.resolve(fetchAllWeatherData(_lastLat, _lastLon, _lastCountry, _lastRegion))
-        .finally(() => { if (refreshBtn) refreshBtn.classList.remove('refreshing'); });
+        .finally(clear);
 }
 
-if (refreshBtn) refreshBtn.addEventListener('click', refreshWeather);
+if (refreshBtn) refreshBtn.addEventListener('click', () => refreshWeather({ userInitiated: true }));
 
 function maybeAutoRefresh() {
     renderFreshness();
@@ -3245,6 +3298,7 @@ function updateURL(query, location) {
         params.set('name', location.name);
         params.set('region', location.region || '');
         params.set('country', location.country || '');
+        if (location.geolocated) params.set('geo', '1');
     }
     history.pushState(null, '', `?${params}`);
 }
@@ -3266,6 +3320,7 @@ function getLocationFromURL() {
                     country: params.get('country') || '',
                     lat,
                     lon,
+                    geolocated: params.get('geo') === '1',
                 }
             };
         }
@@ -3290,6 +3345,7 @@ function saveLastLocation(query, location) {
             country: location.country || '',
             lat: location.lat,
             lon: location.lon,
+            geolocated: location.geolocated === true,
         }));
     } catch (e) { /* quota / private mode — ignore */ }
 }
@@ -3313,6 +3369,7 @@ function getLocationFromStorage() {
             country: typeof parsed.country === 'string' ? parsed.country : '',
             lat,
             lon,
+            geolocated: parsed.geolocated === true,
         }
     };
 }
@@ -3417,6 +3474,7 @@ async function loadFromURL() {
 
     if (urlData.location) {
         // Direct lat/lon — skip geocoding entirely
+        _lastLocationGeolocated = urlData.location.geolocated === true;
         setUnitsForCountry(urlData.location.country);
         showWeather(urlData.location, urlData.query);
         fetchAllWeatherData(urlData.location.lat, urlData.location.lon, urlData.location.country, urlData.location.region);
