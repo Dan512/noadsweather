@@ -72,6 +72,8 @@ const TRANSLATIONS = {
         settingNwsLink: 'Show NWS Radar link',
         settingShowSectionButtons: 'Show "Show section" buttons when sections are hidden',
         settingTranslateLink: 'Show alert translation link',
+        settingAlertsMinimized: 'Always show weather alerts minimized',
+        dismissAlert: 'Dismiss alert',
         settingAutoPlayRadar: 'Always auto-play radar',
         settingRememberCity: 'Remember last city',
         cityPageTitle: '{city} Weather with No Ads',

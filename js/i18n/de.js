@@ -60,6 +60,8 @@ TRANSLATIONS.de = {
         settingNwsLink: 'NWS-Radar-Link anzeigen',
         settingShowSectionButtons: '"Bereich anzeigen"-Schaltflächen anzeigen, wenn Bereiche ausgeblendet sind',
         settingTranslateLink: 'Übersetzungslink für Warnungen anzeigen',
+        settingAlertsMinimized: 'Wetterwarnungen immer minimiert anzeigen',
+        dismissAlert: 'Warnung ausblenden',
         settingAutoPlayRadar: 'Radar automatisch abspielen',
         settingRememberCity: 'Letzte Stadt merken',
         cityPageTitle: 'Wetter {city} ohne Werbung',

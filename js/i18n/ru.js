@@ -60,6 +60,8 @@ TRANSLATIONS.ru = {
         settingNwsLink: 'Показывать ссылку на радар NWS',
         settingShowSectionButtons: 'Показывать кнопки "Показать раздел", когда разделы скрыты',
         settingTranslateLink: 'Показывать ссылку для перевода предупреждений',
+        settingAlertsMinimized: 'Всегда показывать предупреждения свёрнутыми',
+        dismissAlert: 'Скрыть предупреждение',
         settingAutoPlayRadar: 'Всегда воспроизводить радар автоматически',
         settingRememberCity: 'Запомнить последний город',
         cityPageTitle: 'Погода {city} без рекламы',

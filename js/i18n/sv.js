@@ -60,6 +60,8 @@ TRANSLATIONS.sv = {
         settingNwsLink: 'Visa länk till NWS-radar',
         settingShowSectionButtons: 'Visa "Visa sektion"-knappar när sektioner är dolda',
         settingTranslateLink: 'Visa översättningslänk för varningar',
+        settingAlertsMinimized: 'Visa alltid vädervarningar minimerade',
+        dismissAlert: 'Dölj varning',
         settingAutoPlayRadar: 'Spela alltid upp radar automatiskt',
         settingRememberCity: 'Kom ihåg senaste stad',
         cityPageTitle: 'Väder {city} utan reklam',

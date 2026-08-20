@@ -60,6 +60,8 @@ TRANSLATIONS.nl = {
         settingNwsLink: 'NWS-radarlink tonen',
         settingShowSectionButtons: '"Sectie tonen"-knoppen tonen wanneer secties verborgen zijn',
         settingTranslateLink: 'Vertaallink voor waarschuwingen tonen',
+        settingAlertsMinimized: 'Weerwaarschuwingen altijd geminimaliseerd tonen',
+        dismissAlert: 'Waarschuwing sluiten',
         settingAutoPlayRadar: 'Radar altijd automatisch afspelen',
         settingRememberCity: 'Laatste stad onthouden',
         cityPageTitle: 'Weer {city} zonder reclame',

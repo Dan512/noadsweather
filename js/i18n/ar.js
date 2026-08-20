@@ -60,6 +60,8 @@ TRANSLATIONS.ar = {
         settingNwsLink: 'عرض رابط رادار NWS',
         settingShowSectionButtons: 'عرض أزرار "إظهار القسم" عندما تكون الأقسام مخفية',
         settingTranslateLink: 'عرض رابط ترجمة التنبيهات',
+        settingAlertsMinimized: 'إظهار تنبيهات الطقس مصغرة دائمًا',
+        dismissAlert: 'إخفاء التنبيه',
         settingAutoPlayRadar: 'تشغيل الرادار تلقائيًا دائمًا',
         settingRememberCity: 'تذكر آخر مدينة',
         cityPageTitle: 'طقس {city} بدون إعلانات',

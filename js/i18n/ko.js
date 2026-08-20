@@ -60,6 +60,8 @@ TRANSLATIONS.ko = {
         settingNwsLink: 'NWS 레이더 링크 표시',
         settingShowSectionButtons: '섹션이 숨겨져 있을 때 "섹션 표시" 버튼 표시',
         settingTranslateLink: '경보 번역 링크 표시',
+        settingAlertsMinimized: '기상 경보를 항상 최소화하여 표시',
+        dismissAlert: '경보 닫기',
         settingAutoPlayRadar: '레이더 자동 재생',
         settingRememberCity: '마지막 도시 기억하기',
         cityPageTitle: '{city} 날씨 광고 없음',

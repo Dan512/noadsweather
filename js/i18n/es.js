@@ -60,6 +60,8 @@ TRANSLATIONS.es = {
         settingNwsLink: 'Mostrar enlace al radar NWS',
         settingShowSectionButtons: 'Mostrar botones "Mostrar sección" cuando las secciones están ocultas',
         settingTranslateLink: 'Mostrar enlace de traducción de alertas',
+        settingAlertsMinimized: 'Mostrar siempre las alertas meteorológicas minimizadas',
+        dismissAlert: 'Descartar alerta',
         settingAutoPlayRadar: 'Reproducir radar automáticamente',
         settingRememberCity: 'Recordar última ciudad',
         cityPageTitle: 'Clima {city} sin anuncios',

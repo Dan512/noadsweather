@@ -1446,10 +1446,53 @@ section h2 {
 }
 
 .alert-item {
+    position: relative;
     margin-bottom: 0.9rem;
+    padding-right: 1.6rem; /* room for the dismiss button */
 }
 .alert-item:last-child {
     margin-bottom: 0;
+}
+
+/* Dismiss (×) button — hides one alert until it expires */
+.alert-dismiss {
+    position: absolute;
+    top: -0.2rem;
+    right: -0.2rem;
+    background: none;
+    border: none;
+    color: var(--alert-text);
+    opacity: 0.55;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+}
+.alert-dismiss:hover,
+.alert-dismiss:focus-visible {
+    opacity: 1;
+}
+
+/* Minimized alerts: event name only, click/Enter to expand */
+.alert-collapsible > summary {
+    cursor: pointer;
+    list-style: none;
+}
+.alert-collapsible > summary::-webkit-details-marker {
+    display: none;
+}
+.alert-collapsible > summary::before {
+    content: '\25B8'; /* ▸ */
+    display: inline-block;
+    margin-right: 0.35rem;
+    font-size: 0.85em;
+    transition: transform 0.15s ease;
+}
+.alert-collapsible[open] > summary::before {
+    transform: rotate(90deg);
+}
+.alert-translate-row {
+    margin-top: 0.25rem;
 }
 
 /* Weather summary */

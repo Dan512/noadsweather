@@ -60,6 +60,8 @@ TRANSLATIONS.zh = {
         settingNwsLink: '显示NWS雷达链接',
         settingShowSectionButtons: '当部分隐藏时显示"显示部分"按钮',
         settingTranslateLink: '显示警报翻译链接',
+        settingAlertsMinimized: '始终以最小化方式显示天气预警',
+        dismissAlert: '关闭预警',
         settingAutoPlayRadar: '始终自动播放雷达',
         settingRememberCity: '记住上次城市',
         cityPageTitle: '{city} 天气 无广告',

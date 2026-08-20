@@ -60,6 +60,8 @@ TRANSLATIONS.pl = {
         settingNwsLink: 'Pokaż link do radaru NWS',
         settingShowSectionButtons: 'Pokaż przyciski "Pokaż sekcję", gdy sekcje są ukryte',
         settingTranslateLink: 'Pokaż link do tłumaczenia ostrzeżeń',
+        settingAlertsMinimized: 'Zawsze pokazuj ostrzeżenia pogodowe zminimalizowane',
+        dismissAlert: 'Odrzuć ostrzeżenie',
         settingAutoPlayRadar: 'Zawsze automatycznie odtwarzaj radar',
         settingRememberCity: 'Zapamiętaj ostatnie miasto',
         cityPageTitle: 'Pogoda {city} bez reklam',

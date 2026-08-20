@@ -60,6 +60,8 @@ TRANSLATIONS.ja = {
         settingNwsLink: 'NWSレーダーリンクを表示',
         settingShowSectionButtons: 'セクションが非表示のときに「セクションを表示」ボタンを表示',
         settingTranslateLink: '警報の翻訳リンクを表示',
+        settingAlertsMinimized: '気象警報を常に最小化して表示',
+        dismissAlert: '警報を閉じる',
         settingAutoPlayRadar: 'レーダーを常に自動再生',
         settingRememberCity: '前回の都市を記憶',
         cityPageTitle: '{city} 天気 広告なし',

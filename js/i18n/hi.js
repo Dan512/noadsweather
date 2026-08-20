@@ -60,6 +60,8 @@ TRANSLATIONS.hi = {
         settingNwsLink: 'NWS रडार लिंक दिखाएं',
         settingShowSectionButtons: 'जब अनुभाग छिपे हों तो "अनुभाग दिखाएं" बटन दिखाएं',
         settingTranslateLink: 'चेतावनी अनुवाद लिंक दिखाएं',
+        settingAlertsMinimized: 'मौसम चेतावनियाँ हमेशा छोटी करके दिखाएं',
+        dismissAlert: 'चेतावनी हटाएं',
         settingAutoPlayRadar: 'हमेशा रडार स्वतः चलाएं',
         settingRememberCity: 'अंतिम शहर याद रखें',
         cityPageTitle: '{city} मौसम बिना विज्ञापन',

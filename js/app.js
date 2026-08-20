@@ -832,7 +832,7 @@ function getMoonPhase(date) {
 function tempColorThreshold() { return isImperial() ? 5 : 3; }
 
 // Settings that default to FALSE when not explicitly set. Everything else defaults to true.
-const SETTINGS_DEFAULT_FALSE = new Set(['autoPlayRadar', 'autoLocate']);
+const SETTINGS_DEFAULT_FALSE = new Set(['autoPlayRadar', 'autoLocate', 'alertsMinimized']);
 
 function getSettingsBool(key) {
     const v = localStorage.getItem(key);
@@ -1994,16 +1994,79 @@ function buildTranslateLink(text) {
     return ` <a href="${url}" target="_blank" rel="noopener" class="alert-translate-link">${t('translateAlert')}</a>`;
 }
 
+// --- Alert dismissal ---------------------------------------------------------
+// Dismissals are stored as { alertKey: expiryEpochMs }. Keying on the alert's
+// own identity (event + headline + issue time) means a NEW or updated alert
+// still shows after an old one was dismissed — important for safety content.
+// Entries are pruned once the alert they refer to has expired, so the map
+// cannot grow without bound.
+
+const DISMISSED_ALERTS_KEY = 'dismissedAlerts';
+const ALERT_FALLBACK_TTL_MS = 24 * 60 * 60 * 1000;
+
+function hashString(s) {
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+    return h.toString(36);
+}
+
+function alertKey(p) {
+    // `start` is unix seconds (OWM proxy); onset/effective/sent are ISO (NWS).
+    const when = p.start || p.onset || p.effective || p.sent || '';
+    return hashString([p.event || '', p.headline || '', String(when)].join('|'));
+}
+
+function alertExpiryMs(p) {
+    // NWS sends ISO strings (expires/ends); the OWM proxy sends unix seconds (end).
+    for (const c of [p.end, p.ends, p.expires]) {
+        if (c === null || c === undefined || c === '') continue;
+        const ms = typeof c === 'number' ? c * 1000 : Date.parse(c);
+        if (Number.isFinite(ms)) return ms;
+    }
+    return Date.now() + ALERT_FALLBACK_TTL_MS;
+}
+
+function loadDismissedAlerts() {
+    let raw;
+    try { raw = localStorage.getItem(DISMISSED_ALERTS_KEY); } catch (e) { return {}; }
+    if (!raw) return {};
+    let parsed;
+    try { parsed = JSON.parse(raw); } catch (e) { return {}; }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    const now = Date.now();
+    const kept = {};
+    let pruned = false;
+    for (const [k, exp] of Object.entries(parsed)) {
+        if (typeof exp === 'number' && exp > now) kept[k] = exp;
+        else pruned = true;
+    }
+    if (pruned) saveDismissedAlerts(kept);
+    return kept;
+}
+
+function saveDismissedAlerts(map) {
+    try { localStorage.setItem(DISMISSED_ALERTS_KEY, JSON.stringify(map)); }
+    catch (e) { /* quota exceeded / private mode — dismissal just won't persist */ }
+}
+
 function renderAlerts(alerts) {
     const section = document.getElementById('alerts-section');
     if (!alerts || alerts.length === 0) {
         section.hidden = true;
         return;
     }
+    const dismissed = loadDismissedAlerts();
+    const visible = alerts.filter(a => !dismissed[alertKey(a.properties || {})]);
+    if (visible.length === 0) {
+        section.hidden = true;
+        return;
+    }
     section.hidden = false;
+    const minimized = getSettingsBool('alertsMinimized');
+    const dismissLabel = escapeHtml(t('dismissAlert'));
     const DESC_PREVIEW_CHARS = 300;
     let html = `<h2>${t('weatherAlerts')}</h2>`;
-    for (const alert of alerts) {
+    for (const alert of visible) {
         const p = alert.properties;
         const event = escapeHtml(p.event);
         const headline = escapeHtml(p.headline || '');
@@ -2028,13 +2091,36 @@ function renderAlerts(alerts) {
                 descHtml = `<div class="alert-desc" style="font-size:0.8rem;margin-top:0.4rem;white-space:pre-wrap;">${descEsc}</div>`;
             }
         }
-        html += `
-            <div class="alert-item">
-                <strong>${event}</strong>${translateLink}
+        const dismissBtn = `<button class="alert-dismiss" type="button"` +
+            ` data-alert-key="${escapeHtml(alertKey(p))}"` +
+            ` data-alert-expiry="${alertExpiryMs(p)}"` +
+            ` aria-label="${dismissLabel}" title="${dismissLabel}">&times;</button>`;
+        const bodyHtml = `
                 <div style="font-size:0.85rem;margin-top:0.25rem;">${headline}</div>
-                ${descHtml}
+                ${descHtml}`;
+
+        if (minimized) {
+            // Collapsed to the event name only. The translate link lives in the
+            // body rather than the <summary> so clicking it doesn't also toggle.
+            html += `
+            <div class="alert-item">
+                ${dismissBtn}
+                <details class="alert-collapsible">
+                    <summary><strong>${event}</strong></summary>
+                    ${translateLink ? `<div class="alert-translate-row">${translateLink}</div>` : ''}
+                    ${bodyHtml}
+                </details>
             </div>
         `;
+        } else {
+            html += `
+            <div class="alert-item">
+                ${dismissBtn}
+                <strong>${event}</strong>${translateLink}
+                ${bodyHtml}
+            </div>
+        `;
+        }
     }
     section.innerHTML = html;
 
@@ -2045,6 +2131,20 @@ function renderAlerts(alerts) {
             const more = d.querySelector('.alert-desc-more');
             if (preview) preview.style.display = d.open ? 'none' : '';
             if (more) more.textContent = d.open ? ' ' + t('showLess') : ' ' + t('showMore');
+        });
+    });
+
+    // Dismiss: remember this alert until it expires, then drop it from the DOM.
+    section.querySelectorAll('.alert-dismiss').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const key = btn.dataset.alertKey;
+            const expiry = parseInt(btn.dataset.alertExpiry, 10);
+            const map = loadDismissedAlerts();
+            map[key] = Number.isFinite(expiry) ? expiry : Date.now() + ALERT_FALLBACK_TTL_MS;
+            saveDismissedAlerts(map);
+            const item = btn.closest('.alert-item');
+            if (item) item.remove();
+            if (!section.querySelector('.alert-item')) section.hidden = true;
         });
     });
 }
@@ -3227,6 +3327,11 @@ function applySettings() {
     const chartsBar = document.getElementById('hidden-charts-bar');
     if (chartsBar) chartsBar.style.display = showSectionBtns ? '' : 'none';
 
+    // Re-render alerts from cache so toggling "always minimized" (or the
+    // translate-link setting, which alerts also use) applies immediately
+    // without waiting for the next fetch.
+    if (_lastAlerts) renderAlerts(_lastAlerts);
+
     // Sync checkboxes
     document.querySelectorAll('#settings-popover input[data-setting]').forEach(cb => {
         cb.checked = getSettingsBool(cb.dataset.setting);
@@ -3278,7 +3383,11 @@ document.getElementById('settings-revert').addEventListener('click', () => {
     localStorage.setItem('autoLocate', 'false');
     localStorage.setItem('showClimate', 'true');
     localStorage.setItem('rememberLastCity', 'true');
+    localStorage.setItem('alertsMinimized', 'false');
     localStorage.removeItem('sectionPrefs');
+    // Also un-dismiss any alerts the user hid — this is the escape hatch for
+    // getting a dismissed alert back before it expires on its own.
+    localStorage.removeItem(DISMISSED_ALERTS_KEY);
     applySettings();
     if (_lastLat !== null) {
         fetchAllWeatherData(_lastLat, _lastLon, _lastCountry, _lastRegion);
