@@ -57,6 +57,32 @@ function applyUnitsFromTemp(temp) {
     units.pressure = imperial ? 'inHg' : 'hPa';
 }
 
+// Regions (ISO 3166-1 alpha-2) whose locales imply imperial units — the same
+// three countries as IMPERIAL_COUNTRIES, keyed by region subtag instead.
+const IMPERIAL_REGIONS = new Set(['US', 'LR', 'MM']);
+
+// Fallback unit guess for locations that carry no country — notably a
+// geolocated fix, which is just coordinates. Reads the region subtag from the
+// browser's language preferences (en-US → US). Falls back to metric, which is
+// the right default for most of the world.
+function localePrefersImperial() {
+    const tags = (navigator.languages && navigator.languages.length)
+        ? navigator.languages
+        : [navigator.language || ''];
+    for (const tag of tags) {
+        const m = /^[A-Za-z]{2,3}[-_]([A-Za-z]{2})\b/.exec(tag || '');
+        if (m) return IMPERIAL_REGIONS.has(m[1].toUpperCase());
+    }
+    // No region subtag anywhere (e.g. plain "en"); try the resolved Intl locale.
+    try {
+        const m = /^[A-Za-z]{2,3}[-_]([A-Za-z]{2})\b/.exec(
+            Intl.DateTimeFormat().resolvedOptions().locale || ''
+        );
+        if (m) return IMPERIAL_REGIONS.has(m[1].toUpperCase());
+    } catch (e) { /* Intl unavailable — fall through to metric */ }
+    return false;
+}
+
 function setUnitsForCountry(country) {
     const stored = loadUnitsPref();
     if (stored) {
@@ -64,8 +90,9 @@ function setUnitsForCountry(country) {
         applyUnitsFromTemp(stored.temp);
         units.time24h = stored.time24h;
     } else {
-        // No stored preference — auto-detect from country
-        if (IMPERIAL_COUNTRIES.includes(country)) {
+        // No stored preference — auto-detect from country, or from the browser
+        // locale when the country is unknown (geolocated coordinates have none).
+        if (country ? IMPERIAL_COUNTRIES.includes(country) : localePrefersImperial()) {
             units = { temp: 'fahrenheit', wind: 'mph', precip: 'inch', pressure: 'inHg', time24h: false };
         } else {
             units = { temp: 'celsius', wind: 'kmh', precip: 'mm', pressure: 'hPa', time24h: true };
@@ -3004,6 +3031,17 @@ function showHome() {
     searchError.hidden = true;
 }
 
+// Show/hide the city-specific content that build-cities.js bakes into each
+// generated /cities/* page (climate normals table + nearby-city links). These
+// describe one fixed city, so they must be hidden as soon as the user views a
+// different location. No-ops on the non-generated pages, which lack them.
+function setSeoCityContentVisible(visible) {
+    const climate = document.querySelector('.climate-block');
+    if (climate) climate.hidden = !visible;
+    const nearby = document.getElementById('nearby-cities');
+    if (nearby) nearby.hidden = !visible;
+}
+
 function showWeather(location, query) {
     homeView.hidden = true;
     weatherView.hidden = false;
@@ -3013,6 +3051,10 @@ function showWeather(location, query) {
     // calls this before renderSeoBlurb(), so the SEO path re-shows it.
     const blurb = document.getElementById('seo-blurb');
     if (blurb) blurb.hidden = true;
+    // Same for the climate table and nearby-city links: both are baked into
+    // the generated page for ONE city, so they'd otherwise linger under a
+    // different location's forecast. initSeoCity() re-shows them.
+    setSeoCityContentVisible(false);
     // Build location label: "City, Region" or "City, Country" if no region
     const secondary = location.region || location.country || '';
     let label = secondary ? `${location.name}, ${secondary}` : location.name;
@@ -3100,6 +3142,11 @@ function locateAndLoad(opts) {
             const lon = Math.round(pos.coords.longitude * 100) / 100;
             const location = { name: t('myLocation'), region: '', country: '', lat, lon, geolocated: true };
             _lastLocationGeolocated = true;
+            // A geolocated fix has no country, so resolve units the same way a
+            // later reload of this URL will (stored pref, else browser locale).
+            // Without this the first locate keeps whatever units were already
+            // active and a refresh could silently flip them.
+            setUnitsForCountry('');
             updateURL('', location);
             showWeather(location, '');
             saveLastLocation('', location);
@@ -3232,7 +3279,10 @@ async function maybeAutoLocate() {
 
 backBtn.addEventListener('click', () => {
     showHome();
-    history.pushState(null, '', location.pathname);
+    // Always return to the site root. Keeping location.pathname would leave a
+    // /cities/<slug>/ URL in the bar while showing the search screen, so a
+    // refresh would bounce back into that city page.
+    history.pushState(null, '', '/');
 });
 
 document.getElementById('units-toggle').addEventListener('click', () => {
@@ -3409,7 +3459,12 @@ function updateURL(query, location) {
         params.set('country', location.country || '');
         if (location.geolocated) params.set('geo', '1');
     }
-    history.pushState(null, '', `?${params}`);
+    // Push to the site root, not a bare `?…` (which resolves relative to the
+    // current path). On a generated /cities/<slug>/ page a relative push would
+    // produce /cities/los-angeles-ca/?lat=<somewhere-else>, so a refresh would
+    // reload that city's page and its baked-in window._seoCity would drag the
+    // user back to the wrong city.
+    history.pushState(null, '', `/?${params}`);
 }
 
 function getLocationFromURL() {
@@ -3541,8 +3596,11 @@ function initSeoCity() {
     const cityName = seo.displayName || seo.name;
     locationName.textContent = t('cityPageTitle', { city: cityName });
 
-    // 4. Render the SEO blurb unless dismissed
+    // 4. Render the SEO blurb unless dismissed, and restore the baked-in
+    //    climate + nearby-city blocks that showWeather() hides by default
+    //    (they belong to exactly this city).
     renderSeoBlurb(cityName);
+    setSeoCityContentVisible(true);
 
     // 5. Release the auto-resume gate (the inline <head> script may have set it)
     document.documentElement.removeAttribute('data-auto-resume');
@@ -3619,13 +3677,16 @@ applyTranslations();
     });
 })();
 
-// Load from URL on page load
-// SEO landing page takes priority over URL params / storage rehydration.
-// If not in SEO mode: an explicit ?lat/?q URL wins, then opt-in auto-locate
-// (permission already granted), then the saved last city.
-if (!initSeoCity()) {
+// Load from URL on page load.
+// An explicit location in the URL (?lat/?lon or ?q) always wins — including on
+// a generated /cities/* page, where the baked-in window._seoCity would
+// otherwise override a link the user actually followed. Otherwise: SEO landing
+// page, then opt-in auto-locate (permission already granted), then last city.
+if (getLocationFromURL()) {
+    loadFromURL();
+} else if (!initSeoCity()) {
     (async () => {
-        if (!getLocationFromURL() && await maybeAutoLocate()) {
+        if (await maybeAutoLocate()) {
             // Auto-locating — release the <head> auto-resume gate ourselves
             // since loadFromURL (which normally does it) won't run.
             document.documentElement.removeAttribute('data-auto-resume');
