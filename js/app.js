@@ -1342,8 +1342,27 @@ async function fetchAlerts(lat, lon, country, region) {
 
 // --- Render Functions --------------------------------------------------------
 
+// Open-Meteo is queried with timezone=auto, so hourly/daily timestamps come
+// back as naive strings local to the LOCATION ("2026-08-20T16:00") with no
+// offset. new Date() parses those in the BROWSER's timezone. That's fine for
+// reading wall-clock parts (getHours() still returns 16) and for comparing two
+// API timestamps against each other — but comparing one against a real
+// `new Date()` mixes frames, so a viewer in Texas looking at London gets the
+// forecast starting at their own hour instead of London's.
+//
+// locationNow() returns an instant whose browser-local wall clock equals the
+// LOCATION's current wall clock, making it directly comparable to the parsed
+// API timestamps. Falls back to real now before any forecast has loaded.
+let _utcOffsetSeconds = null;
+
+function locationNow() {
+    if (_utcOffsetSeconds === null) return new Date();
+    const browserOffsetMs = -new Date().getTimezoneOffset() * 60000;
+    return new Date(Date.now() + _utcOffsetSeconds * 1000 - browserOffsetMs);
+}
+
 function generateSummary(current, hourly, daily) {
-    const now = new Date();
+    const now = locationNow();
     const currentTemp = Math.round(current.temperature_2m);
     const feelsLike = Math.round(current.apparent_temperature);
 
@@ -1639,7 +1658,8 @@ function pollenIndexColor(value) {
 
 function renderHourly(hourly) {
     const section = document.getElementById('hourly-section');
-    const now = new Date();
+    // Start from the LOCATION's current hour, not the viewer's.
+    const now = locationNow();
     const startIdx = hourly.time.findIndex(t => new Date(t) >= now);
     if (startIdx === -1) { section.innerHTML = ''; return; }
 
@@ -1900,7 +1920,7 @@ function drawDayDividers(ctx, count, w, h) {
 }
 
 function drawNowLine(ctx, hourly, count, w, h) {
-    const now = new Date();
+    const now = locationNow();
     const startTime = new Date(hourly.time[0]);
     const hoursElapsed = (now - startTime) / (1000 * 60 * 60);
     if (hoursElapsed < 0 || hoursElapsed > count) return;
@@ -2887,7 +2907,7 @@ let _lastPickedLocation = null; // { lat, lon, country, region }
 
 function isNightTime(date) {
     if (!_dailySun.length) return false;
-    const t = date || new Date();
+    const t = date || locationNow();
     // Daytime = inside any fetched day's [sunrise, sunset] window.
     // Daylight windows never overlap, and gaps between them are night.
     return !_dailySun.some(d => t >= d.rise && t <= d.set);
@@ -2935,6 +2955,12 @@ async function fetchAllWeatherData(lat, lon, country, region) {
         // a failed refresh keeps showing the honest (old) age.
         _lastFetchTime = Date.now();
         renderFreshness();
+        // Capture the location's UTC offset before anything renders — every
+        // "is this timestamp in the past/future" check goes through
+        // locationNow(), which needs it.
+        _utcOffsetSeconds = Number.isFinite(meteo.utc_offset_seconds)
+            ? meteo.utc_offset_seconds
+            : null;
         _dailySun = (meteo.daily.sunrise || []).map((rise, i) => ({
             rise: new Date(rise),
             set: new Date(meteo.daily.sunset[i]),
