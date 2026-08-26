@@ -2785,7 +2785,7 @@ function wireRadarPlayback(frames, nowIndex, hasFuture, engine) {
 
     function startAnimation() {
         if (radarInterval) clearInterval(radarInterval);
-        const speed = firstLoop ? speeds[1] : speeds[speedIdx]; // 0.5x on first loop
+        const speed = firstLoop ? speeds[3] : speeds[speedIdx]; // 2x on first loop
         radarInterval = setInterval(() => {
             if (paused) return;
             const next = (currentFrame + 1) % frames.length;
