@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://tilecache.rainviewer.com https://a.basemaps.cartocdn.com https://b.basemaps.cartocdn.com https://c.basemaps.cartocdn.com https://d.basemaps.cartocdn.com https://noadsradar-tilesvc-15838356607.us-central1.run.app; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com https://air-quality-api.open-meteo.com https://api.weather.gov https://api.rainviewer.com https://api.zippopotam.us https://alerts-proxy-ssdjubgioq-uc.a.run.app https://pollen-proxy-15838356607.us-central1.run.app https://noadsradar-tilesvc-15838356607.us-central1.run.app; font-src 'self'; manifest-src 'self' blob:; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tilecache.rainviewer.com https://a.basemaps.cartocdn.com https://b.basemaps.cartocdn.com https://c.basemaps.cartocdn.com https://d.basemaps.cartocdn.com https://noadsradar-tilesvc-15838356607.us-central1.run.app; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com https://air-quality-api.open-meteo.com https://api.weather.gov https://api.rainviewer.com https://api.zippopotam.us https://alerts-proxy-ssdjubgioq-uc.a.run.app https://pollen-proxy-15838356607.us-central1.run.app https://noadsradar-tilesvc-15838356607.us-central1.run.app https://tiles.openfreemap.org https://tilecache.rainviewer.com; font-src 'self'; worker-src 'self' blob:; manifest-src 'self' blob:; base-uri 'self'; form-action 'self'">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>Toronto Weather with No Ads — NoAdsWeather</title>
     <meta name="description" content="Get the Toronto weather forecast without ads, cookies, or tracking. Open-Meteo data, 10-day forecast, hourly conditions, and radar — all free.">
@@ -229,7 +229,9 @@
         <ul>
             <li><strong>Open-Meteo</strong> — weather forecasts and air quality data (called directly from your browser)</li>
             <li><strong>National Weather Service (NWS)</strong> — severe weather alerts for US locations (called directly)</li>
-            <li><strong>RainViewer</strong> &amp; <strong>CartoDB</strong> — radar imagery and map tiles (called directly)</li>
+            <li><strong>RainViewer</strong> — past radar imagery (called directly)</li>
+            <li><strong>OpenFreeMap</strong> — the map underneath the radar (called directly). Keyless and free — no API key or account ties tile requests to this site's visitors.</li>
+            <li><strong>CartoDB</strong> — fallback map tiles, contacted only if the main map fails to load (called directly)</li>
             <li><strong>NoAdsRadar</strong> — our own future-cast radar service for the contiguous United States. Routed through Cloud Run. Receives only the tile coordinates needed for display. Our code does not log IPs or user identifiers, and Google Cloud logging exclusions are configured so the platform's default access logs are not retained.</li>
             <li><strong>Zippopotam</strong> — postal/zip code to coordinates lookup (60+ countries, called directly)</li>
             <li><strong>OpenWeatherMap</strong> — severe weather alerts for non-US locations. Routed through our own Cloud Run proxy (<code>alerts-proxy</code>) so the API key isn't exposed in the browser. The proxy receives only your coordinates and returns alert text. Our code does not log your IP, and Google Cloud logging exclusions are configured so the platform's default access logs are not retained.</li>

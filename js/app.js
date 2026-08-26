@@ -2206,10 +2206,19 @@ function inConusBounds(lat, lon) {
 let radarInterval = null;
 let radarPreloadTimer = null;
 let radarLoadToken = 0;
+let radarMap = null; // active MapLibre instance — must be .remove()d or WebGL contexts leak
+
+function destroyRadarMap() {
+    if (radarMap) {
+        try { radarMap.remove(); } catch { /* context already lost */ }
+        radarMap = null;
+    }
+}
 
 function renderRadar(lat, lon) {
     if (radarInterval) { clearInterval(radarInterval); radarInterval = null; }
     if (radarPreloadTimer) { clearTimeout(radarPreloadTimer); radarPreloadTimer = null; }
+    destroyRadarMap();
 
     const section = document.getElementById('radar-section');
     // Check if location is within NWS radar coverage (US territories)
@@ -2263,6 +2272,7 @@ function renderRadar(lat, lon) {
     document.getElementById('radar-refresh').addEventListener('click', () => {
         if (radarInterval) { clearInterval(radarInterval); radarInterval = null; }
         if (radarPreloadTimer) { clearTimeout(radarPreloadTimer); radarPreloadTimer = null; }
+        destroyRadarMap();
         document.getElementById('radar-container').innerHTML = `<div class="loading" style="color:#9ca3af;">${t('refreshingRadar')}</div>`;
         document.getElementById('radar-time').textContent = '';
         loadRadar(lat, lon);
@@ -2337,359 +2347,539 @@ async function loadRadar(lat, lon) {
             return;
         }
 
-        const zoom = 7;
-        const n = Math.pow(2, zoom);
-
-        // Exact fractional tile position for the city
-        const exactX = (lon + 180) / 360 * n;
-        const exactY = (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * n;
-
-        // Center tile
-        const centerTileX = Math.floor(exactX);
-        const centerTileY = Math.floor(exactY);
-
-        // Fraction within center tile (0-1)
-        const fracX = exactX - centerTileX;
-        const fracY = exactY - centerTileY;
-
-        // Use a 5x5 grid so there's always enough tile coverage after centering.
-        // The city is at tile (centerTileX + fracX, centerTileY + fracY).
-        // In the 5x5 grid, the center tile starts at index 2 (0-indexed), so
-        // the city is at grid position (2 + fracX, 2 + fracY) out of 5 tiles.
-        // As a percentage of the grid: (2 + frac) / 5 * 100.
-        // We want that at 50% of the container, so:
-        //   left = 50% - (2 + fracX) / 5 * gridWidth
-        // where gridWidth = 500% of container.
-        const gridSize = 5;
-        const offsetX = 50 - (2 + fracX) / gridSize * 500;
-        const offsetY = 50 - (2 + fracY) / gridSize * 500;
-
-        // Build a tile-grid <div> as a real DOM element so URLs from third-party
-        // APIs (RainViewer, CartoDB) can never break out of an HTML attribute.
-        function buildTileGrid(tileSrcFn, extraStyle, defer) {
-            const wrap = document.createElement('div');
-            wrap.style.cssText = `position:absolute;left:${offsetX}%;top:${offsetY}%;width:${gridSize * 100}%;height:${gridSize * 100}%;display:grid;grid-template-columns:repeat(${gridSize},1fr);${extraStyle || ''}`;
-            for (let dy = -2; dy <= 2; dy++) {
-                for (let dx = -2; dx <= 2; dx++) {
-                    const url = tileSrcFn(centerTileX + dx, centerTileY + dy);
-                    const img = document.createElement('img');
-                    img.alt = '';
-                    img.style.cssText = 'width:100%;height:100%;display:block;';
-                    img.dataset.retries = '0';
-                    if (defer) {
-                        img.dataset.src = url; // loaded later by loadFrame
-                    } else {
-                        img.src = url;
-                        img.onerror = function () {
-                            const tries = parseInt(this.dataset.retries || '0', 10);
-                            if (tries < 3) {
-                                this.dataset.retries = String(tries + 1);
-                                const sep = url.includes('?') ? '&' : '?';
-                                setTimeout(() => { this.src = url + sep + 'r=' + (tries + 1); }, 1000 * (tries + 1));
-                            } else {
-                                this.style.visibility = 'hidden';
-                            }
-                        };
-                    }
-                    wrap.appendChild(img);
-                }
-            }
-            return wrap.outerHTML;
+        // Vector basemap via lazy-loaded MapLibre. Any failure on that path
+        // (script fetch, WebGL unavailable, style CDN down, load timeout)
+        // falls back to the legacy Carto raster tile grid, which needs no
+        // library at all.
+        let engine = null;
+        try {
+            engine = await createVectorRadar(container, lat, lon, frames, nowIndex);
+        } catch (err) {
+            console.warn('maplibre radar, using raster fallback:', err?.message || err);
         }
 
-        // Map base layer
-        const mapHtml = buildTileGrid(
-            (tx, ty) => {
-                const style = isDarkMode() ? 'dark_all' : 'rastertiles/voyager';
-                const key = CARTO_API_KEY ? `?key=${encodeURIComponent(CARTO_API_KEY)}` : '';
-                return `https://a.basemaps.cartocdn.com/${style}/${zoom}/${tx}/${ty}@2x.png${key}`;
-            },
-            'opacity:0.7;'
-        );
-
-        // Returns the tile-URL builder appropriate for the frame's source.
-        function tileSrcFor(frame) {
-            if (frame.source === 'future') {
-                return (tx, ty) => `${NOADSRADAR_BASE}/tile/${frame.minute}/${zoom}/${tx}/${ty}.png`;
-            }
-            // RainViewer past
-            // Color scheme 2 = Universal Blue, the only scheme RainViewer
-            // currently documents at https://www.rainviewer.com/api/color-schemes.html
-            return (tx, ty) => `https://tilecache.rainviewer.com${frame.path}/256/${zoom}/${tx}/${ty}/2/1_0.png`;
+        // Re-check the token: the MapLibre script + style load awaited above,
+        // and a newer loadRadar may own the container by now.
+        if (myToken !== radarLoadToken) {
+            if (engine) { try { engine.map.remove(); } catch { /* already gone */ } }
+            return;
+        }
+        if (engine) {
+            radarMap = engine.map;
+        } else {
+            engine = createRasterRadar(container, lat, lon, frames, nowIndex);
         }
 
-        // Radar layers — eager-load the "NOW" frame (last past frame).
-        // Forecast and older past tiles defer-load until reached by animation.
-        let radarHtml = '';
-        frames.forEach((frame, i) => {
-            const isEager = i === nowIndex;
-            radarHtml += buildTileGrid(
-                tileSrcFor(frame),
-                `opacity:${i === nowIndex ? 1 : 0};transition:opacity 0.3s;`,
-                !isEager
-            ).replace('<div ', `<div class="radar-frame" data-frame="${i}" data-source="${frame.source}" `);
-        });
-
-        // City center marker — simple crosshair
-        const markerHtml = `
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none;">
-                <div style="width:12px;height:12px;border:2px solid #2563eb;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,0.8);"></div>
-            </div>`;
-
-        container.innerHTML = mapHtml + radarHtml + markerHtml;
-
-        // Attach error/retry handlers to eager-loaded tiles. Inline onerror
-        // attributes were removed (CSP-friendly + safer). We do this after
-        // innerHTML so newly-parsed <img> elements have the handler.
-        container.querySelectorAll('img[src]:not([data-src])').forEach(img => {
-            const original = img.src;
-            img.onerror = function () {
-                const tries = parseInt(this.dataset.retries || '0', 10);
-                if (tries < 3) {
-                    this.dataset.retries = String(tries + 1);
-                    const sep = original.includes('?') ? '&' : '?';
-                    setTimeout(() => { this.src = original + sep + 'r=' + (tries + 1); }, 1000 * (tries + 1));
-                } else {
-                    this.style.visibility = 'hidden';
-                }
-            };
-        });
-
-        // Frame timestamp handles both sources: RainViewer's unix `time` (seconds)
-        // and NoAdsRadar's `valid_utc` ISO string.
-        function frameTime(frame) {
-            const d = frame.source === 'future'
-                ? new Date(frame.valid_utc)
-                : new Date(frame.time * 1000);
-            return Number.isFinite(d.getTime()) ? d : null;
-        }
-
-        const timeEl = document.getElementById('radar-time');
-        const showFrameTime = (frame) => {
-            const d = frameTime(frame);
-            const forecastTag = `<strong>(${escapeHtml(t('forecastLabel'))})</strong>`;
-            if (!d) {
-                // Bad timestamp — show source tag only (or blank)
-                timeEl.innerHTML = frame.source === 'future' ? forecastTag : '';
-                return;
-            }
-            const timeStr = d.toLocaleTimeString(getCurrentLang(), { hour: 'numeric', minute: '2-digit' });
-            const timeEsc = escapeHtml(timeStr);
-            timeEl.innerHTML = frame.source === 'future'
-                ? `${timeEsc} ${forecastTag}`
-                : timeEsc;
-        };
-        showFrameTime(frames[nowIndex]);
-
-        // Animate through frames with speed/pause controls.
-        // Start at "NOW" (boundary between past and future) so user sees current
-        // conditions first, then watches the past → future loop.
-        let currentFrame = nowIndex;
-        const allFrameEls = container.querySelectorAll('.radar-frame');
-
-        // Wire the progress bar. Always visible when there are frames;
-        // the NOW line + label only show when forecast frames exist.
-        const hasFuture = futureFrames.length > 0;
-        const progressEl = document.getElementById('radar-progress');
-        const pastBar = progressEl?.querySelector('.radar-progress-past');
-        const futureBar = progressEl?.querySelector('.radar-progress-future');
-        const nowLine = progressEl?.querySelector('.radar-progress-now-line');
-        const nowLabel = progressEl?.querySelector('.radar-progress-now-label');
-        const markerEl = progressEl?.querySelector('.radar-progress-marker');
-
-        if (progressEl) {
-            progressEl.hidden = false;
-            // Past portion width: 100% if no future frames, else proportion of past.
-            const pastPct = hasFuture ? ((nowIndex + 1) / frames.length) * 100 : 100;
-            if (pastBar) pastBar.style.width = `${pastPct}%`;
-            if (futureBar) futureBar.style.display = hasFuture ? '' : 'none';
-            if (nowLine) {
-                nowLine.style.display = hasFuture ? '' : 'none';
-                nowLine.style.left = `calc(${pastPct}% - 1px)`;
-            }
-            if (nowLabel) {
-                nowLabel.style.display = hasFuture ? '' : 'none';
-                nowLabel.style.left = `${pastPct}%`;
-            }
-        }
-
-        function updateProgressMarker(idx) {
-            if (!markerEl) return;
-            const pct = ((idx + 0.5) / frames.length) * 100;
-            markerEl.style.left = `${pct}%`;
-        }
-        updateProgressMarker(currentFrame);
-
-        const speeds = [2000, 1000, 500, 250, 125];
-        const speedLabels = ['0.25x', '0.5x', '1x', '2x', '4x'];
-        let speedIdx = parseInt(localStorage.getItem('radarSpeed') || '2', 10);
-        if (speedIdx < 0 || speedIdx >= speeds.length) speedIdx = 2;
-
-        // Auto-play setting (default true). When false, show only the latest
-        // frame, don't preload deferred tiles, don't start the animation.
-        // User can still click play or scrub manually; tiles load on demand.
-        const autoPlay = getSettingsBool('autoPlayRadar');
-        let paused = !autoPlay;
-
-        // Load deferred tiles for a frame
-        function loadFrame(frameEl) {
-            frameEl.querySelectorAll('img[data-src]').forEach(img => {
-                const src = img.dataset.src;
-                img.src = src;
-                img.removeAttribute('data-src');
-                img.dataset.retries = '0';
-                img.onerror = function () {
-                    const tries = parseInt(this.dataset.retries || '0', 10);
-                    if (tries < 3) {
-                        this.dataset.retries = String(tries + 1);
-                        const sep = src.includes('?') ? '&' : '?';
-                        setTimeout(() => { this.src = src + sep + 'r=' + (tries + 1); }, 1000 * (tries + 1));
-                    } else { this.style.visibility = 'hidden'; }
-                };
-            });
-        }
-
-        // Preload all frames sequentially with a small delay.
-        // Track the timer so we can cancel on re-render (avoids leaking
-        // detached image loads across location/theme changes).
-        let preloadIdx = 0;
-        function preloadNext() {
-            if (preloadIdx >= allFrameEls.length) return;
-            loadFrame(allFrameEls[preloadIdx]);
-            preloadIdx++;
-            radarPreloadTimer = setTimeout(preloadNext, 300);
-        }
-        if (autoPlay) preloadNext();
-
-        // Single source of truth for switching to a frame.
-        // Used by the animation tick AND the progress-bar scrub handler.
-        function setFrame(idx) {
-            idx = Math.max(0, Math.min(frames.length - 1, idx));
-            if (idx === currentFrame) return;
-            allFrameEls[currentFrame].style.opacity = '0';
-            currentFrame = idx;
-            loadFrame(allFrameEls[currentFrame]);
-            allFrameEls[currentFrame].style.opacity = '1';
-            showFrameTime(frames[currentFrame]);
-            updateProgressMarker(currentFrame);
-        }
-
-        let firstLoop = true;
-
-        function startAnimation() {
-            if (radarInterval) clearInterval(radarInterval);
-            const speed = firstLoop ? speeds[1] : speeds[speedIdx]; // 0.5x on first loop
-            radarInterval = setInterval(() => {
-                if (paused) return;
-                const next = (currentFrame + 1) % frames.length;
-                setFrame(next);
-                // After completing first loop, switch to user's speed
-                if (firstLoop && currentFrame === frames.length - 1) {
-                    firstLoop = false;
-                    startAnimation();
-                }
-            }, speed);
-        }
-
-        function updateSpeedLabel() {
-            const label = document.getElementById('radar-speed-label');
-            if (label) label.textContent = speedLabels[speedIdx];
-        }
-
-        startAnimation();
-        updateSpeedLabel();
-
-        const pauseBtn = document.getElementById('radar-pause');
-        // Reflect initial paused state (autoPlay setting may have started us paused).
-        if (pauseBtn && paused) {
-            pauseBtn.textContent = '▶';
-            pauseBtn.title = t('playRadar');
-        }
-        if (pauseBtn) pauseBtn.addEventListener('click', () => {
-            paused = !paused;
-            pauseBtn.textContent = paused ? '▶' : '⏸';
-            pauseBtn.title = paused ? t('playRadar') : t('pauseRadar');
-            // First click of play (preload not yet started): jump to the earliest
-            // frame and kick off the deferred preload so the user sees the full
-            // past → now → future loop from the beginning.
-            if (!paused && preloadIdx === 0 && allFrameEls.length > 0) {
-                setFrame(0);
-                preloadNext();
-            }
-        });
-
-        // --- Scrub the progress bar (click or drag to change time) ---
-        if (progressEl) {
-            let scrubbing = false;
-
-            function frameFromEvent(e) {
-                const rect = progressEl.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const fraction = Math.max(0, Math.min(1, x / rect.width));
-                return Math.round(fraction * (frames.length - 1));
-            }
-
-            function pauseForScrub() {
-                paused = true;
-                if (pauseBtn) {
-                    pauseBtn.textContent = '▶';
-                    pauseBtn.title = t('playRadar');
-                }
-            }
-
-            progressEl.style.cursor = 'pointer';
-            progressEl.style.touchAction = 'none'; // prevent page scroll while dragging on mobile
-
-            progressEl.addEventListener('pointerdown', (e) => {
-                e.preventDefault();
-                scrubbing = true;
-                progressEl.setPointerCapture(e.pointerId);
-                // Disable marker transition during drag so it tracks the pointer crisply
-                if (markerEl) markerEl.style.transition = 'none';
-                pauseForScrub();
-                setFrame(frameFromEvent(e));
-            });
-
-            progressEl.addEventListener('pointermove', (e) => {
-                if (!scrubbing) return;
-                setFrame(frameFromEvent(e));
-            });
-
-            function endScrub(e) {
-                if (!scrubbing) return;
-                scrubbing = false;
-                try { progressEl.releasePointerCapture(e.pointerId); } catch {}
-                if (markerEl) markerEl.style.transition = '';
-            }
-
-            progressEl.addEventListener('pointerup', endScrub);
-            progressEl.addEventListener('pointercancel', endScrub);
-        }
-
-        const slowerBtn = document.getElementById('radar-slower');
-        if (slowerBtn) slowerBtn.addEventListener('click', () => {
-            if (speedIdx > 0) {
-                speedIdx--;
-                localStorage.setItem('radarSpeed', speedIdx);
-                updateSpeedLabel();
-                startAnimation();
-            }
-        });
-
-        const fasterBtn = document.getElementById('radar-faster');
-        if (fasterBtn) fasterBtn.addEventListener('click', () => {
-            if (speedIdx < speeds.length - 1) {
-                speedIdx++;
-                localStorage.setItem('radarSpeed', speedIdx);
-                updateSpeedLabel();
-                startAnimation();
-            }
-        });
-
+        wireRadarPlayback(frames, nowIndex, futureFrames.length > 0, engine);
     } catch {
         document.getElementById('radar-container').innerHTML =
             `<div style="text-align:center;padding:2rem;color:#9ca3af;">${t('radarUnavailable')}</div>`;
     }
+}
+
+// City center marker — simple crosshair. The map is locked and centered on
+// the city, so a static overlay at 50%/50% is exact for both radar paths.
+const RADAR_MARKER_HTML = `
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none;">
+        <div style="width:12px;height:12px;border:2px solid #2563eb;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,0.8);"></div>
+    </div>`;
+
+// --- MapLibre (vector) radar path --------------------------------------------
+
+// maplibre-gl is ~276 KB gzipped — 4.7x the rest of the site's JS+CSS
+// combined — so it is self-hosted (keeps the About page's "no third-party
+// scripts" claim true) and only injected once the radar section actually
+// renders. The promise resets on failure so a radar refresh can retry.
+let _maplibrePromise = null;
+function ensureMapLibre() {
+    if (_maplibrePromise) return _maplibrePromise;
+    _maplibrePromise = new Promise((resolve, reject) => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/js/vendor/maplibre-gl.css';
+        document.head.appendChild(link);
+        const script = document.createElement('script');
+        script.src = '/js/vendor/maplibre-gl.js';
+        script.async = true;
+        script.onload = () => {
+            if (window.maplibregl) resolve(window.maplibregl);
+            else { _maplibrePromise = null; reject(new Error('maplibre-gl loaded without global')); }
+        };
+        script.onerror = () => {
+            _maplibrePromise = null;
+            script.remove();
+            reject(new Error('maplibre-gl script failed to load'));
+        };
+        document.head.appendChild(script);
+    });
+    return _maplibrePromise;
+}
+
+async function createVectorRadar(container, lat, lon, frames, nowIndex) {
+    const maplibregl = await ensureMapLibre();
+
+    container.innerHTML = '';
+    const mapDiv = document.createElement('div');
+    mapDiv.style.cssText = 'position:absolute;inset:0;';
+    container.appendChild(mapDiv);
+    container.insertAdjacentHTML('beforeend', RADAR_MARKER_HTML);
+
+    // Match the raster grid's field of view. The 5x5 grid always showed
+    // exactly one z7 tile across the container's width (2.8125° of
+    // longitude); solving 360·width / (512·2^zoom) = 2.8125 gives
+    // zoom = log2(width) − 2. At real card widths (~330–460px) that lands
+    // between z6.4 and z6.9, so MapLibre requests z7–z8 radar tiles —
+    // inside NoAdsRadar's z5–z9 coverage.
+    const width = container.clientWidth || 400;
+    const zoom = Math.log2(width) - 2;
+
+    const map = new maplibregl.Map({
+        container: mapDiv,
+        style: isDarkMode()
+            ? 'https://tiles.openfreemap.org/styles/dark'
+            : 'https://tiles.openfreemap.org/styles/positron',
+        center: [lon, lat],
+        zoom,
+        interactive: false, // locked map — no pan/zoom, like the static grid
+        attributionControl: false,
+    });
+
+    try {
+        // OSM attribution is required by ODbL; compact mode keeps it out of
+        // the way on a ~430px card while staying one tap from readable.
+        map.addControl(new maplibregl.AttributionControl({ compact: true }));
+
+        await new Promise((resolve, reject) => {
+            const timer = setTimeout(() => reject(new Error('style load timeout')), 12000);
+            map.once('load', () => { clearTimeout(timer); resolve(); });
+            map.once('error', (e) => { clearTimeout(timer); reject(e?.error || new Error('map load error')); });
+        });
+
+        // The raster grid drew its basemap at opacity 0.7 over the
+        // container's #1a1a2e background; a 30% scrim over the whole style
+        // reproduces that muting so radar echoes stay the loudest layer.
+        map.addLayer({
+            id: 'radar-dim',
+            type: 'background',
+            paint: { 'background-color': '#1a1a2e', 'background-opacity': 0.3 }
+        });
+
+        // One raster source + layer per frame. Deferred frames start with
+        // visibility 'none' so their tiles aren't fetched until preload or
+        // playback reaches them; frame switches are a 300ms opacity fade —
+        // the same timings the <img> grid used.
+        frames.forEach((frame, i) => {
+            const src = frame.source === 'future'
+                ? { tiles: [`${NOADSRADAR_BASE}/tile/${frame.minute}/{z}/{x}/{y}.png`], minzoom: 5, maxzoom: 9 }
+                // RainViewer past. Color scheme 2 = Universal Blue, the only
+                // scheme RainViewer currently documents at
+                // https://www.rainviewer.com/api/color-schemes.html
+                : { tiles: [`https://tilecache.rainviewer.com${frame.path}/256/{z}/{x}/{y}/2/1_0.png`] };
+            map.addSource(`radar-${i}`, { type: 'raster', tileSize: 256, ...src });
+            map.addLayer({
+                id: `radar-${i}`,
+                type: 'raster',
+                source: `radar-${i}`,
+                layout: { visibility: i === nowIndex ? 'visible' : 'none' },
+                paint: {
+                    'raster-opacity': i === nowIndex ? 1 : 0,
+                    'raster-opacity-transition': { duration: 300 },
+                },
+            });
+        });
+        // The compact attribution <details> starts expanded, covering the
+        // bottom of a card-sized map. Collapse it to the ⓘ — OSM's guidance
+        // permits collapsed attribution on small embedded maps, and one tap
+        // re-opens it.
+        const attrib = mapDiv.querySelector('.maplibregl-ctrl-attrib');
+        if (attrib) {
+            attrib.removeAttribute('open');
+            attrib.classList.remove('maplibregl-compact-show');
+        }
+    } catch (err) {
+        try { map.remove(); } catch { /* context already lost */ }
+        throw err;
+    }
+
+    return {
+        map,
+        show(idx, prevIdx) {
+            map.setLayoutProperty(`radar-${idx}`, 'visibility', 'visible');
+            map.setPaintProperty(`radar-${idx}`, 'raster-opacity', 1);
+            if (prevIdx !== idx) map.setPaintProperty(`radar-${prevIdx}`, 'raster-opacity', 0);
+        },
+        // Making a layer visible at opacity 0 starts its tile fetches
+        // without drawing anything — the deferred-preload trick.
+        load(idx) {
+            map.setLayoutProperty(`radar-${idx}`, 'visibility', 'visible');
+        },
+    };
+}
+
+// --- Raster tile-grid radar path (fallback) -----------------------------------
+// The pre-MapLibre implementation, kept as the no-WebGL / no-library escape
+// hatch: 5x5 <img> grids per layer at a fixed z7, Carto raster basemap.
+function createRasterRadar(container, lat, lon, frames, nowIndex) {
+    const zoom = 7;
+    const n = Math.pow(2, zoom);
+
+    // Exact fractional tile position for the city
+    const exactX = (lon + 180) / 360 * n;
+    const exactY = (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * n;
+
+    // Center tile
+    const centerTileX = Math.floor(exactX);
+    const centerTileY = Math.floor(exactY);
+
+    // Fraction within center tile (0-1)
+    const fracX = exactX - centerTileX;
+    const fracY = exactY - centerTileY;
+
+    // Use a 5x5 grid so there's always enough tile coverage after centering.
+    // The city is at tile (centerTileX + fracX, centerTileY + fracY).
+    // In the 5x5 grid, the center tile starts at index 2 (0-indexed), so
+    // the city is at grid position (2 + fracX, 2 + fracY) out of 5 tiles.
+    // As a percentage of the grid: (2 + frac) / 5 * 100.
+    // We want that at 50% of the container, so:
+    //   left = 50% - (2 + fracX) / 5 * gridWidth
+    // where gridWidth = 500% of container.
+    const gridSize = 5;
+    const offsetX = 50 - (2 + fracX) / gridSize * 500;
+    const offsetY = 50 - (2 + fracY) / gridSize * 500;
+
+    // Build a tile-grid <div> as a real DOM element so URLs from third-party
+    // APIs (RainViewer, CartoDB) can never break out of an HTML attribute.
+    function buildTileGrid(tileSrcFn, extraStyle, defer) {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = `position:absolute;left:${offsetX}%;top:${offsetY}%;width:${gridSize * 100}%;height:${gridSize * 100}%;display:grid;grid-template-columns:repeat(${gridSize},1fr);${extraStyle || ''}`;
+        for (let dy = -2; dy <= 2; dy++) {
+            for (let dx = -2; dx <= 2; dx++) {
+                const url = tileSrcFn(centerTileX + dx, centerTileY + dy);
+                const img = document.createElement('img');
+                img.alt = '';
+                img.style.cssText = 'width:100%;height:100%;display:block;';
+                img.dataset.retries = '0';
+                if (defer) {
+                    img.dataset.src = url; // loaded later by loadFrame
+                } else {
+                    img.src = url;
+                    img.onerror = function () {
+                        const tries = parseInt(this.dataset.retries || '0', 10);
+                        if (tries < 3) {
+                            this.dataset.retries = String(tries + 1);
+                            const sep = url.includes('?') ? '&' : '?';
+                            setTimeout(() => { this.src = url + sep + 'r=' + (tries + 1); }, 1000 * (tries + 1));
+                        } else {
+                            this.style.visibility = 'hidden';
+                        }
+                    };
+                }
+                wrap.appendChild(img);
+            }
+        }
+        return wrap.outerHTML;
+    }
+
+    // Map base layer
+    const mapHtml = buildTileGrid(
+        (tx, ty) => {
+            const style = isDarkMode() ? 'dark_all' : 'rastertiles/voyager';
+            const key = CARTO_API_KEY ? `?key=${encodeURIComponent(CARTO_API_KEY)}` : '';
+            return `https://a.basemaps.cartocdn.com/${style}/${zoom}/${tx}/${ty}@2x.png${key}`;
+        },
+        'opacity:0.7;'
+    );
+
+    // Returns the tile-URL builder appropriate for the frame's source.
+    function tileSrcFor(frame) {
+        if (frame.source === 'future') {
+            return (tx, ty) => `${NOADSRADAR_BASE}/tile/${frame.minute}/${zoom}/${tx}/${ty}.png`;
+        }
+        // RainViewer past
+        // Color scheme 2 = Universal Blue, the only scheme RainViewer
+        // currently documents at https://www.rainviewer.com/api/color-schemes.html
+        return (tx, ty) => `https://tilecache.rainviewer.com${frame.path}/256/${zoom}/${tx}/${ty}/2/1_0.png`;
+    }
+
+    // Radar layers — eager-load the "NOW" frame (last past frame).
+    // Forecast and older past tiles defer-load until reached by animation.
+    let radarHtml = '';
+    frames.forEach((frame, i) => {
+        const isEager = i === nowIndex;
+        radarHtml += buildTileGrid(
+            tileSrcFor(frame),
+            `opacity:${i === nowIndex ? 1 : 0};transition:opacity 0.3s;`,
+            !isEager
+        ).replace('<div ', `<div class="radar-frame" data-frame="${i}" data-source="${frame.source}" `);
+    });
+
+    container.innerHTML = mapHtml + radarHtml + RADAR_MARKER_HTML;
+
+    // Attach error/retry handlers to eager-loaded tiles. Inline onerror
+    // attributes were removed (CSP-friendly + safer). We do this after
+    // innerHTML so newly-parsed <img> elements have the handler.
+    container.querySelectorAll('img[src]:not([data-src])').forEach(img => {
+        const original = img.src;
+        img.onerror = function () {
+            const tries = parseInt(this.dataset.retries || '0', 10);
+            if (tries < 3) {
+                this.dataset.retries = String(tries + 1);
+                const sep = original.includes('?') ? '&' : '?';
+                setTimeout(() => { this.src = original + sep + 'r=' + (tries + 1); }, 1000 * (tries + 1));
+            } else {
+                this.style.visibility = 'hidden';
+            }
+        };
+    });
+
+    const allFrameEls = container.querySelectorAll('.radar-frame');
+
+    // Load deferred tiles for a frame
+    function loadFrame(frameEl) {
+        frameEl.querySelectorAll('img[data-src]').forEach(img => {
+            const src = img.dataset.src;
+            img.src = src;
+            img.removeAttribute('data-src');
+            img.dataset.retries = '0';
+            img.onerror = function () {
+                const tries = parseInt(this.dataset.retries || '0', 10);
+                if (tries < 3) {
+                    this.dataset.retries = String(tries + 1);
+                    const sep = src.includes('?') ? '&' : '?';
+                    setTimeout(() => { this.src = src + sep + 'r=' + (tries + 1); }, 1000 * (tries + 1));
+                } else { this.style.visibility = 'hidden'; }
+            };
+        });
+    }
+
+    return {
+        map: null,
+        show(idx, prevIdx) {
+            if (prevIdx !== idx && allFrameEls[prevIdx]) allFrameEls[prevIdx].style.opacity = '0';
+            loadFrame(allFrameEls[idx]);
+            allFrameEls[idx].style.opacity = '1';
+        },
+        load(idx) {
+            loadFrame(allFrameEls[idx]);
+        },
+    };
+}
+
+// --- Shared radar playback ----------------------------------------------------
+// Timestamps, progress bar, animation loop, pause/speed buttons, and scrub —
+// identical for both radar paths. The engine is the only moving part:
+// engine.show(idx, prevIdx) makes a frame visible, engine.load(idx) starts
+// fetching a frame's tiles without showing it.
+function wireRadarPlayback(frames, nowIndex, hasFuture, engine) {
+    // Frame timestamp handles both sources: RainViewer's unix `time` (seconds)
+    // and NoAdsRadar's `valid_utc` ISO string.
+    function frameTime(frame) {
+        const d = frame.source === 'future'
+            ? new Date(frame.valid_utc)
+            : new Date(frame.time * 1000);
+        return Number.isFinite(d.getTime()) ? d : null;
+    }
+
+    const timeEl = document.getElementById('radar-time');
+    const showFrameTime = (frame) => {
+        const d = frameTime(frame);
+        const forecastTag = `<strong>(${escapeHtml(t('forecastLabel'))})</strong>`;
+        if (!d) {
+            // Bad timestamp — show source tag only (or blank)
+            timeEl.innerHTML = frame.source === 'future' ? forecastTag : '';
+            return;
+        }
+        const timeStr = d.toLocaleTimeString(getCurrentLang(), { hour: 'numeric', minute: '2-digit' });
+        const timeEsc = escapeHtml(timeStr);
+        timeEl.innerHTML = frame.source === 'future'
+            ? `${timeEsc} ${forecastTag}`
+            : timeEsc;
+    };
+    showFrameTime(frames[nowIndex]);
+
+    // Animate through frames with speed/pause controls.
+    // Start at "NOW" (boundary between past and future) so user sees current
+    // conditions first, then watches the past → future loop.
+    let currentFrame = nowIndex;
+
+    // Wire the progress bar. Always visible when there are frames;
+    // the NOW line + label only show when forecast frames exist.
+    const progressEl = document.getElementById('radar-progress');
+    const pastBar = progressEl?.querySelector('.radar-progress-past');
+    const futureBar = progressEl?.querySelector('.radar-progress-future');
+    const nowLine = progressEl?.querySelector('.radar-progress-now-line');
+    const nowLabel = progressEl?.querySelector('.radar-progress-now-label');
+    const markerEl = progressEl?.querySelector('.radar-progress-marker');
+
+    if (progressEl) {
+        progressEl.hidden = false;
+        // Past portion width: 100% if no future frames, else proportion of past.
+        const pastPct = hasFuture ? ((nowIndex + 1) / frames.length) * 100 : 100;
+        if (pastBar) pastBar.style.width = `${pastPct}%`;
+        if (futureBar) futureBar.style.display = hasFuture ? '' : 'none';
+        if (nowLine) {
+            nowLine.style.display = hasFuture ? '' : 'none';
+            nowLine.style.left = `calc(${pastPct}% - 1px)`;
+        }
+        if (nowLabel) {
+            nowLabel.style.display = hasFuture ? '' : 'none';
+            nowLabel.style.left = `${pastPct}%`;
+        }
+    }
+
+    function updateProgressMarker(idx) {
+        if (!markerEl) return;
+        const pct = ((idx + 0.5) / frames.length) * 100;
+        markerEl.style.left = `${pct}%`;
+    }
+    updateProgressMarker(currentFrame);
+
+    const speeds = [2000, 1000, 500, 250, 125];
+    const speedLabels = ['0.25x', '0.5x', '1x', '2x', '4x'];
+    let speedIdx = parseInt(localStorage.getItem('radarSpeed') || '2', 10);
+    if (speedIdx < 0 || speedIdx >= speeds.length) speedIdx = 2;
+
+    // Auto-play setting (default true). When false, show only the latest
+    // frame, don't preload deferred tiles, don't start the animation.
+    // User can still click play or scrub manually; tiles load on demand.
+    const autoPlay = getSettingsBool('autoPlayRadar');
+    let paused = !autoPlay;
+
+    // Preload all frames sequentially with a small delay.
+    // Track the timer so we can cancel on re-render (avoids leaking
+    // detached tile loads across location/theme changes).
+    let preloadIdx = 0;
+    function preloadNext() {
+        if (preloadIdx >= frames.length) return;
+        engine.load(preloadIdx);
+        preloadIdx++;
+        radarPreloadTimer = setTimeout(preloadNext, 300);
+    }
+    if (autoPlay) preloadNext();
+
+    // Single source of truth for switching to a frame.
+    // Used by the animation tick AND the progress-bar scrub handler.
+    function setFrame(idx) {
+        idx = Math.max(0, Math.min(frames.length - 1, idx));
+        if (idx === currentFrame) return;
+        const prev = currentFrame;
+        currentFrame = idx;
+        engine.show(currentFrame, prev);
+        showFrameTime(frames[currentFrame]);
+        updateProgressMarker(currentFrame);
+    }
+
+    let firstLoop = true;
+
+    function startAnimation() {
+        if (radarInterval) clearInterval(radarInterval);
+        const speed = firstLoop ? speeds[1] : speeds[speedIdx]; // 0.5x on first loop
+        radarInterval = setInterval(() => {
+            if (paused) return;
+            const next = (currentFrame + 1) % frames.length;
+            setFrame(next);
+            // After completing first loop, switch to user's speed
+            if (firstLoop && currentFrame === frames.length - 1) {
+                firstLoop = false;
+                startAnimation();
+            }
+        }, speed);
+    }
+
+    function updateSpeedLabel() {
+        const label = document.getElementById('radar-speed-label');
+        if (label) label.textContent = speedLabels[speedIdx];
+    }
+
+    startAnimation();
+    updateSpeedLabel();
+
+    const pauseBtn = document.getElementById('radar-pause');
+    // Reflect initial paused state (autoPlay setting may have started us paused).
+    if (pauseBtn && paused) {
+        pauseBtn.textContent = '▶';
+        pauseBtn.title = t('playRadar');
+    }
+    if (pauseBtn) pauseBtn.addEventListener('click', () => {
+        paused = !paused;
+        pauseBtn.textContent = paused ? '▶' : '⏸';
+        pauseBtn.title = paused ? t('playRadar') : t('pauseRadar');
+        // First click of play (preload not yet started): jump to the earliest
+        // frame and kick off the deferred preload so the user sees the full
+        // past → now → future loop from the beginning.
+        if (!paused && preloadIdx === 0 && frames.length > 0) {
+            setFrame(0);
+            preloadNext();
+        }
+    });
+
+    // --- Scrub the progress bar (click or drag to change time) ---
+    if (progressEl) {
+        let scrubbing = false;
+
+        function frameFromEvent(e) {
+            const rect = progressEl.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const fraction = Math.max(0, Math.min(1, x / rect.width));
+            return Math.round(fraction * (frames.length - 1));
+        }
+
+        function pauseForScrub() {
+            paused = true;
+            if (pauseBtn) {
+                pauseBtn.textContent = '▶';
+                pauseBtn.title = t('playRadar');
+            }
+        }
+
+        progressEl.style.cursor = 'pointer';
+        progressEl.style.touchAction = 'none'; // prevent page scroll while dragging on mobile
+
+        progressEl.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            scrubbing = true;
+            progressEl.setPointerCapture(e.pointerId);
+            // Disable marker transition during drag so it tracks the pointer crisply
+            if (markerEl) markerEl.style.transition = 'none';
+            pauseForScrub();
+            setFrame(frameFromEvent(e));
+        });
+
+        progressEl.addEventListener('pointermove', (e) => {
+            if (!scrubbing) return;
+            setFrame(frameFromEvent(e));
+        });
+
+        function endScrub(e) {
+            if (!scrubbing) return;
+            scrubbing = false;
+            try { progressEl.releasePointerCapture(e.pointerId); } catch {}
+            if (markerEl) markerEl.style.transition = '';
+        }
+
+        progressEl.addEventListener('pointerup', endScrub);
+        progressEl.addEventListener('pointercancel', endScrub);
+    }
+
+    const slowerBtn = document.getElementById('radar-slower');
+    if (slowerBtn) slowerBtn.addEventListener('click', () => {
+        if (speedIdx > 0) {
+            speedIdx--;
+            localStorage.setItem('radarSpeed', speedIdx);
+            updateSpeedLabel();
+            startAnimation();
+        }
+    });
+
+    const fasterBtn = document.getElementById('radar-faster');
+    if (fasterBtn) fasterBtn.addEventListener('click', () => {
+        if (speedIdx < speeds.length - 1) {
+            speedIdx++;
+            localStorage.setItem('radarSpeed', speedIdx);
+            updateSpeedLabel();
+            startAnimation();
+        }
+    });
 }
 
 function renderSunMoon(daily, lat, lon, utcOffsetSeconds) {
@@ -2950,6 +3140,7 @@ async function fetchAllWeatherData(lat, lon, country, region) {
     document.getElementById('details-section').innerHTML = '';
     document.getElementById('hourly-section').innerHTML = '';
     document.getElementById('daily-section').innerHTML = '';
+    destroyRadarMap();
     document.getElementById('radar-section').innerHTML = `<h2>${t('radar')}</h2><div class="loading">${t('loading')}</div>`;
     document.getElementById('sun-section').innerHTML = '';
     document.getElementById('moon-section').innerHTML = '';
