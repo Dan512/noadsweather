@@ -2449,20 +2449,27 @@ async function createVectorRadar(container, lat, lon, frames, nowIndex) {
         // the way on a ~430px card while staying one tap from readable.
         map.addControl(new maplibregl.AttributionControl({ compact: true }));
 
+        // Wait for 'style.load' (network-driven), NOT 'load' — 'load' only
+        // fires after a first render frame, and hidden/background tabs get
+        // no animation frames, so waiting on 'load' there times out and
+        // falls back to the raster grid for no reason. addLayer/addSource
+        // only need the style to be ready.
         await new Promise((resolve, reject) => {
             const timer = setTimeout(() => reject(new Error('style load timeout')), 12000);
-            map.once('load', () => { clearTimeout(timer); resolve(); });
+            map.once('style.load', () => { clearTimeout(timer); resolve(); });
             map.once('error', (e) => { clearTimeout(timer); reject(e?.error || new Error('map load error')); });
         });
 
-        // The raster grid drew its basemap at opacity 0.7 over the
-        // container's #1a1a2e background; a 30% scrim over the whole style
-        // reproduces that muting so radar echoes stay the loudest layer.
-        map.addLayer({
-            id: 'radar-dim',
-            type: 'background',
-            paint: { 'background-color': '#1a1a2e', 'background-opacity': 0.3 }
-        });
+        // Keep the dark basemap slightly muted under the echoes. The pale
+        // positron (light) style gets no scrim at all — dimming it just
+        // hazes the map out and makes semi-transparent echoes look weak.
+        if (isDarkMode()) {
+            map.addLayer({
+                id: 'radar-dim',
+                type: 'background',
+                paint: { 'background-color': '#1a1a2e', 'background-opacity': 0.15 }
+            });
+        }
 
         // One raster source + layer per frame. Deferred frames start with
         // visibility 'none' so their tiles aren't fetched until preload or
@@ -2490,12 +2497,17 @@ async function createVectorRadar(container, lat, lon, frames, nowIndex) {
         // The compact attribution <details> starts expanded, covering the
         // bottom of a card-sized map. Collapse it to the ⓘ — OSM's guidance
         // permits collapsed attribution on small embedded maps, and one tap
-        // re-opens it.
-        const attrib = mapDiv.querySelector('.maplibregl-ctrl-attrib');
-        if (attrib) {
-            attrib.removeAttribute('open');
-            attrib.classList.remove('maplibregl-compact-show');
-        }
+        // re-opens it. Run now AND after the first render ('load'), because
+        // the control re-expands itself when source attributions arrive.
+        const collapseAttrib = () => {
+            const attrib = mapDiv.querySelector('.maplibregl-ctrl-attrib');
+            if (attrib) {
+                attrib.removeAttribute('open');
+                attrib.classList.remove('maplibregl-compact-show');
+            }
+        };
+        collapseAttrib();
+        map.once('load', collapseAttrib);
     } catch (err) {
         try { map.remove(); } catch { /* context already lost */ }
         throw err;
