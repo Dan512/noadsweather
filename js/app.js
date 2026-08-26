@@ -2271,6 +2271,15 @@ function renderRadar(lat, lon) {
 
 const NOADSRADAR_BASE = 'https://noadsradar-tilesvc-15838356607.us-central1.run.app';
 
+// Carto now watermarks every keyless raster tile with "API KEY REQUIRED". The
+// key is free (5M tiles/month, no account needed) from carto.com/basemaps/apikey
+// and is scoped to the domain you register, which is about as private as a
+// static site gets. Left empty, the tile URL is built exactly as it was before.
+// The query param is `key` — `api_key` and `apikey` are silently ignored and
+// still return watermarked tiles, as does any invalid key. No error, just a
+// byte-identical watermarked PNG, so verify visually after changing this.
+const CARTO_API_KEY = 'cb1_27bc_1_a250f9a4224297c481afdc30';
+
 async function fetchRainviewerPast() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
@@ -2392,7 +2401,8 @@ async function loadRadar(lat, lon) {
         const mapHtml = buildTileGrid(
             (tx, ty) => {
                 const style = isDarkMode() ? 'dark_all' : 'rastertiles/voyager';
-                return `https://a.basemaps.cartocdn.com/${style}/${zoom}/${tx}/${ty}@2x.png`;
+                const key = CARTO_API_KEY ? `?key=${encodeURIComponent(CARTO_API_KEY)}` : '';
+                return `https://a.basemaps.cartocdn.com/${style}/${zoom}/${tx}/${ty}@2x.png${key}`;
             },
             'opacity:0.7;'
         );
