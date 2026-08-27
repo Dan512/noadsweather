@@ -2215,3 +2215,72 @@ body.is-dragging .weather-col:empty {
     #daily-section:not(.section-minimized)  { min-height: 270px; }
     #radar-section:not(.section-minimized)  { min-height: 460px; }
 }
+
+/* --- Share popover ----------------------------------------------------------- */
+.share-popover {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Above every other overlay: donate btn + theme toggle 1000, privacy
+       panel 1001, settings popover 1002, language popover 1003. */
+    z-index: 1004;
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    width: min(92vw, 360px);
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+.share-popover h3 { margin: 0 0 0.75rem; }
+.share-popover fieldset {
+    border: none;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.share-popover label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+.share-emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+.share-emoji-grid button {
+    font-size: 1.3rem;
+    padding: 0.25rem;
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    line-height: 1;
+}
+.share-emoji-grid button[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--btn-hover-bg);
+}
+.share-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.share-actions button {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    background: var(--btn-hover-bg);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.share-actions button.share-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.share-actions button:disabled { opacity: 0.5; cursor: default; }
+.share-preview { margin: 0.75rem 0; text-align: center; }
+.share-preview img {
+    max-width: 100%;
+    max-height: 40vh;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+}
+.share-status { font-size: 0.85rem; color: var(--text-muted); min-height: 1.2em; margin: 0.25rem 0 0.5rem; }

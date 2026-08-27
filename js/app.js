@@ -2415,6 +2415,68 @@ function ensureMapLibre() {
     return _maplibrePromise;
 }
 
+// share.js + vendored gifenc load on first use — the share feature costs
+// nothing until the button is tapped (same reasoning as the MapLibre loader).
+//
+// ensureScript() is ensureMapLibre()'s single-script pattern generalized:
+// one cached promise per URL, claimed the instant the <script> tag is
+// injected (not when it loads), cleared only by that script's OWN onerror.
+// That per-script independence matters here specifically because share.js
+// declares top-level `const`/`let` bindings in the shared script global
+// scope — re-executing it throws "already been declared". An earlier
+// version tracked load state in flags set only on `onload` while a single
+// shared promise got nulled by *either* script's `onerror`; that left a
+// window where share.js was still in flight (already injected, not yet
+// loaded, no longer promise-guarded because the sibling gifenc.js had
+// already failed) and a retry injected a second copy, throwing exactly
+// that SyntaxError. Caching per-script promises closes that window: a
+// retry arriving while a script is still in flight reuses its existing
+// pending promise instead of injecting a duplicate. (gifenc.js is a single
+// IIFE with no top-level lexical bindings, so it would tolerate a double
+// injection fine — but giving it the same treatment costs nothing and
+// avoids a redundant re-fetch.)
+const _scriptPromises = {};
+function ensureScript(src, checkGlobal) {
+    if (_scriptPromises[src]) return _scriptPromises[src];
+    _scriptPromises[src] = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.async = false; // preserve document order among scripts inserted this way
+        s.onload = () => {
+            if (checkGlobal && !checkGlobal()) {
+                _scriptPromises[src] = null;
+                reject(new Error(`${src} loaded without expected global`));
+                return;
+            }
+            resolve();
+        };
+        s.onerror = () => {
+            _scriptPromises[src] = null;
+            s.remove();
+            reject(new Error(`${src} failed to load`));
+        };
+        document.head.appendChild(s);
+    });
+    return _scriptPromises[src];
+}
+
+let _shareJsPromise = null;
+function ensureShareJs() {
+    if (_shareJsPromise) return _shareJsPromise;
+    // Call order matters, not Promise.all's evaluation order: each
+    // ensureScript() call synchronously inserts its <script> tag before
+    // returning, so calling gifenc's first guarantees its tag lands in
+    // <head> before share.js's — with async=false that's what fixes their
+    // relative execution order regardless of fetch timing.
+    const gifenc = ensureScript('/js/vendor/gifenc.js', () => !!window.gifenc);
+    const share = ensureScript('/js/share.js');
+    _shareJsPromise = Promise.all([gifenc, share]).catch(err => {
+        _shareJsPromise = null;
+        throw err;
+    });
+    return _shareJsPromise;
+}
+
 async function createVectorRadar(container, lat, lon, frames, nowIndex) {
     const maplibregl = await ensureMapLibre();
 
@@ -3562,6 +3624,10 @@ document.getElementById('lock-toggle').addEventListener('click', () => {
     applyLayoutLock();
 });
 
+document.getElementById('share-btn').addEventListener('click', () => {
+    ensureShareJs().then(() => openSharePopover()).catch(err => console.warn('share:', err?.message || err));
+});
+
 applyLayoutLock();
 
 // --- Settings Popover --------------------------------------------------------
@@ -3608,6 +3674,10 @@ function applySettings() {
     // NWS radar link
     const nwsLink = document.querySelector('.nws-radar-link');
     if (nwsLink) nwsLink.style.display = getSettingsBool('showNwsLink') ? '' : 'none';
+
+    // Share button
+    const shareBtn = document.getElementById('share-btn');
+    if (shareBtn) shareBtn.style.display = getSettingsBool('showShareBtn') ? '' : 'none';
 
     // "Show section" buttons bars
     const showSectionBtns = getSettingsBool('showSectionButtons');
@@ -3666,6 +3736,7 @@ document.getElementById('settings-revert').addEventListener('click', () => {
     localStorage.setItem('showTimeBtn', 'true');
     localStorage.setItem('showLockBtn', 'true');
     localStorage.setItem('showNwsLink', 'true');
+    localStorage.setItem('showShareBtn', 'true');
     localStorage.setItem('showSectionButtons', 'true');
     localStorage.setItem('showTranslateLink', 'true');
     localStorage.setItem('autoPlayRadar', 'false');

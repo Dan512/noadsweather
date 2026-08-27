@@ -1,0 +1,98 @@
+{
+  "hot": {
+    "cp": "1f975",
+    "file": "hot.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 79
+  },
+  "melting": {
+    "cp": "1fae0",
+    "file": "melting.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 200
+  },
+  "cold": {
+    "cp": "1f976",
+    "file": "cold.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 114
+  },
+  "sun": {
+    "cp": "1f31e",
+    "file": "sun.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 105
+  },
+  "cool": {
+    "cp": "1f60e",
+    "file": "cool.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 137
+  },
+  "rain": {
+    "cp": "1f327_fe0f",
+    "file": "rain.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 184
+  },
+  "storm": {
+    "cp": "1f329_fe0f",
+    "file": "storm.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 79
+  },
+  "zap": {
+    "cp": "26a1",
+    "file": "zap.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 79
+  },
+  "snow": {
+    "cp": "2744_fe0f",
+    "file": "snow.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 200
+  },
+  "rainbow": {
+    "cp": "1f308",
+    "file": "rainbow.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 113
+  },
+  "tornado": {
+    "cp": "1f32a_fe0f",
+    "file": "tornado.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 113
+  },
+  "sneeze": {
+    "cp": "1f927",
+    "file": "sneeze.png",
+    "frames": 16,
+    "cell": 128,
+    "cols": 4,
+    "delayMs": 146
+  }
+}
