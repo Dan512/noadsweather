@@ -1,0 +1,9 @@
+{
+  "name": "emoji-sprite-tool",
+  "private": true,
+  "description": "One-time dev tool: renders Noto Animated Emoji GIFs into committed sprite sheets for the share feature. Not part of the site build.",
+  "dependencies": {
+    "omggif": "1.0.10",
+    "pngjs": "^7.0.0"
+  }
+}

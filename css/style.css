@@ -2216,6 +2216,14 @@ body.is-dragging .weather-col:empty {
     #radar-section:not(.section-minimized)  { min-height: 460px; }
 }
 
+/* Inline SVG icon (Lucide share-2) sits on the text baseline by default,
+   which leaves it visually low inside the toolbar button — nudge to middle. */
+#share-btn svg {
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
 /* --- Share popover ----------------------------------------------------------- */
 .share-popover {
     position: fixed;

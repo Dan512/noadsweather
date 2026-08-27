@@ -3624,7 +3624,12 @@ document.getElementById('lock-toggle').addEventListener('click', () => {
     applyLayoutLock();
 });
 
-document.getElementById('share-btn').addEventListener('click', () => {
+// Guarded, unlike the toggles above: app.js can ship ahead of the pages that
+// carry the share button (it's deliberately staged on only some pages while
+// the feature is in test), and an unguarded null here doesn't just kill the
+// share feature — it halts every top-level statement after this line.
+const _shareBtnEl = document.getElementById('share-btn');
+if (_shareBtnEl) _shareBtnEl.addEventListener('click', () => {
     ensureShareJs().then(() => openSharePopover()).catch(err => console.warn('share:', err?.message || err));
 });
 
