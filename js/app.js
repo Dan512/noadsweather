@@ -3359,10 +3359,14 @@ function showWeather(location, query) {
     // Build location label: "City, Region" or "City, Country" if no region
     const secondary = location.region || location.country || '';
     let label = secondary ? `${location.name}, ${secondary}` : location.name;
-    // Append postal code if the query looks like one
-    const postalMatch = query && query.trim().match(/^[\dA-Z][\dA-Z\s\-]{2,}$/i);
-    if (postalMatch) {
-        label += ` (${query.trim()})`;
+    // Append the query in parentheses only when it is genuinely a postal
+    // code, judged by the same POSTAL_PATTERNS the search uses to route to
+    // Zippopotam. The old standalone regex here ("letters/digits/spaces/
+    // hyphens, 3+ chars", case-insensitive) matched every plain city-name
+    // search too, so labels came out as "San Antonio, Texas (san antonio)".
+    const q = query ? query.trim() : '';
+    if (q && POSTAL_PATTERNS.some(p => p.regex.test(q))) {
+        label += ` (${q})`;
     }
     locationName.textContent = label;
 }
