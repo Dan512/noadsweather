@@ -140,7 +140,7 @@ function renderSite(d, idx) {
         <td class="num">${x.uniques.toLocaleString()}</td><td class="num">${x.pwa.toLocaleString()}</td></tr>`).join('');
 
     return `
-<section class="site">
+<section class="site" id="site-${idx}">
   <h1>${esc(d.site)}</h1>
   <div class="tiles">
     <div class="tile"><div class="v">${d.last24.toLocaleString()}</div><div class="l">Views, last 24 h</div></div>
@@ -187,6 +187,22 @@ function renderPage(sites) {
         idx: i, daily: d.daily, hourly: d.hourly,
     }));
 
+    // At-a-glance card per site, each linking to its full section. Only worth
+    // rendering when there's more than one site — for a single site it would
+    // just duplicate the tiles directly beneath it.
+    const overview = sites.length > 1 ? `
+  <div class="overview">${sites.map((d, i) => {
+        const pwaShare = d.totalViews ? (100 * d.totalPwa / d.totalViews) : 0;
+        return `
+    <a class="ovcard" href="#site-${i}">
+      <div class="ovname">${esc(d.site)}</div>
+      <div class="ovbig">${d.last24.toLocaleString()}<span class="ovunit"> views · 24 h</span></div>
+      <div class="ovline">${d.totalViews.toLocaleString()} views · ${d.totalUniques.toLocaleString()} uniques · ${pwaShare.toFixed(0)}% app · ${DAYS} d</div>
+      <svg class="spark" id="spark-${i}" width="100%" height="36" aria-hidden="true"></svg>
+    </a>`;
+    }).join('')}
+  </div>` : '';
+
     return `<!doctype html>
 <html lang="en">
 <head>
@@ -211,6 +227,15 @@ body { background: var(--surface); color: var(--text);
   font: 15px/1.5 system-ui, "Segoe UI", sans-serif; padding: 2rem 1rem 4rem; }
 .wrap { max-width: 860px; margin: 0 auto; }
 .sub { color: var(--text-2); font-size: 0.85rem; margin-bottom: 1.5rem; }
+.overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem; margin-bottom: 2.25rem; }
+.ovcard { background: var(--card); border: 1px solid var(--grid); border-radius: 8px;
+  padding: 0.9rem 1rem 0.5rem; text-decoration: none; color: var(--text); display: block; }
+.ovcard:hover { border-color: var(--s1); }
+.ovname { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem; }
+.ovbig { font-size: 1.4rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ovunit { font-size: 0.75rem; font-weight: 400; color: var(--text-2); }
+.ovline { color: var(--text-2); font-size: 0.75rem; margin: 0.1rem 0 0.4rem; }
 .site { margin-bottom: 3rem; }
 .site + .site { border-top: 2px solid var(--grid); padding-top: 2rem; }
 h1 { font-size: 1.3rem; margin-bottom: 0.75rem; }
@@ -247,6 +272,7 @@ td.barcell { width: 40%; }
 <body>
 <div class="wrap">
   <p class="sub">NoAds tally · generated ${esc(generated)} · anonymous tallies, nothing else · rerun tally/stats.js to refresh</p>
+${overview}
   ${sites.map((d, i) => renderSite(d, i)).join('\n')}
 </div>
 
@@ -357,8 +383,25 @@ var SITES = ${JSON.stringify(chartData)};
     }, crossId);
   }
 
+  function drawSpark(svg, rows) {
+    var W = svg.clientWidth, H = 36, pad = 3;
+    var max = 1;
+    rows.forEach(function (r) { max = Math.max(max, r.views); });
+    var x = function (i) { return pad + (rows.length < 2 ? (W - 2 * pad) / 2 : i * (W - 2 * pad) / (rows.length - 1)); };
+    var y = function (v) { return pad + (H - 2 * pad) - v * (H - 2 * pad) / max; };
+    var pts = rows.map(function (d, i) { return x(i).toFixed(1) + ',' + y(d.views).toFixed(1); }).join(' ');
+    var lastI = rows.length - 1;
+    svg.innerHTML =
+      '<polyline points="' + pts + '" fill="none" stroke="' + color('--s1') +
+      '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + x(lastI).toFixed(1) + '" cy="' + y(rows[lastI].views).toFixed(1) +
+      '" r="2.5" fill="' + color('--s1') + '"/>';
+  }
+
   function drawAll() {
     SITES.forEach(function (s) {
+      var sp = document.getElementById('spark-' + s.idx);
+      if (sp) drawSpark(sp, s.daily);
       var hs = document.getElementById('hourly-' + s.idx);
       drawBars(hs, hs.parentNode.querySelector('.tip'), s.hourly);
       var ds = document.getElementById('daily-' + s.idx);

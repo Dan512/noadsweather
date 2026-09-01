@@ -15,11 +15,12 @@ const db = new Firestore();
 const ALLOWED_HOSTS = new Set([
     'noadsweather.com', 'www.noadsweather.com',
     'z64central.com', 'www.z64central.com',
+    'noadstools.com', 'www.noadstools.com',
 ]);
 
 // Sites the `site` field may name. Add future sites here AND to
 // ALLOWED_HOSTS above.
-const ALLOWED_SITES = new Set(['noadsweather.com', 'z64central.com']);
+const ALLOWED_SITES = new Set(['noadsweather.com', 'z64central.com', 'noadstools.com']);
 
 // Crawlers that execute JS (Googlebot renders pages) would otherwise inflate
 // the very pages they re-crawl most. Checked, never stored.
