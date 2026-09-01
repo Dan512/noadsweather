@@ -1,0 +1,10 @@
+{
+    "name": "tally",
+    "version": "1.0.0",
+    "main": "index.js",
+    "engines": { "node": "24" },
+    "dependencies": {
+        "@google-cloud/functions-framework": "^3.4.0",
+        "@google-cloud/firestore": "^7.10.0"
+    }
+}

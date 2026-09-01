@@ -86,7 +86,7 @@
         </p>
         <h1>Privacy Policy</h1>
         <p><strong>No cookies. No tracking. No ads.</strong></p>
-        <p>This site does not use cookies, does not track your location, and does not collect any personal information. We don't use analytics, fingerprinting, or any form of user tracking.</p>
+        <p>This site does not use cookies, does not track your location, and does not collect any personal information. We don't use third-party analytics, fingerprinting, or any form of user tracking. We count visits ourselves — anonymously, as described below.</p>
         <p>When you search for a city or zip code, the coordinates of that location (not your personal location) are sent to the following third-party services to retrieve weather data:</p>
         <ul>
             <li><strong>Open-Meteo</strong> — weather forecasts and air quality data (called directly from your browser)</li>
@@ -103,6 +103,9 @@
         <h2 style="font-size:1.1rem;margin:2rem 0 0.5rem;">Climate data &amp; attribution</h2>
         <p>The historical climate tables on our city pages (monthly averages and temperature records) come from <a href="https://meteostat.net/" target="_blank" rel="noopener">Meteostat</a>, which compiles observations from national weather services including NOAA and Deutscher Wetterdienst. Each city page names the specific weather station its figures come from.</p>
         <p><strong>This data is baked into the pages when we build the site — your browser never contacts Meteostat</strong>, so it isn't a third-party service in the sense described above and receives nothing about you. Meteostat's data is published under the <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">Creative Commons BY-NC 4.0</a> licence, which permits non-commercial use with attribution. NoAdsWeather carries no advertising and sells nothing.</p>
+        <p><strong>How we count visits:</strong> when a page loads, your browser sends our own counting service (<code>tally</code>, running on Cloud Run like the proxies above) one small message. This is the whole thing:</p>
+        <p><code>{ "site": "noadsweather.com", "path": "/cities/austin-tx/", "ref": "google.com", "pwa": false, "unique": true }</code></p>
+        <p>That’s the page you opened, the domain that linked you here (blank if you came directly), whether you’re using the home-screen app, and whether this is your first visit today. Your browser decides that last one itself, using a date saved in local storage — so no ID of any kind ever exists on our side. We can see that <em>someone</em> visited, never <em>who</em>. No cookies, no fingerprinting, no IP addresses stored, and the same Google Cloud logging exclusions as our other services, so the platform’s access logs aren’t retained either.</p>
         <p>Your preferences (dark mode, temperature units, time format, language, visual style, and section layout) are saved in your browser's local storage (not a cookie) so they persist between visits. Pollen data is also cached locally to reduce unnecessary API calls. You can clear all of this anytime by clearing your browser data.</p>
         <p>Your phone might ask you to "Install this page", which means creating a shortcut to a website on your home screen, known as a Progressive Web App (PWA). This makes the site act like a native app, allowing it to load faster, and appear with your other apps on your home screen.</p>
         <p>This site is open source and supported by tips from our visitors. No data is sold, shared, or monetized in any way. If you think this is awesome, please consider <a href="https://ko-fi.com/noadsdude" target="_blank" rel="noopener">clicking here to support us</a>.</p>

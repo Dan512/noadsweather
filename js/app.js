@@ -4162,3 +4162,55 @@ document.addEventListener('click', (e) => {
         panel.hidden = true;
     }
 });
+
+// --- Anonymous visit tally ----------------------------------------------------
+// One beacon per page load. The payload below is the complete transmission and
+// is published verbatim on the privacy page — if a field is added here, the
+// privacy copy (privacy.html AND the #privacy-panel baked into all city pages)
+// must change in the same commit. No cookies, no identifiers: "unique" is the
+// browser self-reporting first-visit-today via a localStorage date flag, so the
+// server never receives anything that can tell two visitors apart.
+
+(function () {
+    // Dev servers and forks stay uncounted; the server's Origin allowlist
+    // would reject them anyway.
+    if (location.hostname !== 'noadsweather.com' &&
+        location.hostname !== 'www.noadsweather.com') return;
+    if (!navigator.sendBeacon) return;
+
+    let unique = false;
+    try {
+        // Browser-local day, deliberately: "one unique per day" should roll
+        // over at the visitor's midnight, not UTC's.
+        const now = new Date();
+        const today = now.getFullYear() + '-' +
+            String(now.getMonth() + 1).padStart(2, '0') + '-' +
+            String(now.getDate()).padStart(2, '0');
+        if (localStorage.getItem('lastTallyDay') !== today) {
+            localStorage.setItem('lastTallyDay', today);
+            unique = true;
+        }
+    } catch (e) { /* private mode — still a view, just never a unique */ }
+
+    let ref = '';
+    try {
+        if (document.referrer) {
+            const host = new URL(document.referrer).hostname;
+            if (host && host !== location.hostname) ref = host;
+        }
+    } catch (e) { /* malformed referrer — treat as direct */ }
+
+    const pwa = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+        window.navigator.standalone === true;
+
+    try {
+        navigator.sendBeacon('https://tally-15838356607.us-central1.run.app/',
+            JSON.stringify({
+                site: 'noadsweather.com',
+                path: location.pathname,
+                ref: ref,
+                pwa: pwa,
+                unique: unique,
+            }));
+    } catch (e) { /* counting must never break the page */ }
+})();
