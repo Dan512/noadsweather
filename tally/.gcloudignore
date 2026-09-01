@@ -2,3 +2,4 @@ node_modules/
 stats.js
 package-lock.json
 stats.bat
+wipe.js
