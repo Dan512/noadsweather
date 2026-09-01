@@ -130,6 +130,33 @@
                     <li><a href="/cities/sydney/">Sydney</a></li>
                 </ul>
             </nav>
+            <!-- App-install block. Home page only: #home-view is hidden on
+                 generated city pages, so this never duplicates as visible
+                 content. Static markup (not JS-rendered) so the "weather app
+                 with no ads" wording is in the raw HTML Google indexes. -->
+            <section class="app-install" aria-labelledby="app-install-title">
+                <h2 id="app-install-title" data-i18n="appSectionTitle">A weather app with no ads</h2>
+                <p class="app-install-body" data-i18n="appSectionBody">Nothing to download. Add NoAdsWeather to your home screen and it opens full-screen with its own icon — no browser bar, no app store, no account. It’s the same site, so there are still no ads and no tracking.</p>
+                <div class="app-install-cols">
+                    <div class="app-install-col">
+                        <h3 data-i18n="appIosTitle">On iPhone or iPad</h3>
+                        <ol>
+                            <li data-i18n="appIosStep1">Tap Share (the square with the arrow)</li>
+                            <li data-i18n="appIosStep2">Tap “Add to Home Screen”</li>
+                            <li data-i18n="appIosStep3">Tap Add</li>
+                        </ol>
+                    </div>
+                    <div class="app-install-col">
+                        <h3 data-i18n="appAndroidTitle">On Android</h3>
+                        <ol>
+                            <li data-i18n="appAndroidStep1">Tap the ⋮ menu in Chrome</li>
+                            <li data-i18n="appAndroidStep2">Tap “Add to Home screen”</li>
+                            <li data-i18n="appAndroidStep3">Tap Add</li>
+                        </ol>
+                    </div>
+                </div>
+                <p class="app-install-note" data-i18n="appSectionNote">Set your city once and it opens there every time.</p>
+            </section>
             <div class="footer-links footer-links-home">
                 <button id="privacy-toggle-home" class="privacy-link" data-i18n="privacyCookies">Privacy</button>
                 <a href="/about/" class="privacy-link" data-i18n="about">About</a>

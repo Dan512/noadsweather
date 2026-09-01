@@ -939,6 +939,11 @@ html[data-blurb-dismissed] #seo-blurb { display: none !important; }
    cover the links on small screens. */
 .footer-links-home {
     margin-top: 2.5rem;
+    /* Same 4.5rem clearance .bottom-spacer uses on the weather view. Needed
+       since the app-install block made the home page tall enough to scroll on
+       small screens — at full scroll the links otherwise land under the
+       fixed theme/settings/support buttons. */
+    padding-bottom: 4.5rem;
 }
 
 /* In-flow spacer (weather page). The large bottom padding lets the footer
@@ -1077,6 +1082,77 @@ html[data-climate-hidden] .climate-block { display: none; }
     padding: 0.3rem 0.15rem;
 }
 .popular-cities a:hover { color: var(--accent); }
+/* --- "A weather app with no ads" (home page only) --------------------------
+   Sits between the popular-cities links and the footer links. Deliberately
+   quiet: the search box is the page's job, and this block is for the people
+   who arrived wanting a home-screen install. Logical properties
+   (padding-inline-start, text-align: start) so the Arabic RTL layout
+   mirrors instead of hard-coding left. */
+.app-install {
+    /* The bare `section` selector hands every <section> the weather-card
+       chrome (background, radius, shadow, 1.25rem padding). The home page is
+       deliberately chrome-free, so strip it back to a plain ruled divider. */
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 1.75rem 0 0;
+    margin-top: 2.75rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+/* Outranks both `section h2` and the four [data-style] overrides of it, which
+   exist for weather-page section headers (FORECAST, RADAR) and would otherwise
+   shout this six-word heading in caps and hang a border-bottom directly under
+   the block's own border-top. */
+.search-container .app-install h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    padding-bottom: 0;
+    border-bottom: none;
+    color: var(--text);
+    text-transform: none;
+    letter-spacing: normal;
+}
+.app-install-body {
+    margin: 0 0 1.25rem;
+    line-height: 1.55;
+}
+.app-install-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    text-align: start;
+}
+/* Matches .popular-cities-label so the two blocks read as one family. */
+.app-install-col h3 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 0.4rem;
+    color: var(--text-muted);
+}
+.app-install-col ol {
+    margin: 0;
+    padding-inline-start: 1.2rem;
+    line-height: 1.5;
+}
+.app-install-col li { margin-bottom: 0.25rem; }
+.app-install-note {
+    margin: 1.25rem 0 0;
+    font-size: 0.85rem;
+}
+
+/* Two 235px columns inside the 500px .search-container get cramped once the
+   viewport drives the container narrower than ~430px. */
+@media (max-width: 430px) {
+    .app-install-cols {
+        grid-template-columns: 1fr;
+        gap: 1.1rem;
+    }
+}
 
 /* Privacy panel (popup) */
 #privacy-panel {
