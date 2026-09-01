@@ -47,15 +47,16 @@ function demoDayDocs(start, seed) {
         const day = dayString(new Date(start.getTime() + i * 86400000));
         const weekend = [0, 6].includes(new Date(day).getUTCDay());
         const views = Math.round((60 + seed * 40 + i * 3) * (weekend ? 0.7 : 1) + 25 * Math.sin(i * 1.7 + seed));
-        const hours = {};
+        const hours = {}, hoursU = {};
         for (let h = 0; h < 24; h++) {
             // Diurnal curve peaking mid-day US time (~18 UTC)
-            hours[String(h).padStart(2, '0')] =
-                Math.max(0, Math.round(views / 24 + (views / 30) * Math.sin((h - 12 + seed) / 24 * 2 * Math.PI)));
+            const hv = Math.max(0, Math.round(views / 24 + (views / 30) * Math.sin((h - 12 + seed) / 24 * 2 * Math.PI)));
+            hours[String(h).padStart(2, '0')] = hv;
+            hoursU[String(h).padStart(2, '0')] = Math.round(hv * 0.6);
         }
         const referrers = { 'google~com': Math.round(views * 0.4), 'bing~com': Math.round(views * 0.05),
             'reddit~com': i % 7 === 3 ? 30 : 2 };
-        days.push({ id: day, data: () => ({ views, uniques: Math.round(views * 0.62), pwa: Math.round(views * 0.08), hours, referrers }) });
+        days.push({ id: day, data: () => ({ views, uniques: Math.round(views * 0.62), pwa: Math.round(views * 0.08), hours, hoursU, referrers }) });
         paths.forEach((p, j) => pages.push({
             id: `${day}_${encodeURIComponent(p)}`,
             data: () => ({ day, path: p, views: Math.max(1, Math.round(views / (j + 1.5))) }),
@@ -110,7 +111,11 @@ async function fetchSite(db, site, seed) {
         const ts = new Date(nowHour - i * 3600000);
         const d = byDay.get(dayString(ts)) || {};
         const hh = String(ts.getUTCHours()).padStart(2, '0');
-        hourly.push({ t: ts.getTime(), v: (d.hours || {})[hh] || 0 });
+        hourly.push({
+            t: ts.getTime(),
+            v: (d.hours || {})[hh] || 0,
+            u: (d.hoursU || {})[hh] || 0,
+        });
     }
     const last24 = hourly.slice(-24).reduce((a, b) => a + b.v, 0);
 
@@ -158,9 +163,10 @@ function renderSite(d, idx) {
   </div>
 
   <div class="card">
-    <h2>Views per hour (last ${HOURS} h, your local time)</h2>
+    <h2>Per hour (last ${HOURS} h, your local time)</h2>
+    <div class="legend"><span class="k1">Views</span><span class="k2">New visitors (first visit of the day)</span></div>
     <div class="chartbox"><svg id="hourly-${idx}" width="100%" height="170" role="img"
-      aria-label="Hourly views bar chart"></svg><div class="tip"></div></div>
+      aria-label="Hourly views bars with new-visitor line"></svg><div class="tip"></div></div>
   </div>
 
   <div class="card">
@@ -346,6 +352,14 @@ var SITES = ${JSON.stringify(chartData)};
       if (r.v > 0) out += '<rect x="' + x.toFixed(1) + '" y="' + (padT + ih - h).toFixed(1) +
         '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="2" fill="' + s1 + '"/>';
     });
+    // New-visitor overlay: same axis and unit (people-events per hour), and
+    // per-bucket u <= v always, so the line never escapes the bars' scale.
+    var s2 = color('--s2');
+    var upts = rows.map(function (r, i) {
+      return positions[i].toFixed(1) + ',' + (padT + ih - r.u / max * ih).toFixed(1);
+    }).join(' ');
+    out += '<polyline points="' + upts + '" fill="none" stroke="' + s2 +
+      '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
     // x labels every 6 buckets
     for (var i = 0; i < rows.length; i += 6) {
       out += '<text x="' + positions[i] + '" y="' + (H - 6) + '" text-anchor="middle" font-size="9" fill="' + t2 + '">' +
@@ -353,7 +367,7 @@ var SITES = ${JSON.stringify(chartData)};
     }
     svg.innerHTML = out;
     attachHover(svg, tip, positions, function (i) {
-      return hourLabel(rows[i].t) + ' · <b>' + rows[i].v + '</b> views';
+      return hourLabel(rows[i].t) + ' · <b>' + rows[i].v + '</b> views · <b>' + rows[i].u + '</b> new';
     }, null);
   }
 

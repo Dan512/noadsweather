@@ -100,7 +100,13 @@ functions.http('tally', async (req, res) => {
     // Hour-of-day map (UTC, "00".."23") on the same doc — hourly resolution
     // for free: same write, same doc, at most 24 extra keys per day.
     dayUpdate.hours = { [hour]: FieldValue.increment(1) };
-    if (p.unique) dayUpdate.uniques = FieldValue.increment(1);
+    if (p.unique) {
+        dayUpdate.uniques = FieldValue.increment(1);
+        // Arrival-hour map for uniques: "first visit of the day, by hour".
+        // (True per-hour uniqueness would need a payload change — see the
+        // privacy-copy rule at the top before ever doing that.)
+        dayUpdate.hoursU = { [hour]: FieldValue.increment(1) };
+    }
     if (p.pwa) dayUpdate.pwa = FieldValue.increment(1);
     if (p.ref) dayUpdate.referrers = { [encodeDomainKey(p.ref)]: FieldValue.increment(1) };
 
