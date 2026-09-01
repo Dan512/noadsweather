@@ -12,11 +12,14 @@ const db = new Firestore();
 // Origin/Referer gate — same reasoning as alerts-proxy/pollen-proxy: CORS only
 // protects browsers, and an open endpoint invites junk inflation from
 // server-side callers.
-const ALLOWED_HOSTS = new Set(['noadsweather.com', 'www.noadsweather.com']);
+const ALLOWED_HOSTS = new Set([
+    'noadsweather.com', 'www.noadsweather.com',
+    'z64central.com', 'www.z64central.com',
+]);
 
-// Sites the `site` field may name. Add future NoAds sites here AND to
+// Sites the `site` field may name. Add future sites here AND to
 // ALLOWED_HOSTS above.
-const ALLOWED_SITES = new Set(['noadsweather.com']);
+const ALLOWED_SITES = new Set(['noadsweather.com', 'z64central.com']);
 
 // Crawlers that execute JS (Googlebot renders pages) would otherwise inflate
 // the very pages they re-crawl most. Checked, never stored.
