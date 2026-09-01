@@ -89,7 +89,12 @@ functions.http('tally', async (req, res) => {
     const dayRef = db.doc(`sites/${p.site}/days/${day}`);
     const pageRef = db.doc(`sites/${p.site}/pages/${day}_${encodePath(p.path)}`);
 
+    const hour = String(new Date().getUTCHours()).padStart(2, '0');
+
     const dayUpdate = { views: FieldValue.increment(1) };
+    // Hour-of-day map (UTC, "00".."23") on the same doc — hourly resolution
+    // for free: same write, same doc, at most 24 extra keys per day.
+    dayUpdate.hours = { [hour]: FieldValue.increment(1) };
     if (p.unique) dayUpdate.uniques = FieldValue.increment(1);
     if (p.pwa) dayUpdate.pwa = FieldValue.increment(1);
     if (p.ref) dayUpdate.referrers = { [encodeDomainKey(p.ref)]: FieldValue.increment(1) };
