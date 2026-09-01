@@ -23,6 +23,13 @@ const HOURS = Math.max(24, Math.min(168, parseInt(argValue('--hours', '48'), 10)
 const ONLY_SITE = argValue('--site', null);
 const OPEN = args.includes('--open');
 const DEMO = args.includes('--demo'); // fake data — preview the page without Firestore
+const SERVE = args.includes('--serve'); // live local server; every page load re-reads Firestore
+const PORT = Math.max(1024, Math.min(65535, parseInt(argValue('--port', '4141'), 10) || 4141));
+
+// One Firestore client for the process — serve mode rebuilds the page per
+// request, and a fresh client per refresh would leak gRPC channels.
+let _db = null;
+function getDb() { return _db || (_db = new Firestore({ projectId: PROJECT_ID })); }
 
 function dayString(d) { return d.toISOString().slice(0, 10); }
 function esc(s) {
@@ -227,6 +234,9 @@ body { background: var(--surface); color: var(--text);
   font: 15px/1.5 system-ui, "Segoe UI", sans-serif; padding: 2rem 1rem 4rem; }
 .wrap { max-width: 860px; margin: 0 auto; }
 .sub { color: var(--text-2); font-size: 0.85rem; margin-bottom: 1.5rem; }
+.refresh-btn { font: inherit; font-size: 0.8rem; color: var(--s1); background: var(--card);
+  border: 1px solid var(--grid); border-radius: 6px; padding: 0.15rem 0.6rem; cursor: pointer; }
+.refresh-btn:hover { border-color: var(--s1); }
 .overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 0.75rem; margin-bottom: 2.25rem; }
 .ovcard { background: var(--card); border: 1px solid var(--grid); border-radius: 8px;
@@ -271,7 +281,9 @@ td.barcell { width: 40%; }
 </head>
 <body>
 <div class="wrap">
-  <p class="sub">NoAds tally · generated ${esc(generated)} · anonymous tallies, nothing else · rerun tally/stats.js to refresh</p>
+  <p class="sub">NoAds tally · generated ${esc(generated)} · anonymous tallies, nothing else · ${SERVE
+        ? '<button class="refresh-btn" onclick="location.reload()">↻ Refresh</button>'
+        : 'rerun tally/stats.js to refresh (or use --serve for a live version)'}</p>
 ${overview}
   ${sites.map((d, i) => renderSite(d, i)).join('\n')}
 </div>
@@ -421,13 +433,13 @@ var SITES = ${JSON.stringify(chartData)};
 
 // ---------------------------------------------------------------- main
 
-async function main() {
+async function buildPage() {
     let siteIds;
     let db = null;
     if (DEMO) {
         siteIds = ['noadsweather.com', 'noadstools.com'];
     } else {
-        db = new Firestore({ projectId: PROJECT_ID });
+        db = getDb();
         // Parent docs are never written, only their subcollections —
         // listDocuments() still returns these "missing" parents.
         const refs = await db.collection('sites').listDocuments();
@@ -435,20 +447,51 @@ async function main() {
     }
     if (ONLY_SITE) siteIds = siteIds.filter(s => s === ONLY_SITE);
     if (!siteIds.length) {
-        console.error(ONLY_SITE ? `No data for site "${ONLY_SITE}".` : 'No sites with tally data yet.');
-        process.exit(1);
+        throw new Error(ONLY_SITE ? `No data for site "${ONLY_SITE}".` : 'No sites with tally data yet.');
     }
-
     const sites = await Promise.all(siteIds.map((s, i) => fetchSite(db, s, i)));
-    const html = renderPage(sites);
+    return { html: renderPage(sites), sites };
+}
 
-    const out = path.join(__dirname, '..', 'stats.html');
-    fs.writeFileSync(out, html, 'utf8');
-    console.log(`Wrote ${out}`);
+function summarize(sites) {
     for (const d of sites) {
         console.log(`  ${d.site}: ${d.totalViews.toLocaleString()} views / ` +
             `${d.totalUniques.toLocaleString()} uniques over ${DAYS} days, ${d.last24.toLocaleString()} in last 24 h`);
     }
+}
+
+async function main() {
+    if (SERVE) {
+        const http = require('http');
+        const server = http.createServer(async (req, res) => {
+            if (req.url !== '/') { res.statusCode = 204; res.end(); return; }
+            try {
+                const { html, sites } = await buildPage();
+                res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                res.end(html);
+                console.log(new Date().toLocaleTimeString() + ' — served fresh stats');
+                summarize(sites);
+            } catch (err) {
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                res.end('stats error: ' + (err.message || err));
+            }
+        });
+        // 127.0.0.1 only — this is a personal dashboard, keep it off the LAN.
+        server.listen(PORT, '127.0.0.1', () => {
+            const url = `http://127.0.0.1:${PORT}/`;
+            console.log(`Live dashboard: ${url}`);
+            console.log('Every load re-reads Firestore. Ctrl+C (or close this window) to stop.');
+            if (OPEN) require('child_process').exec(`start "" "${url}"`);
+        });
+        return;
+    }
+
+    const { html, sites } = await buildPage();
+    const out = path.join(__dirname, '..', 'stats.html');
+    fs.writeFileSync(out, html, 'utf8');
+    console.log(`Wrote ${out}`);
+    summarize(sites);
     if (OPEN) require('child_process').exec(`start "" "${out}"`);
 }
 

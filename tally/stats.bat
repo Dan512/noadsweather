@@ -1,5 +1,7 @@
 @echo off
-rem Double-click me: regenerates stats.html and opens it.
+rem Double-click me: live stats dashboard in your browser.
+rem Every page load (and the Refresh button) re-reads Firestore.
+rem Close this window to stop the dashboard.
 cd /d "%~dp0\.."
-node tally\stats.js --days 30 --open
+node tally\stats.js --serve --open
 pause
