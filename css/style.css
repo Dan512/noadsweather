@@ -1073,6 +1073,10 @@ html[data-climate-hidden] .climate-block { display: none; }
     content: '·';
     margin: 0 0.55rem;
 }
+/* A wrapped line must not start with a dangling separator. Which link begins
+   a new line depends on viewport, so it cannot be a static rule — app.js
+   measures offsetTop and tags line-starters with .dot-hide. */
+.popular-cities li.dot-hide::before { content: none; }
 .popular-cities a {
     color: var(--text-muted);
     text-decoration: none;

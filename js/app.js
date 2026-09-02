@@ -4250,3 +4250,25 @@ document.addEventListener('click', (e) => {
         sendOnce();
     }
 })();
+
+// --- Popular-cities separators: no dangling dot at a wrapped line's start ---
+// The · between city links comes from CSS (li + li::before), but which link
+// begins a new line depends on viewport width and font metrics — so it can't
+// be a static rule. Measure and tag instead; ResizeObserver re-runs it on
+// width/font changes and when the hidden home view becomes visible.
+
+(function () {
+    const ul = document.querySelector('.popular-cities ul');
+    if (!ul) return;
+    function fixDots() {
+        let prevTop = null;
+        ul.querySelectorAll('li').forEach((li) => {
+            const top = li.offsetTop;
+            li.classList.toggle('dot-hide', prevTop !== null && top !== prevTop);
+            prevTop = top;
+        });
+    }
+    fixDots();
+    if (window.ResizeObserver) new ResizeObserver(fixDots).observe(ul);
+    else window.addEventListener('resize', fixDots);
+})();
