@@ -1075,8 +1075,13 @@ html[data-climate-hidden] .climate-block { display: none; }
 }
 /* A wrapped line must not start with a dangling separator. Which link begins
    a new line depends on viewport, so it cannot be a static rule — app.js
-   measures offsetTop and tags line-starters with .dot-hide. */
-.popular-cities li.dot-hide::before { content: none; }
+   measures offsetTop and tags line-starters with .dot-hide.
+   MUST be visibility, not content/display: removing the dot's box frees
+   width, which can pull the tagged item back up a line — the classification
+   then invalidates the layout it was measured against and the list settles
+   wrong (seen live: 'Miami Seattle' fused mid-line, '· Toronto' dangling).
+   An invisible dot keeps every line break where it was measured. */
+.popular-cities li.dot-hide::before { visibility: hidden; }
 .popular-cities a {
     color: var(--text-muted);
     text-decoration: none;
