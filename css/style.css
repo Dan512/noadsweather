@@ -272,6 +272,7 @@
     --chart-axis-bg: white;
     --temp-high: #dc2626;
     --temp-low: #3b82f6;
+    --fc-cursor: #ea580c;
 
     /* Typography & shape (style-axis defaults) */
     --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -303,6 +304,7 @@
     --chart-axis-bg: #1f2937;
     --temp-high: #f87171;
     --temp-low: #60a5fa;
+    --fc-cursor: #fb923c;
 }
 
 /* ================================================================
@@ -1999,6 +2001,126 @@ body.is-dragging .weather-col:empty {
     color: var(--text-secondary);
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+/* 10-day chart cursor (initForecastCursor in app.js). Built in content
+   coordinates so it scrolls with the charts; z-index 1 keeps the line and
+   labels under the sticky axes (z-index 2). */
+.forecast-header,
+.forecast-footer {
+    position: relative;
+}
+
+.fc-cursor {
+    display: none;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.fc-on .fc-cursor {
+    display: block;
+}
+
+.fc-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-left: -0.75px;
+    border-left: 1.5px solid var(--fc-cursor);
+}
+
+.fc-dot {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 0 1.5px var(--card-bg);
+}
+
+/* --c is the series color; darkened/lightened so thin text stays legible
+   (lime and gray are too faint on white as-is). 7px offset = FC_LABEL_OFFSET. */
+.fc-label {
+    position: absolute;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    color: color-mix(in srgb, var(--c) 72%, black);
+    background: color-mix(in srgb, var(--card-bg) 85%, transparent);
+    transform: translate(7px, -50%);
+}
+
+[data-theme="dark"] .fc-label {
+    color: color-mix(in srgb, var(--c) 60%, white);
+}
+
+.fc-flip .fc-label {
+    transform: translate(calc(-100% - 7px), -50%);
+}
+
+.fc-time {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    z-index: 3;
+    transform: translate(-50%, 50%);
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    background: var(--fc-cursor);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.fc-on .fc-time {
+    display: block;
+}
+
+/* Drag handle: touch screens only (mouse users get hover). The 44x32 box is
+   the touch target; the grip inside is the visible part. */
+.fc-handle {
+    display: none;
+}
+
+@media (pointer: coarse) {
+    .forecast-footer {
+        padding-top: 1.1rem;
+    }
+
+    .fc-handle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        z-index: 3;
+        width: 44px;
+        height: 32px;
+        transform: translate(-50%, -50%);
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+}
+
+.fc-grip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--fc-cursor);
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Radar */

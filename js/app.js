@@ -131,6 +131,18 @@ function fmtPrecip(val) {
     return val.toFixed(1) + 'mm';
 }
 
+// Open-Meteo always returns pressure in hPa (it has no pressure_unit param).
+function fmtPressure(hPa) {
+    if (isImperial()) return (hPa * 0.02953).toFixed(2) + ' inHg';
+    return Math.round(hPa) + ' hPa';
+}
+
+// Compact hour label: "3pm" / "15:00", per the 12H/24H toggle.
+function hourLabel(hour) {
+    if (units.time24h) return hour.toString().padStart(2, '0') + ':00';
+    return hour === 0 ? '12am' : hour < 12 ? `${hour}am` : hour === 12 ? '12pm' : `${hour - 12}pm`;
+}
+
 // --- Section Preferences System -----------------------------------------------
 
 const DEFAULT_SECTION_ORDER = [
@@ -1235,7 +1247,7 @@ async function fetchOpenMeteo(lat, lon) {
         latitude: lat,
         longitude: lon,
         current: 'temperature_2m,apparent_temperature,dew_point_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index',
-        hourly: 'temperature_2m,apparent_temperature,dew_point_2m,relative_humidity_2m,weather_code,cloud_cover,precipitation_probability,precipitation,wind_speed_10m,wind_direction_10m,surface_pressure',
+        hourly: 'temperature_2m,apparent_temperature,dew_point_2m,relative_humidity_2m,weather_code,cloud_cover,precipitation_probability,precipitation,wind_speed_10m,wind_direction_10m,pressure_msl',
         daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,sunrise,sunset',
         temperature_unit: units.temp,
         wind_speed_unit: units.wind,
@@ -1666,10 +1678,7 @@ function renderHourly(hourly) {
     let html = `<h2>${t('hourlyForecast')}</h2><div class="hourly-scroll">`;
     for (let i = startIdx; i < startIdx + 24 && i < hourly.time.length; i++) {
         const time = new Date(hourly.time[i]);
-        const hour = time.getHours();
-        const label = units.time24h
-            ? hour.toString().padStart(2, '0') + ':00'
-            : (hour === 0 ? '12am' : hour < 12 ? `${hour}am` : hour === 12 ? '12pm' : `${hour - 12}pm`);
+        const label = hourLabel(time.getHours());
         const info = weatherInfo(hourly.weather_code[i], isHourNight(hourly.time[i]));
         html += `
             <div class="hourly-item">
@@ -1758,7 +1767,7 @@ function renderDaily(daily, hourly) {
     const r = chartRanges;
 
     const tempLegend = `<span><span style="color:#dc2626;">■</span> ${t('chartTemperature')} (${tempUnit()})</span><span><span style="color:#9333ea;">■</span> ${t('chartFeelsLike')} (${tempUnit()})</span><span><span style="color:#16a34a;">■</span> ${t('chartDewPoint')} (${tempUnit()})</span>`;
-    const atmosLegend = `<span><span style="color:#9ca3af;">■</span> ${t('chartCloudCover')} (%)</span><span><span style="color:#3b82f6;">■</span> ${t('chartPrecipChance')} (%)</span><span><span style="color:#84cc16;">■</span> ${t('chartHumidity')} (%)</span><span><span style="color:#1a1a1a;">■</span> ${t('chartPressure')} (inHg)</span>`;
+    const atmosLegend = `<span><span style="color:#9ca3af;">■</span> ${t('chartCloudCover')} (%)</span><span><span style="color:#3b82f6;">■</span> ${t('chartPrecipChance')} (%)</span><span><span style="color:#84cc16;">■</span> ${t('chartHumidity')} (%)</span><span><span style="color:#1a1a1a;">■</span> ${t('chartPressure')} (${isImperial() ? 'inHg' : 'hPa'})</span>`;
     const precipLegend = `<span><span style="color:#3b82f6;">■</span> ${t('chartPrecipAccum')} (${isImperial() ? 'in' : 'mm'})</span><span><span style="color:#16a34a;">■</span> ${t('chartHourlyPrecip')} (${isImperial() ? 'in' : 'mm'})</span>`;
     const windLegend = `<span><span style="color:#2563eb;">■</span> ${t('chartWindSpeed')} (${windUnit()})</span>`;
 
@@ -1805,6 +1814,8 @@ function renderDaily(daily, hourly) {
 
     // Drag-to-scroll
     initDragScroll(document.querySelector('.forecast-scroll-outer'));
+
+    initForecastCursor(hourly, totalHours, chartRanges, innerW, AXIS_W);
 }
 
 function initDragScroll(el) {
@@ -1814,7 +1825,12 @@ function initDragScroll(el) {
 
     el.style.cursor = 'grab';
 
+    // Elements marked data-no-drag-scroll (the forecast cursor handle) run
+    // their own drag, so a gesture starting on one must not scroll too.
+    const exempt = (e) => e.target.closest && e.target.closest('[data-no-drag-scroll]');
+
     el.addEventListener('mousedown', (e) => {
+        if (exempt(e)) return;
         isDown = true;
         el.style.cursor = 'grabbing';
         startX = e.pageX - el.offsetLeft;
@@ -1834,11 +1850,12 @@ function initDragScroll(el) {
     // Touch support (mobile)
     let touchStartX, touchScrollLeft;
     el.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].pageX;
+        touchStartX = exempt(e) ? null : e.touches[0].pageX;
         touchScrollLeft = el.scrollLeft;
     }, { passive: true });
 
     el.addEventListener('touchmove', (e) => {
+        if (touchStartX === null) return;
         const x = e.touches[0].pageX;
         el.scrollLeft = touchScrollLeft - (x - touchStartX);
     }, { passive: true });
@@ -1855,11 +1872,13 @@ function computeChartRanges(hourly, hours) {
     for (let i = 0; i < hours; i++) accumTotal += precip[i] || 0;
 
     const wind = hourly.wind_speed_10m.slice(0, hours);
+    const pressure = hourly.pressure_msl.slice(0, hours);
 
     return {
         temp: { min: Math.floor(Math.min(...allTemps) - 5), max: Math.ceil(Math.max(...allTemps) + 5) },
         precip: { maxAccum: Math.max(accumTotal, 0.1), maxHourly: Math.max(...precip, 0.01) },
         wind: { max: Math.max(...wind, 5) },
+        pressure: { min: Math.min(...pressure) - 0.1, max: Math.max(...pressure) + 0.1 },
     };
 }
 
@@ -1961,7 +1980,7 @@ function drawAllCharts(hourly, hours, r) {
         const cloud = hourly.cloud_cover.slice(0, hours);
         const precipChance = hourly.precipitation_probability.slice(0, hours);
         const humidity = hourly.relative_humidity_2m.slice(0, hours);
-        const pressure = hourly.surface_pressure.slice(0, hours);
+        const pressure = hourly.pressure_msl.slice(0, hours);
         drawDayDividers(ctx, hours, w, h);
         drawNowLine(ctx, hourly, hours, w, h);
         drawArea(ctx, cloud, hours, '#9ca3af', 0.3, 0, 100, w, h, pad);
@@ -1969,9 +1988,7 @@ function drawAllCharts(hourly, hours, r) {
         drawLine(ctx, humidity, hours, '#84cc16', 0, 100, w, h, pad);
         drawLine(ctx, cloud, hours, '#9ca3af', 0, 100, w, h, pad);
         drawLine(ctx, precipChance, hours, '#3b82f6', 0, 100, w, h, pad);
-        const pMin = Math.min(...pressure) - 0.1;
-        const pMax = Math.max(...pressure) + 0.1;
-        drawLine(ctx, pressure, hours, '#1a1a1a', pMin, pMax, w, h, pad);
+        drawLine(ctx, pressure, hours, '#1a1a1a', r.pressure.min, r.pressure.max, w, h, pad);
     }
 
     // Precipitation
@@ -2026,6 +2043,248 @@ function drawAllCharts(hourly, hours, r) {
         }
     }
 }
+
+// --- 10-day chart cursor -----------------------------------------------------
+// A vertical line across every chart that reads out each series at one hour.
+// Mouse: follows the pointer, hides on leave. Touch: tap a chart to drop the
+// line there, or drag the footer handle (CSS shows the handle only on coarse
+// pointers); until then the handle parks on the dashed "now" line.
+// It's all HTML over the canvases, so moving it never redraws a chart. The
+// y-math in draw() mirrors drawLine() and the precip bars in drawAllCharts —
+// change one, change the other.
+
+const FC_LABEL_GAP = 14;    // min px between stacked labels on one chart
+const FC_LABEL_OFFSET = 7;  // px from the line to its labels (matches CSS)
+let _fcCursorRender = null; // current forecast's render(), for window resize
+
+function initForecastCursor(hourly, hours, r, w, axisW) {
+    _fcCursorRender = null;
+    const scrollEl = document.querySelector('.forecast-scroll');
+    const outer = document.querySelector('.forecast-scroll-outer');
+    const header = scrollEl && scrollEl.querySelector('.forecast-header');
+    const footer = scrollEl && scrollEl.querySelector('.forecast-footer');
+    if (!outer || !header || !footer || hours < 2) return;
+
+    const col = (key) => hourly[key].slice(0, hours);
+    const precip = col('precipitation');
+    const accum = [];
+    let total = 0;
+    for (let i = 0; i < hours; i++) { total += precip[i] || 0; accum.push(total); }
+    const dirs = col('wind_direction_10m');
+    const deg = (v) => Math.round(v) + tempUnit();
+    const pct = (v) => Math.round(v) + '%';
+
+    // [canvas id, canvas padding as drawn, series]. `bar` marks the hourly
+    // precip bars: label anchored to the bar top, and no dot.
+    const SPECS = [
+        ['chart-temp', 10, [
+            { c: '#dc2626', d: col('temperature_2m'), min: r.temp.min, max: r.temp.max, fmt: deg },
+            { c: '#9333ea', d: col('apparent_temperature'), min: r.temp.min, max: r.temp.max, fmt: deg },
+            { c: '#16a34a', d: col('dew_point_2m'), min: r.temp.min, max: r.temp.max, fmt: deg },
+        ]],
+        ['chart-atmos', 10, [
+            { c: '#9ca3af', d: col('cloud_cover'), min: 0, max: 100, fmt: pct },
+            { c: '#3b82f6', d: col('precipitation_probability'), min: 0, max: 100, fmt: pct },
+            { c: '#84cc16', d: col('relative_humidity_2m'), min: 0, max: 100, fmt: pct },
+            { c: 'var(--text)', d: col('pressure_msl'), min: r.pressure.min, max: r.pressure.max, fmt: fmtPressure },
+        ]],
+        ['chart-precip', 8, [
+            { c: '#3b82f6', d: accum, min: 0, max: r.precip.maxAccum, fmt: fmtPrecip },
+            { c: '#16a34a', d: precip, bar: r.precip.maxHourly, fmt: fmtPrecip },
+        ]],
+        ['chart-wind', 8, [
+            { c: '#2563eb', d: col('wind_speed_10m'), min: 0, max: r.wind.max,
+              fmt: (v, i) => `${Math.round(v)} ${windUnit()} ${windDirection(dirs[i])}` },
+        ]],
+    ];
+
+    const div = (cls, parent) => {
+        const el = document.createElement('div');
+        el.className = cls;
+        parent.appendChild(el);
+        return el;
+    };
+
+    const charts = [];
+    for (const [id, pad, series] of SPECS) {
+        const canvas = document.getElementById(id);
+        if (!canvas) continue;
+        const h = canvas.height;
+        // Inside .chart-row-inner, so it follows the row when charts are
+        // reordered or hidden.
+        const layer = div('fc-cursor', canvas.parentElement);
+        layer.setAttribute('aria-hidden', 'true');
+        layer.style.cssText = `left:${axisW}px;width:${w}px;height:${h}px;`;
+        const line = div('fc-line', layer);
+        const items = series.map((s) => {
+            const dot = s.bar === undefined ? div('fc-dot', layer) : null;
+            const label = div('fc-label', layer);
+            if (dot) dot.style.setProperty('--c', s.c);
+            label.style.setProperty('--c', s.c);
+            return { s, dot, label };
+        });
+        charts.push({ h, pad, layer, line, items, placed: [], labelW: 0 });
+    }
+
+    const time = div('fc-time', header);
+    time.setAttribute('aria-hidden', 'true');
+    const handle = div('fc-handle', footer);
+    handle.setAttribute('aria-hidden', 'true');
+    handle.setAttribute('data-no-drag-scroll', '');
+    handle.innerHTML = '<span class="fc-grip"><svg width="14" height="10" viewBox="0 0 14 10"><path d="M0 5l4-4v8zM14 5l-4-4v8z" fill="currentColor"/></svg></span>';
+
+    const xOf = (i) => (i / (hours - 1)) * w;
+    const elapsed = (locationNow() - new Date(hourly.time[0])) / 3600000;
+    const nowX = xOf(Math.min(hours - 1, Math.max(0, elapsed)));
+
+    // The visible stretch of the canvases, in canvas px: the sticky axes
+    // cover axisW at each side of the scroller.
+    function visibleRange() {
+        const o = outer.getBoundingClientRect();
+        const canvasLeft = scrollEl.getBoundingClientRect().left + axisW;
+        return { canvasLeft, lo: o.left + axisW - canvasLeft, hi: o.right - axisW - canvasLeft };
+    }
+
+    function idxAt(clientX) {
+        const v = visibleRange();
+        const x = Math.min(Math.max(clientX - v.canvasLeft, v.lo, 0), v.hi, w);
+        return Math.round((x / w) * (hours - 1));
+    }
+
+    const st = { hoverIdx: null, touchIdx: null, drawnIdx: null, mouseX: null, dragX: null, raf: 0 };
+
+    function draw(idx) {
+        const x = xOf(idx);
+        for (const ch of charts) {
+            ch.line.style.left = x + 'px';
+            const drawH = ch.h - ch.pad * 2;
+            const placed = [];
+            for (const it of ch.items) {
+                const v = it.s.d[idx];
+                const ok = typeof v === 'number' && Number.isFinite(v);
+                it.label.hidden = !ok;
+                if (it.dot) it.dot.hidden = !ok;
+                if (!ok) continue;
+                const y = it.s.bar !== undefined
+                    ? ch.h - ch.pad - (v / it.s.bar) * drawH * 0.4
+                    : ch.pad + drawH - ((v - it.s.min) / ((it.s.max - it.s.min) || 1)) * drawH;
+                if (it.dot) { it.dot.style.left = x + 'px'; it.dot.style.top = y + 'px'; }
+                it.label.textContent = it.s.fmt(v, idx);
+                it.label.style.left = x + 'px';
+                placed.push({ el: it.label, y });
+            }
+            // Nudge labels apart (top-down, then bottom-up) so lines that run
+            // close together (temp vs. feels-like especially) stay readable.
+            placed.sort((a, b) => a.y - b.y);
+            for (let k = 0; k < placed.length; k++) {
+                placed[k].y = Math.max(placed[k].y, k ? placed[k - 1].y + FC_LABEL_GAP : FC_LABEL_GAP / 2);
+            }
+            for (let k = placed.length - 1; k >= 0; k--) {
+                placed[k].y = Math.min(placed[k].y, k < placed.length - 1 ? placed[k + 1].y - FC_LABEL_GAP : ch.h - FC_LABEL_GAP / 2);
+            }
+            for (const p of placed) p.el.style.top = p.y + 'px';
+            ch.placed = placed;
+        }
+        // Measure after all the writes: one layout pass, not one per chart.
+        for (const ch of charts) ch.labelW = Math.max(0, ...ch.placed.map((p) => p.el.offsetWidth));
+        const d = new Date(hourly.time[idx]);
+        time.textContent = `${d.toLocaleDateString(getLocaleForDate(), { weekday: 'short' })} ${hourLabel(d.getHours())}`;
+        time.style.left = (axisW + x) + 'px';
+    }
+
+    function render() {
+        const idx = st.hoverIdx !== null ? st.hoverIdx : st.touchIdx;
+        handle.style.left = (axisW + (st.touchIdx !== null ? xOf(st.touchIdx) : nowX)) + 'px';
+        scrollEl.classList.toggle('fc-on', idx !== null);
+        if (idx === null) return;
+        if (idx !== st.drawnIdx) { draw(idx); st.drawnIdx = idx; }
+        // Labels sit right of the line unless they'd run under the right axis.
+        const hi = visibleRange().hi;
+        for (const ch of charts) {
+            ch.layer.classList.toggle('fc-flip', xOf(idx) + FC_LABEL_OFFSET + ch.labelW > hi);
+        }
+    }
+
+    // Mouse: hover anywhere over the forecast; over the axes hides the line.
+    function hoverFromMouse() {
+        const o = outer.getBoundingClientRect();
+        const inside = st.mouseX !== null && st.mouseX >= o.left + axisW && st.mouseX <= o.right - axisW;
+        st.hoverIdx = inside ? idxAt(st.mouseX) : null;
+        render();
+    }
+    outer.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        st.mouseX = e.clientX;
+        hoverFromMouse();
+    });
+    outer.addEventListener('pointerleave', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        st.mouseX = null;
+        hoverFromMouse();
+    });
+
+    // Touch: a tap (not a scroll swipe — the browser cancels those) on a
+    // chart drops the line there.
+    let tap = null;
+    outer.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' || e.target.closest('.fc-handle')) return;
+        tap = { id: e.pointerId, x: e.clientX, y: e.clientY, t: Date.now() };
+    });
+    outer.addEventListener('pointercancel', () => { tap = null; });
+    outer.addEventListener('pointerup', (e) => {
+        if (!tap || e.pointerId !== tap.id) return;
+        const isTap = Math.abs(e.clientX - tap.x) < 10 && Math.abs(e.clientY - tap.y) < 10 && Date.now() - tap.t < 500;
+        tap = null;
+        if (!isTap || !e.target.closest('.chart-row-inner') || e.target.closest('.chart-axis')) return;
+        st.touchIdx = idxAt(e.clientX);
+        render();
+    });
+
+    // Touch: drag the handle. Near either edge the days scroll along.
+    function autoScroll() {
+        st.raf = 0;
+        if (st.dragX === null) return;
+        const o = outer.getBoundingClientRect();
+        const EDGE = 32;
+        const left = o.left + axisW + EDGE;
+        const right = o.right - axisW - EDGE;
+        const v = st.dragX < left ? (st.dragX - left) / 4 : st.dragX > right ? (st.dragX - right) / 4 : 0;
+        if (v) {
+            outer.scrollLeft += Math.sign(v) * Math.min(12, Math.max(1, Math.round(Math.abs(v))));
+            st.touchIdx = idxAt(st.dragX);
+            render();
+        }
+        st.raf = requestAnimationFrame(autoScroll);
+    }
+    handle.addEventListener('pointerdown', (e) => {
+        e.preventDefault(); // no compat mouse events, so no drag-scroll
+        handle.setPointerCapture(e.pointerId);
+        st.dragX = e.clientX;
+        st.touchIdx = idxAt(e.clientX);
+        render();
+        if (!st.raf) st.raf = requestAnimationFrame(autoScroll);
+    });
+    handle.addEventListener('pointermove', (e) => {
+        if (st.dragX === null) return;
+        st.dragX = e.clientX;
+        st.touchIdx = idxAt(e.clientX);
+        render();
+    });
+    const endDrag = () => { st.dragX = null; };
+    handle.addEventListener('pointerup', endDrag);
+    handle.addEventListener('pointercancel', endDrag);
+
+    outer.addEventListener('scroll', () => {
+        // Mouse drag-scroll: keep the line under the (still) cursor.
+        if (st.mouseX !== null) hoverFromMouse();
+        else render();
+    }, { passive: true });
+
+    _fcCursorRender = render;
+    render();
+}
+
+window.addEventListener('resize', () => { if (_fcCursorRender) _fcCursorRender(); });
 
 function escapeHtml(s) {
     return String(s || '').replace(/[&<>"']/g, c => ({
