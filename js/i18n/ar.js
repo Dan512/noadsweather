@@ -51,6 +51,8 @@ TRANSLATIONS.ar = {
 
         // Settings labels
         settingForecastColors: 'عرض خلفيات ملونة في توقعات 10 أيام',
+        settingChartCursor: 'عرض الخط المتحرك في توقعات 10 أيام',
+        copyDisplayLink: 'نسخ رابط لشاشة تلفاز',
         settingSupportBtn: 'عرض زر الدعم المزعج',
         settingWeatherSummary: 'عرض ملخص الطقس',
         settingThemeToggle: 'عرض زر الوضع الفاتح / الوضع الداكن',

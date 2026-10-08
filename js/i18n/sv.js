@@ -51,6 +51,8 @@ TRANSLATIONS.sv = {
 
         // Settings labels
         settingForecastColors: 'Visa färgbakgrunder i 10-dagarsprognosen',
+        settingChartCursor: 'Visa flyttbar linje i 10-dagarsprognosen',
+        copyDisplayLink: 'Kopiera länk för TV-skärm',
         settingSupportBtn: 'Visa irriterande stödknapp',
         settingWeatherSummary: 'Visa vädersammanfattning',
         settingThemeToggle: 'Visa knappen Ljust läge / Mörkt läge',

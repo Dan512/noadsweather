@@ -51,6 +51,8 @@ TRANSLATIONS.nl = {
 
         // Settings labels
         settingForecastColors: 'Gekleurde achtergronden tonen in 10-daagse verwachting',
+        settingChartCursor: 'Verschuifbare lijn tonen in 10-daagse verwachting',
+        copyDisplayLink: 'Link kopiëren voor een tv-scherm',
         settingSupportBtn: 'Irritante ondersteuningsknop tonen',
         settingWeatherSummary: 'Weeroverzicht tonen',
         settingThemeToggle: 'Lichte / Donkere modus-knop tonen',

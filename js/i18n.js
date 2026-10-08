@@ -63,6 +63,8 @@ const TRANSLATIONS = {
 
         // Settings labels
         settingForecastColors: 'Show color backgrounds on 10-day forecast',
+        settingChartCursor: 'Show moveable line on 10-day forecast',
+        copyDisplayLink: 'Copy link for a TV display',
         settingSupportBtn: 'Show Annoying Support Button',
         settingWeatherSummary: 'Show weather summary',
         settingThemeToggle: 'Show Light Mode / Dark Mode button',

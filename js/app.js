@@ -150,6 +150,21 @@ const DEFAULT_SECTION_ORDER = [
     'radar-section', 'sun-section', 'moon-section'
 ];
 
+// --- Display links (TV / signage) ---------------------------------------------
+// ?display=1 makes a hands-off screen: [data-display] CSS hides every control,
+// ?show=current,hourly limits the sections, ?alerts=0 hides alerts, and data
+// refetches every 10 min. A display link never writes the saved layout, so
+// opening one on your own phone leaves your layout alone.
+const _displayParams = new URLSearchParams(location.search);
+const DISPLAY_MODE = _displayParams.get('display') === '1';
+// Allowlisted: only real section ids survive, whatever the URL says.
+const DISPLAY_SHOW = DISPLAY_MODE && _displayParams.has('show')
+    ? _displayParams.get('show').split(',').map(s => s.trim() + '-section').filter(id => DEFAULT_SECTION_ORDER.includes(id))
+    : null;
+document.documentElement.toggleAttribute('data-display', DISPLAY_MODE);
+document.documentElement.toggleAttribute('data-display-noalerts', DISPLAY_MODE && _displayParams.get('alerts') === '0');
+if (DISPLAY_MODE) document.getElementById('back-btn').textContent = 'NoAdsWeather'; // attribution, not a button
+
 // Default layout: ordered list with column assignments
 // 'left', 'right', or 'wide'
 const DEFAULT_LAYOUT_LIST = [
@@ -211,10 +226,15 @@ function loadSectionPrefs() {
     prefs.chartOrder = onlyValid(prefs.chartOrder, VALID_CHART_IDS);
     prefs.hiddenCharts = onlyValid(prefs.hiddenCharts || [], VALID_CHART_IDS);
     if (!prefs.layoutList) prefs.layoutList = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_LIST));
+    if (DISPLAY_SHOW) {
+        prefs.hidden = DEFAULT_SECTION_ORDER.filter(id => !DISPLAY_SHOW.includes(id));
+        prefs.minimized = [];
+    }
     return prefs;
 }
 
 function saveSectionPrefs(prefs) {
+    if (DISPLAY_MODE) return; // display links are view-only
     localStorage.setItem('sectionPrefs', JSON.stringify(prefs));
 }
 
@@ -2193,6 +2213,8 @@ function initForecastCursor(hourly, hours, r, w, axisW) {
     }
 
     function render() {
+        // Turned off in settings (see applySettings); CSS already hides it.
+        if (document.documentElement.hasAttribute('data-chart-cursor-off')) return;
         const idx = st.hoverIdx !== null ? st.hoverIdx : st.touchIdx;
         handle.style.left = (axisW + (st.touchIdx !== null ? xOf(st.touchIdx) : nowX)) + 'px';
         scrollEl.classList.toggle('fc-on', idx !== null);
@@ -3780,7 +3802,9 @@ function refreshWeather(opts) {
     if (_lastLat === null) return;
     if (refreshBtn) refreshBtn.classList.add('refreshing');
     const clear = () => { if (refreshBtn) refreshBtn.classList.remove('refreshing'); };
-    if (_lastLocationGeolocated) {
+    // A display screen stays on the coordinates in its link: re-locating
+    // would also pushState a new URL and drop the display params.
+    if (_lastLocationGeolocated && !DISPLAY_MODE) {
         if (opts.userInitiated) {
             // Explicit refresh of "My location" re-reads the position — the
             // user may have moved since the pin was pressed.
@@ -3821,6 +3845,9 @@ document.addEventListener('visibilitychange', () => {
 // Keep the "X ago" label current while the page sits open. Background tabs
 // throttle timers, but the visibilitychange handler above catches up on return.
 setInterval(renderFreshness, 60000);
+
+// A display screen is never "returned to", so visibilitychange never fires.
+if (DISPLAY_MODE) setInterval(() => refreshWeather(), 5 * 60 * 1000);
 
 // Auto-locate on bare visits — opt-in via the autoLocate setting, and only
 // when the Permissions API confirms the grant already exists (so this path
@@ -3927,6 +3954,11 @@ function applySettings() {
     // the city page's inline <head> script sets — one source of truth.
     document.documentElement.toggleAttribute('data-climate-hidden', !getSettingsBool('showClimate'));
 
+    // 10-day chart cursor: CSS hides it off this attribute (so toggling is
+    // instant) and initForecastCursor's render() skips its work.
+    document.documentElement.toggleAttribute('data-chart-cursor-off', !getSettingsBool('showChartCursor'));
+    if (_fcCursorRender) _fcCursorRender(); // re-place the handle when turned back on
+
     // Theme toggle button
     const themeBtn = document.getElementById('theme-toggle');
     if (themeBtn) themeBtn.style.display = getSettingsBool('showThemeToggle') ? '' : 'none';
@@ -3969,6 +4001,30 @@ function applySettings() {
 document.getElementById('settings-toggle').addEventListener('click', () => {
     const popover = document.getElementById('settings-popover');
     popover.hidden = !popover.hidden;
+    // A display link needs a city on screen to point at.
+    if (_displayLinkBtn) _displayLinkBtn.disabled = document.getElementById('weather-view').hidden;
+});
+
+// Display link = this page + ?display=1 + the sections currently showing
+// (hidden or minimized ones are left out). Guarded like _shareBtnEl: a
+// cached older page without the button must not halt the rest of app.js.
+const _displayLinkBtn = document.getElementById('copy-display-link');
+if (_displayLinkBtn) _displayLinkBtn.addEventListener('click', (e) => {
+    const btn = e.currentTarget;
+    const prefs = loadSectionPrefs();
+    const show = DEFAULT_SECTION_ORDER
+        .filter(id => !prefs.hidden.includes(id) && !prefs.minimized.includes(id))
+        .map(id => id.replace('-section', ''));
+    const url = new URL(location.href);
+    url.hash = '';
+    url.searchParams.set('display', '1');
+    url.searchParams.set('show', show.join(','));
+    const link = url.toString().replace(/%2C/g, ',');
+    const label = t('copyDisplayLink');
+    (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(() => {
+        btn.textContent = t('shareLinkCopied');
+        setTimeout(() => { btn.textContent = label; }, 1500);
+    }).catch(() => window.prompt(label, link)); // clipboard blocked: copy it by hand
 });
 
 // Close on outside click
@@ -3997,6 +4053,7 @@ document.querySelectorAll('#settings-popover input[data-setting]').forEach(cb =>
 // Revert to defaults
 document.getElementById('settings-revert').addEventListener('click', () => {
     localStorage.setItem('showForecastColors', 'true');
+    localStorage.setItem('showChartCursor', 'true');
     localStorage.setItem('showSupportBtn', 'true');
     localStorage.setItem('showWeatherSummary', 'true');
     localStorage.setItem('showThemeToggle', 'true');

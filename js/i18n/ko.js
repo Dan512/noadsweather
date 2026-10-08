@@ -51,6 +51,8 @@ TRANSLATIONS.ko = {
 
         // Settings labels
         settingForecastColors: '10일 예보에 색상 배경 표시',
+        settingChartCursor: '10일 예보에 이동 가능한 선 표시',
+        copyDisplayLink: 'TV 화면용 링크 복사',
         settingSupportBtn: '귀찮은 후원 버튼 표시',
         settingWeatherSummary: '날씨 요약 표시',
         settingThemeToggle: '라이트 모드 / 다크 모드 버튼 표시',

@@ -51,6 +51,8 @@ TRANSLATIONS.hi = {
 
         // Settings labels
         settingForecastColors: '10-दिवसीय पूर्वानुमान पर रंगीन पृष्ठभूमि दिखाएं',
+        settingChartCursor: '10-दिवसीय पूर्वानुमान पर खिसकाने योग्य रेखा दिखाएं',
+        copyDisplayLink: 'टीवी डिस्प्ले के लिए लिंक कॉपी करें',
         settingSupportBtn: 'परेशान करने वाला सहायता बटन दिखाएं',
         settingWeatherSummary: 'मौसम सारांश दिखाएं',
         settingThemeToggle: 'लाइट मोड / डार्क मोड बटन दिखाएं',

@@ -51,6 +51,8 @@ TRANSLATIONS.pl = {
 
         // Settings labels
         settingForecastColors: 'Pokaż kolorowe tła w prognozie 10-dniowej',
+        settingChartCursor: 'Pokaż przesuwaną linię w prognozie 10-dniowej',
+        copyDisplayLink: 'Kopiuj link do wyświetlania na ekranie TV',
         settingSupportBtn: 'Pokaż irytujący przycisk wsparcia',
         settingWeatherSummary: 'Pokaż podsumowanie pogody',
         settingThemeToggle: 'Pokaż przycisk Tryb jasny / Tryb ciemny',

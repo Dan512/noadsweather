@@ -51,6 +51,8 @@ TRANSLATIONS.pt = {
 
         // Settings labels
         settingForecastColors: 'Mostrar fundos coloridos na previsão de 10 dias',
+        settingChartCursor: 'Mostrar linha móvel na previsão de 10 dias',
+        copyDisplayLink: 'Copiar link para tela de TV',
         settingSupportBtn: 'Mostrar botão chato de apoio',
         settingWeatherSummary: 'Mostrar resumo do clima',
         settingThemeToggle: 'Mostrar botão Modo claro / Modo escuro',

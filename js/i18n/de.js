@@ -51,6 +51,8 @@ TRANSLATIONS.de = {
 
         // Settings labels
         settingForecastColors: 'Farbige Hintergründe in der 10-Tage-Vorhersage anzeigen',
+        settingChartCursor: 'Verschiebbare Linie in der 10-Tage-Vorhersage anzeigen',
+        copyDisplayLink: 'Link für einen TV-Bildschirm kopieren',
         settingSupportBtn: 'Nervigen Unterstützungsbutton anzeigen',
         settingWeatherSummary: 'Wetterzusammenfassung anzeigen',
         settingThemeToggle: 'Hell-/Dunkelmodus-Schaltfläche anzeigen',

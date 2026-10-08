@@ -51,6 +51,8 @@ TRANSLATIONS.ja = {
 
         // Settings labels
         settingForecastColors: '10日間予報に色付き背景を表示',
+        settingChartCursor: '10日間予報に移動できるラインを表示',
+        copyDisplayLink: 'テレビ表示用のリンクをコピー',
         settingSupportBtn: '目立つ応援ボタンを表示',
         settingWeatherSummary: '天気の概要を表示',
         settingThemeToggle: 'ライトモード / ダークモードのボタンを表示',

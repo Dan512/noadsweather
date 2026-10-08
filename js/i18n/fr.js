@@ -51,6 +51,8 @@ TRANSLATIONS.fr = {
 
         // Settings labels
         settingForecastColors: 'Afficher les fonds colorés sur les prévisions à 10 jours',
+        settingChartCursor: 'Afficher la ligne mobile sur les prévisions à 10 jours',
+        copyDisplayLink: 'Copier le lien pour un écran TV',
         settingSupportBtn: 'Afficher le bouton de soutien gênant',
         settingWeatherSummary: 'Afficher le résumé météo',
         settingThemeToggle: 'Afficher le bouton Mode clair / Mode sombre',

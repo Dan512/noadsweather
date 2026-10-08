@@ -1250,6 +1250,32 @@ html[data-climate-hidden] .climate-block { display: none; }
     background: var(--btn-hover-bg);
 }
 
+/* Display links (?display=1, see app.js): a hands-off TV/signage screen.
+   Every control goes; the NoAdsWeather name stays as plain attribution. */
+[data-display] .weather-toggles,
+[data-display] #refresh-btn,
+[data-display] #theme-toggle,
+[data-display] #settings-toggle,
+[data-display] #donate-btn,
+[data-display] .section-controls,
+[data-display] #hidden-sections-bar,
+[data-display] #hidden-charts-bar,
+[data-display] .chart-drag-handle,
+[data-display] .chart-min-btn,
+[data-display] .alert-dismiss,
+[data-display] #seo-blurb,
+[data-display] .climate-block,
+[data-display] .bottom-spacer,
+[data-display-noalerts] #alerts-section {
+    display: none !important;
+}
+
+[data-display] #back-btn {
+    border: none;
+    padding-left: 0;
+    pointer-events: none;
+}
+
 /* Units toggle */
 .units-toggle {
     background: var(--card-bg);
@@ -1620,12 +1646,15 @@ section h2 {
     margin-bottom: 1rem;
 }
 
-/* Empty column rows: collapsed normally, expand during drag */
-.columns-row:not(:has(section)):not(:has(.drag-placeholder)) {
+/* Empty column rows: collapsed normally, expand during drag. A row holding
+   only hidden sections (every hide path in app.js sets inline display:none)
+   counts as empty too, or it leaves a big gap between two wide sections. */
+.columns-row:not(:has(section:not([style*="display: none"]))):not(:has(.drag-placeholder)) {
     margin: 0;
+    gap: 0;
 }
 
-.columns-row:not(:has(section)):not(:has(.drag-placeholder)) .weather-col {
+.columns-row:not(:has(section:not([style*="display: none"]))):not(:has(.drag-placeholder)) .weather-col {
     min-height: 0;
 }
 
@@ -1649,6 +1678,12 @@ body.is-dragging .weather-col:empty {
     .columns-row {
         flex-direction: column;
         align-items: stretch;
+    }
+    /* Stacked, an empty column would still add its min-height plus the row
+       gap. Safe to drop: section dragging (the only drop-target use) is
+       off at this width. */
+    .weather-col:not(:has(section:not([style*="display: none"]))) {
+        display: none;
     }
     .section-controls {
         opacity: 1;
@@ -1822,6 +1857,9 @@ body.is-dragging .weather-col:empty {
 .forecast-scroll-outer {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    /* The canvases always draw day 1 at the left, so the timeline stays LTR
+       even in Arabic; otherwise RTL flips the day headers against the data. */
+    direction: ltr;
 }
 
 .forecast-header {
@@ -1839,6 +1877,12 @@ body.is-dragging .weather-col:empty {
 
 .forecast-day:last-child {
     border-right: none;
+}
+
+/* Only the column order is forced LTR (above); text inside a day still reads RTL. */
+[dir="rtl"] .forecast-day,
+[dir="rtl"] .forecast-footer-day {
+    direction: rtl;
 }
 
 .forecast-date {
@@ -2108,6 +2152,20 @@ body.is-dragging .weather-col:empty {
         touch-action: none;
         user-select: none;
         -webkit-user-select: none;
+    }
+}
+
+/* Settings: "Show moveable line on 10-day forecast" unchecked. Also drops
+   the extra footer padding that only exists to make room for the handle. */
+[data-chart-cursor-off] .fc-cursor,
+[data-chart-cursor-off] .fc-time,
+[data-chart-cursor-off] .fc-handle {
+    display: none !important;
+}
+
+@media (pointer: coarse) {
+    [data-chart-cursor-off] .forecast-footer {
+        padding-top: 0.5rem;
     }
 }
 

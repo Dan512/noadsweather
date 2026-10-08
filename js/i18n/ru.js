@@ -51,6 +51,8 @@ TRANSLATIONS.ru = {
 
         // Settings labels
         settingForecastColors: 'Показывать цветной фон в 10-дневном прогнозе',
+        settingChartCursor: 'Показывать подвижную линию в 10-дневном прогнозе',
+        copyDisplayLink: 'Копировать ссылку для экрана ТВ',
         settingSupportBtn: 'Показывать назойливую кнопку поддержки',
         settingWeatherSummary: 'Показывать сводку погоды',
         settingThemeToggle: 'Показывать кнопку Светлый / Тёмный режим',

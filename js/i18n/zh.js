@@ -51,6 +51,8 @@ TRANSLATIONS.zh = {
 
         // Settings labels
         settingForecastColors: '在10天预报上显示彩色背景',
+        settingChartCursor: '在10天预报上显示可移动的线',
+        copyDisplayLink: '复制用于电视显示的链接',
         settingSupportBtn: '显示烦人的支持按钮',
         settingWeatherSummary: '显示天气摘要',
         settingThemeToggle: '显示浅色 / 深色模式按钮',
