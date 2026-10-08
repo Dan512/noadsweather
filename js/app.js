@@ -152,14 +152,18 @@ const DEFAULT_SECTION_ORDER = [
 
 // --- Display links (TV / signage) ---------------------------------------------
 // ?display=1 makes a hands-off screen: [data-display] CSS hides every control,
-// ?show=current,hourly limits the sections, ?alerts=0 hides alerts, and data
-// refetches every 10 min. A display link never writes the saved layout, so
+// ?show=current:left,hourly:right sets the sections, their order and column
+// (left/right/wide; a bare name keeps this browser's column), ?alerts=0 hides
+// alerts, and data refetches every 5 min. A display link never writes the saved layout, so
 // opening one on your own phone leaves your layout alone.
 const _displayParams = new URLSearchParams(location.search);
 const DISPLAY_MODE = _displayParams.get('display') === '1';
-// Allowlisted: only real section ids survive, whatever the URL says.
+// Allowlisted: only real section ids and columns survive, whatever the URL says.
 const DISPLAY_SHOW = DISPLAY_MODE && _displayParams.has('show')
-    ? _displayParams.get('show').split(',').map(s => s.trim() + '-section').filter(id => DEFAULT_SECTION_ORDER.includes(id))
+    ? _displayParams.get('show').split(',').map(s => {
+        const [name, col] = s.trim().split(':');
+        return { id: name + '-section', col: ['left', 'right', 'wide'].includes(col) ? col : null };
+    }).filter(s => DEFAULT_SECTION_ORDER.includes(s.id))
     : null;
 document.documentElement.toggleAttribute('data-display', DISPLAY_MODE);
 document.documentElement.toggleAttribute('data-display-noalerts', DISPLAY_MODE && _displayParams.get('alerts') === '0');
@@ -227,8 +231,12 @@ function loadSectionPrefs() {
     prefs.hiddenCharts = onlyValid(prefs.hiddenCharts || [], VALID_CHART_IDS);
     if (!prefs.layoutList) prefs.layoutList = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_LIST));
     if (DISPLAY_SHOW) {
-        prefs.hidden = DEFAULT_SECTION_ORDER.filter(id => !DISPLAY_SHOW.includes(id));
+        prefs.hidden = DEFAULT_SECTION_ORDER.filter(id => !DISPLAY_SHOW.some(s => s.id === id));
         prefs.minimized = [];
+        prefs.layoutList = DISPLAY_SHOW.map(s => ({
+            id: s.id,
+            col: s.col || (prefs.layoutList.find(x => x.id === s.id) || { col: 'left' }).col,
+        }));
     }
     return prefs;
 }
@@ -4005,21 +4013,21 @@ document.getElementById('settings-toggle').addEventListener('click', () => {
     if (_displayLinkBtn) _displayLinkBtn.disabled = document.getElementById('weather-view').hidden;
 });
 
-// Display link = this page + ?display=1 + the sections currently showing
-// (hidden or minimized ones are left out). Guarded like _shareBtnEl: a
+// Display link = this page + ?display=1 + the sections currently showing, in
+// layout order with their columns (hidden or minimized ones are left out). Guarded like _shareBtnEl: a
 // cached older page without the button must not halt the rest of app.js.
 const _displayLinkBtn = document.getElementById('copy-display-link');
 if (_displayLinkBtn) _displayLinkBtn.addEventListener('click', (e) => {
     const btn = e.currentTarget;
     const prefs = loadSectionPrefs();
-    const show = DEFAULT_SECTION_ORDER
-        .filter(id => !prefs.hidden.includes(id) && !prefs.minimized.includes(id))
-        .map(id => id.replace('-section', ''));
+    const show = prefs.layoutList
+        .filter(item => !prefs.hidden.includes(item.id) && !prefs.minimized.includes(item.id))
+        .map(item => item.id.replace('-section', '') + ':' + item.col);
     const url = new URL(location.href);
     url.hash = '';
     url.searchParams.set('display', '1');
     url.searchParams.set('show', show.join(','));
-    const link = url.toString().replace(/%2C/g, ',');
+    const link = url.toString().replace(/%2C/g, ',').replace(/%3A/g, ':');
     const label = t('copyDisplayLink');
     (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(() => {
         btn.textContent = t('shareLinkCopied');
