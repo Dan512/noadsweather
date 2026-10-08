@@ -4084,7 +4084,7 @@ applySettings();
 
 // --- URL State ---------------------------------------------------------------
 
-function updateURL(query, location) {
+function updateURL(query, location, replace) {
     const params = new URLSearchParams({ q: query });
     if (location) {
         params.set('lat', location.lat.toFixed(4));
@@ -4099,7 +4099,7 @@ function updateURL(query, location) {
     // produce /cities/los-angeles-ca/?lat=<somewhere-else>, so a refresh would
     // reload that city's page and its baked-in window._seoCity would drag the
     // user back to the wrong city.
-    history.pushState(null, '', `/?${params}`);
+    history[replace ? 'replaceState' : 'pushState'](null, '', `/?${params}`);
 }
 
 function getLocationFromURL() {
@@ -4269,6 +4269,9 @@ async function loadFromURL() {
     // No URL params? Try the saved "last city" if the setting allows it.
     if (!urlData && getSettingsBool('rememberLastCity')) {
         urlData = getLocationFromStorage();
+        // Show the resumed city in the address bar so copied/shared links carry it.
+        // Not on a display screen: that would drop its display params.
+        if (urlData && !DISPLAY_MODE) updateURL(urlData.query, urlData.location, true);
     }
     // Whether we resumed or not, the inline gate in <head> can now release.
     document.documentElement.removeAttribute('data-auto-resume');
