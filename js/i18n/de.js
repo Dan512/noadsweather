@@ -280,6 +280,7 @@ TRANSLATIONS.de = {
         didYouMean: 'Meintest du:',
         locationNotFound: 'Standort nicht gefunden. Versuche eine andere Stadt oder Postleitzahl.',
         failedToLoadWeather: 'Wetterdaten konnten nicht geladen werden. Bitte erneut versuchen.',
+        weatherUnreachable: 'Der Wetterdienst ist nicht erreichbar. Wenn Sie ein VPN nutzen, schalten Sie es aus oder wechseln Sie den Server.',
         retry: 'Erneut versuchen',
         hide: 'Ausblenden',
         close: 'Schließen',

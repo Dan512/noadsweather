@@ -1284,9 +1284,30 @@ async function fetchOpenMeteo(lat, lon) {
         timezone: 'auto',
         forecast_days: 10,
     });
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
-    if (!res.ok) throw new Error('Weather data request failed');
-    return res.json();
+    // Some VPN servers are blocked by Open-Meteo and drop the connection
+    // silently, so give up after 5 s and ask our own proxy to make the same
+    // request. If that fails too, report the original "unreachable".
+    try {
+        return await fetchForecastJson(`https://api.open-meteo.com/v1/forecast?${params}`, 5000);
+    } catch (err) {
+        if (err.message !== 'unreachable') throw err;
+        return fetchForecastJson(`${POLLEN_PROXY_URL}?type=forecast&${params}`, 15000)
+            .catch(() => { throw err; });
+    }
+}
+
+async function fetchForecastJson(url, timeoutMs) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { signal: controller.signal })
+            .catch(() => { throw new Error('unreachable'); }); // no response: offline, timed out, or blocked
+        if (res.status === 429) throw new Error('unreachable'); // per-IP rate limit, usually a shared VPN server
+        if (!res.ok) throw new Error('Weather data request failed');
+        return await res.json();
+    } finally {
+        clearTimeout(timeout);
+    }
 }
 
 async function fetchAirQuality(lat, lon) {
@@ -3537,10 +3558,11 @@ async function fetchAllWeatherData(lat, lon, country, region) {
         renderSunMoon(meteo.daily, lat, lon, meteo.utc_offset_seconds);
         applySectionPreferences();
         return meteo;
-    }).catch(() => {
+    }).catch((err) => {
+        console.error('Weather load failed:', err); // also catches render errors, so keep it visible
         if (myToken !== weatherLoadToken) return null;
         document.getElementById('current-section').innerHTML =
-            `<p class="error">${t('failedToLoadWeather')}</p>`;
+            `<p class="error">${t(err.message === 'unreachable' ? 'weatherUnreachable' : 'failedToLoadWeather')}</p>`;
         return null;
     });
 

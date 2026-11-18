@@ -44,6 +44,23 @@ functions.http('pollenProxy', async (req, res) => {
     if (!isAllowedRequest(req)) { res.status(403).json({ error: 'Forbidden' }); return; }
     if (req.method !== 'GET') { res.status(405).json({ error: 'Method not allowed' }); return; }
 
+    // Backup route for the main forecast: Open-Meteo blocks some VPN servers,
+    // so the browser asks us to make the identical request from here.
+    if (req.query.type === 'forecast') {
+        const params = new URL(req.originalUrl || req.url, 'http://localhost').searchParams;
+        params.delete('type');
+        try {
+            const upstream = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`,
+                { signal: AbortSignal.timeout(10000) });
+            if (!upstream.ok) console.error(`pollen-proxy: open-meteo status ${upstream.status}`);
+            res.status(upstream.status).type('application/json').send(await upstream.text());
+        } catch (err) {
+            console.error('pollen-proxy: open-meteo error:', err?.name, err?.message);
+            res.status(502).json({ error: 'Failed to fetch forecast' });
+        }
+        return;
+    }
+
     const lat = parseFloat(req.query.lat);
     const lon = parseFloat(req.query.lon);
     if (!Number.isFinite(lat) || !Number.isFinite(lon) ||

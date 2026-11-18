@@ -280,6 +280,7 @@ TRANSLATIONS.ko = {
         didYouMean: '다음을 찾으셨나요:',
         locationNotFound: '위치를 찾을 수 없습니다. 다른 도시나 우편번호를 시도해 보세요.',
         failedToLoadWeather: '날씨 데이터를 불러오지 못했습니다. 다시 시도해 주세요.',
+        weatherUnreachable: '날씨 서비스에 연결할 수 없습니다. VPN을 사용 중이라면 끄거나 서버를 바꿔 보세요.',
         retry: '다시 시도',
         hide: '숨기기',
         close: '닫기',

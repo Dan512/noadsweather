@@ -26,6 +26,14 @@ Returns the Google Pollen API response shape (`{ dailyInfo: [...] }`), passed th
 | `500` | API key not configured, or upstream failure with no cached response |
 | `502` | Upstream Google Pollen API returned a non-OK status |
 
+### Forecast fallback
+
+```
+GET pollen-proxy-<HASH>.run.app/?type=forecast&<Open-Meteo forecast query>
+```
+
+Makes the same `api.open-meteo.com/v1/forecast` request from Cloud Run and passes the status and body through unchanged (`502` if Open-Meteo can't be reached). The browser uses it only when it can't reach Open-Meteo directly, which happens on some VPN servers. Same Origin/Referer gate; no API key involved.
+
 ## Environment variables
 
 | Name | Required | Purpose |

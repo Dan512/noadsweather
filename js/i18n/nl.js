@@ -280,6 +280,7 @@ TRANSLATIONS.nl = {
         didYouMean: 'Bedoelde je:',
         locationNotFound: 'Locatie niet gevonden. Probeer een andere stad of postcode.',
         failedToLoadWeather: 'Kan weergegevens niet laden. Probeer het opnieuw.',
+        weatherUnreachable: 'Kan de weerdienst niet bereiken. Gebruik je een VPN? Zet die uit of kies een andere server.',
         retry: 'Opnieuw',
         hide: 'Verbergen',
         close: 'Sluiten',

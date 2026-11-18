@@ -280,6 +280,7 @@ TRANSLATIONS.zh = {
         didYouMean: '您是不是想找：',
         locationNotFound: '未找到位置。请尝试其他城市或邮政编码。',
         failedToLoadWeather: '加载天气数据失败。请重试。',
+        weatherUnreachable: '无法连接天气服务。如果您正在使用 VPN，请关闭它或切换服务器。',
         retry: '重试',
         hide: '隐藏',
         close: '关闭',

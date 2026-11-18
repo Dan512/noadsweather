@@ -280,6 +280,7 @@ TRANSLATIONS.es = {
         didYouMean: '¿Quisiste decir:',
         locationNotFound: 'Ubicación no encontrada. Prueba con otra ciudad o código postal.',
         failedToLoadWeather: 'No se pudieron cargar los datos del clima. Inténtalo de nuevo.',
+        weatherUnreachable: 'No se pudo conectar con el servicio meteorológico. Si usas una VPN, desactívala o cambia de servidor.',
         retry: 'Reintentar',
         hide: 'Ocultar',
         close: 'Cerrar',

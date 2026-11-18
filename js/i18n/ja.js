@@ -280,6 +280,7 @@ TRANSLATIONS.ja = {
         didYouMean: 'もしかして：',
         locationNotFound: '場所が見つかりません。別の都市または郵便番号をお試しください。',
         failedToLoadWeather: '天気データの読み込みに失敗しました。もう一度お試しください。',
+        weatherUnreachable: '天気サービスに接続できませんでした。VPNを使用している場合は、オフにするかサーバーを切り替えてください。',
         retry: '再試行',
         hide: '非表示',
         close: '閉じる',

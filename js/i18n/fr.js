@@ -280,6 +280,7 @@ TRANSLATIONS.fr = {
         didYouMean: 'Vouliez-vous dire :',
         locationNotFound: 'Lieu introuvable. Essayez une autre ville ou un autre code postal.',
         failedToLoadWeather: 'Échec du chargement des données météo. Veuillez réessayer.',
+        weatherUnreachable: 'Impossible de joindre le service météo. Si vous utilisez un VPN, désactivez-le ou changez de serveur.',
         retry: 'Réessayer',
         hide: 'Masquer',
         close: 'Fermer',

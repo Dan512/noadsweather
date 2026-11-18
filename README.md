@@ -30,7 +30,7 @@ Weather websites are some of the most bloated pages on the internet. A typical w
 
 - **Frontend:** Plain HTML, CSS, vanilla JavaScript — no frameworks, no bundler, no npm dependencies at runtime
 - **Hosting:** GitHub Pages (free)
-- **Weather data:** [Open-Meteo API](https://open-meteo.com/) (free, no API key)
+- **Weather data:** [Open-Meteo API](https://open-meteo.com/) (free, no API key), with a fallback through the pollen-proxy Cloud Run function when the browser can't reach it (some VPN servers are blocked)
 - **Radar:** [RainViewer API](https://www.rainviewer.com/api.html) (free) + [CartoDB](https://carto.com/basemaps/) map tiles
 - **Alerts:** [NWS API](https://www.weather.gov/documentation/services-web-api) (free, US only)
 - **Air quality:** [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api) (free)

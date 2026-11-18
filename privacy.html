@@ -89,7 +89,7 @@
         <p>This site does not use cookies, does not track your location, and does not collect any personal information. We don't use third-party analytics, fingerprinting, or any form of user tracking. We count visits ourselves — anonymously, as described below.</p>
         <p>When you search for a city or zip code, the coordinates of that location (not your personal location) are sent to the following third-party services to retrieve weather data:</p>
         <ul>
-            <li><strong>Open-Meteo</strong> — weather forecasts and air quality data (called directly from your browser)</li>
+            <li><strong>Open-Meteo</strong> — weather forecasts and air quality data (called directly from your browser). If your browser can't reach it, for example because it blocks your VPN server, the forecast request is sent through our own Cloud Run proxy (<code>pollen-proxy</code>) instead, with the same no-IP-logging configuration.</li>
             <li><strong>National Weather Service (NWS)</strong> — severe weather alerts for US locations (called directly)</li>
             <li><strong>RainViewer</strong> — past radar imagery (called directly)</li>
             <li><strong>OpenFreeMap</strong> — the map underneath the radar (called directly). Keyless and free — no API key or account ties tile requests to this site's visitors.</li>

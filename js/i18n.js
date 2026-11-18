@@ -292,6 +292,7 @@ const TRANSLATIONS = {
         didYouMean: 'Did you mean:',
         locationNotFound: 'Location not found. Try a different city or zip code.',
         failedToLoadWeather: 'Failed to load weather data. Please try again.',
+        weatherUnreachable: 'Couldn\'t reach the weather service. If you\'re using a VPN, try turning it off or switching servers.',
         retry: 'Retry',
         hide: 'Hide',
         close: 'Close',

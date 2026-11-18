@@ -280,6 +280,7 @@ TRANSLATIONS.it = {
         didYouMean: 'Forse cercavi:',
         locationNotFound: 'Posizione non trovata. Prova con un\'altra città o CAP.',
         failedToLoadWeather: 'Impossibile caricare i dati meteo. Riprova.',
+        weatherUnreachable: 'Impossibile raggiungere il servizio meteo. Se usi una VPN, prova a disattivarla o a cambiare server.',
         retry: 'Riprova',
         hide: 'Nascondi',
         close: 'Chiudi',

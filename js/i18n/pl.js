@@ -280,6 +280,7 @@ TRANSLATIONS.pl = {
         didYouMean: 'Czy chodziło Ci o:',
         locationNotFound: 'Nie znaleziono lokalizacji. Spróbuj innego miasta lub kodu pocztowego.',
         failedToLoadWeather: 'Nie udało się załadować danych pogodowych. Spróbuj ponownie.',
+        weatherUnreachable: 'Nie można połączyć się z serwisem pogodowym. Jeśli używasz VPN, wyłącz go lub zmień serwer.',
         retry: 'Ponów',
         hide: 'Ukryj',
         close: 'Zamknij',

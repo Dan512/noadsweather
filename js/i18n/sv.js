@@ -280,6 +280,7 @@ TRANSLATIONS.sv = {
         didYouMean: 'Menade du:',
         locationNotFound: 'Plats hittades inte. Försök med en annan stad eller postnummer.',
         failedToLoadWeather: 'Det gick inte att läsa in väderdata. Försök igen.',
+        weatherUnreachable: 'Det gick inte att nå vädertjänsten. Om du använder VPN, stäng av det eller byt server.',
         retry: 'Försök igen',
         hide: 'Dölj',
         close: 'Stäng',
